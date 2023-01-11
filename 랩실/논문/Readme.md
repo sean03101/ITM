@@ -6,13 +6,15 @@ COVID-19과 같은 바이러스 전염병의 확산은 보균자의 지역 간 �
 
 ### Dataset
 
+> KCDC에서 발표한 감염 사례 데이터셋
+
 |    **Variable**    |                                                            **Description**                                                           |
 |:------------------:|:------------------------------------------------------------------------------------------------------------------------------------:|
-|   **patient_id**   |                                                      ex) 1000000001, 1000000002                                                      |
-|       **sex**      |                                                            male or female                                                            |
-|       **age**      |                                                         ex) 20s, 30s, 40s,...                                                        |
-|    **province**    |                                                   ex) Seoul, Kyunggi-do, Pusan,...                                                   |
-|      **city**      |                                                 ex) Nowon-gu, Suwon-si, Saha-gu,...                                                  |
-| **infection_case** |                        group infection event (NaN if individual infection) ex) overseas inflow, Milal Shelter,                       |
+|   **patient_id**   | ex) 1000000001, 1000000002                                                                                                           |
+|       **sex**      | male or female                                                                                                                       |
+|       **age**      | ex) 20s, 30s, 40s,...                                                                                                                |
+|    **province**    | ex) Seoul, Kyunggi-do, Pusan,...                                                                                                     |
+|      **city**      | ex) Nowon-gu, Suwon-si, Saha-gu,...                                                                                                  |
+| **infection_case** | group infection event (NaN if individual infection) ex) overseas inflow, Milal Shelter,                                              |
 |  **infsected_by**  | patient_id of individual infection source (NaN if group infection event or infection source unknown)  ex) 2002000001, 1000000002,... |
-| **confirmed_date** |                                    the date when infection is confirmed by authority (YYYY-MM-DD)                                    |
+| **confirmed_date** | the date when infection is confirmed by authority (YYYY-MM-DD)                                                                       |
