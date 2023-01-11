@@ -37,7 +37,9 @@ COVID-19과 같은 바이러스 전염병의 확산은 보균자의 지역 간 �
 
 ### 논문 구성도
 
-![논문 구성도](./img/%EB%85%BC%EB%AC%B8%20%EA%B5%AC%EC%84%B1%EB%8F%84.png)
+<p align="center">
+ <img src = "./img/논문 구성도.png">
+</p>
 
 <br>
 
