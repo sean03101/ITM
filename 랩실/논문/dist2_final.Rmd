@@ -1,0 +1,377 @@
+---
+title: "Untitled"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+library(tidyverse)
+library(readxl)
+options(digits = 9)
+```
+
+## Preparation
+
+```{r}
+dataset <- read_excel("PatientInfo4.xlsx")
+dataset <- dataset %>% 
+  mutate(from = infected_by, to = patient_id, confirmed_date = confirmed_date) %>%
+  select(from, to, confirmed_date)
+# dim(dataset)
+# head(dataset)
+```
+
+
+```{r}
+unknown <- dataset %>% filter(is.na(from))
+# dim(unknown)
+# head(unknown)
+```
+
+```{r}
+dataset2 <- dataset %>% filter(!is.na(from))
+# dim(dataset2)
+# head(dataset2, 20)
+```
+
+```{r}
+dataset3 <- dataset2
+for (i in 1:nrow(dataset3)) {
+  dataset3$from[which(dataset3$from==dataset3$to[i])] <- dataset3$from[i]
+}
+# dim(dataset3)
+# head(dataset3, 20)
+```
+
+```{r}
+dataset4 <- dataset3 %>% group_by(from) %>% summarise(count = n(), max_date = max(confirmed_date))
+# dataset4
+```
+
+```{r}
+dataset5 <- left_join(dataset4, unknown, by=c("from"="to")) %>% select(-from.y)
+# dataset5
+```
+
+```{r}
+dataset6 <- dataset5 %>% mutate(duration = as.numeric(max_date-confirmed_date)/86400)
+dataset6$duration[is.na(dataset6$duration)] <- mean(dataset6$duration, na.rm=TRUE)
+dataset6$duration <- abs(abs(dataset6$duration) + 1)
+# dataset6$duration <- pmax(abs(dataset6$duration), 1)
+dataset6 <- dataset6 %>% mutate(weekly_spread = 7*count/duration)
+```
+
+## Descriptive
+
++ 아래는 1주일간 전파력의 통계량 
+
+```{r, echo=TRUE}
+length(dataset6$weekly_spread)
+dataset6$weekly_spread %>% summary()
+```
+
++ 전체 분포
+
+```{r}
+fig_whole <- dataset6 %>% ggplot(aes(x=weekly_spread)) + 
+  geom_histogram(bins = 25, colour="black", fill="white") + 
+  xlab("Weekly spread rate") + 
+  theme_minimal()
+ggsave(filename = "fig_whole.png", plot=fig_whole, 
+       dpi=300, width=8, height=5, units = "in") # 고해상도 파일로 저장
+fig_whole
+```
+
+## Discussion & Definition
+
++ 두개의 분포가 합해진 것과 같은 모습을 보이므로 두개의 분포로 나누어서 진행한다.
++ 두개의 분포는 7을 기준으로 나눈다. 7로 나눈 이유:
+    + 7을 기준으로 두개의 다른 분포의 모습이 보이는데, 
+    + 7은 일주일에 7명이므로 매일 1명이라는 수치를 의미하므로, 직관적인 분할이다.
++ 따라서 하루에 한명 이상을 감염시키는 것을 extreme한 케이스로 정의한다.
+
+```{r, echo=TRUE}
+sum(dataset6$weekly_spread <= 7)/nrow(dataset6)
+sum(dataset6$weekly_spread > 7)/nrow(dataset6)
+p <- sum(dataset6$weekly_spread > 7)/nrow(dataset6)
+p
+```
+
++ 즉, `p=` `r p`의 확률로 한명의 보균자가 일주일에 7명 이상의 감염력을 가진다.
++ 1-p의 경우에는
+    + normal case라고 부른다.
+    + 정규분포로 근사하기로 한다.
++ p의 경우에는 
+    + extreme case라고 부르며
+    + extreme value theory에서 많이 사용되는 weibull 분포를 사용하기로 한다.
+
+## 각각 분포에 대한 review 및 fitting
+
++ 아래와 같이 데이터를 나누며
+
+```{r, echo=TRUE}
+normal <- dataset6$weekly_spread[dataset6$weekly_spread <= 7]
+xtreme <- dataset6$weekly_spread[dataset6$weekly_spread > 7]
+```
+
+### normal case
+
++ 통계량은 아래와 같으며, 이를 이용해서 히스토그램과 비교해본다.
+
+```{r, echo=TRUE}
+mean(normal)
+sd(normal)
+```
+
+```{r}
+fig_normal <- dataset6 %>% filter(weekly_spread <= 7) %>%
+  ggplot(aes(x=weekly_spread)) + 
+  geom_histogram(aes(y = ..density..), bins=12, colour="black", fill="white") + 
+  stat_function(
+    data = data.frame(x=c(0,7)),
+    aes(x=x),
+    fun = dnorm, 
+    args = list(mean(normal), sd(normal)),
+    color = "blue", alpha = 0.5, size = 2) +
+  xlab("Weekly spread rate") + 
+  theme_minimal()
+ggsave(filename = "fig_normal.png", plot=fig_normal, 
+       dpi=300, width=5, height=5, units = "in") # 고해상도 파일로 저장
+fig_normal
+```
+
+### extreme case
+
++ 7이상인 케이스는 아래의 통계량과 같이 heavy-tail 형태를 가진다.
+
+```{r, echo=TRUE}
+summary(xtreme)
+```
+
++ Weibull distribution은 shape와 scale이라는 두개의 파라미터가 있으며, 이를 이용한다.
++ 참고: [https://en.wikipedia.org/wiki/Weibull_distribution]
+ 
+```{r, echo=TRUE}
+library(EnvStats)
+# weibull
+X <- xtreme-7
+parms <- eweibull(X, method = "mle")$parameters
+parms
+```
+
++ 위의 값을 사용한다.
+
+```{r}
+dwei_xtreme <- function(x) {
+  shape <- parms[1] %>% as.numeric()
+  scale <- parms[2] %>% as.numeric()
+  output <- dweibull(x, shape=shape, scale=scale)
+  return(output)
+}
+fig_xtreme <- dataset6 %>% filter(weekly_spread > 7) %>%
+  ggplot(aes(x=weekly_spread)) + 
+  geom_histogram(aes(y = ..density..), bins=20, colour="black", fill="white") + 
+  stat_function(
+    data = data.frame(x=c(7,30)),
+    aes(x=x),
+    fun = dwei_xtreme,
+    color = "blue") +
+  theme_minimal()
+ggsave(filename = "fig_xtreme.png", plot=fig_xtreme, 
+       dpi=300, width=5, height=5, units = "in") # 고해상도 파일로 저장
+fig_xtreme
+```
+
+## 난수 발생 함수
+
++ Following numbers will be used:
+    + `mean(normal)`: `r mean(normal)`
+    + `sd(normal)`: `r sd(normal)`
+    + `parms`: `r parms`
+    
+```{r, echo=TRUE}
+rand_weekly_spread <- function(n, normal, parm) {
+  num_normal <- sum(runif(n) > p)
+  num_xtreme <- n-num_normal
+  spread_rate_normal <- 
+    rnorm(num_normal, mean = mean(normal), sd = sd(normal)) %>% pmax(0) %>% pmin(7)
+  spread_rate_xtreme <- rweibull(num_xtreme, shape = parms[1], scale = parms[2]) + 7
+  
+  if(n==1){
+    output <- c(spread_rate_normal, spread_rate_xtreme)
+  }
+  else{
+    output <- c(spread_rate_normal, spread_rate_xtreme) %>% sample() # shuffle before return
+  }
+  return(output)
+}
+rand_weekly_spread(7, normal, parm)
+
+
+```
+
+## 함수 성능 체크
+
+```{r, echo=TRUE}
+random_spread <- rand_weekly_spread(383, normal, parm)
+summary(random_spread)
+```
+
+```{r, echo=TRUE}
+random_spread <- rand_weekly_spread(10000, normal, parm)
+summary(random_spread)
+```
+
+
++ 이를 위의 섹션 Descriptive의 극초반 부의 아래 명령어랑 비교를 해보면
+
+```{r, echo=TRUE}
+dataset6$weekly_spread %>% summary()
+```
+
++ 만족할만하다고 나는 생각함... (Mean과 Median의 관점에서)
+
++ 10000개를 만들어서 히스토그램을 그려보면
+
+```{r, echo=TRUE}
+fig_simul <- data.frame(x=rand_weekly_spread(10000, normal, parm)) %>%
+  ggplot(aes(x=x)) + 
+  geom_histogram(aes(y = ..density..), bins=20, colour="black", fill="white") + 
+  xlab("Weekly spread rate") + 
+  theme_minimal()
+ggsave(filename = "fig_simul.png", plot = fig_simul, 
+       width = 8, height = 5, dpi=300, units = "in")
+fig_simul
+```
+
++ 만족할만하다고 나는 생각함...
+
+
+## 2021-01-25
+
+```{r}
+
+x <- c(0.11, 0.12, 0.15, 0.08, 0.17, 0.06, 0.06)
+y <- c(0.55, 0.6, 0.75, 0.4, 0.85, 1.3, 1,2)
+```
+
+```{r}
+con_travel_x <- sapply(x, function(lambda) rpois(1000,lambda)) %>% rowSums()
+con_travel_x
+pusan_x <- con_travel_x %>% sapply(function(x) rand_weekly_spread(x, normal, parm))
+pusan_x_MC <- sapply(pusan_x, sum)
+hist(pusan_x_MC)
+summary(pusan_x_MC)
+```
+
+```{r}
+con_travel_y <- sapply(y, function(lambda) rpois(1000,lambda)) %>% rowSums()
+con_travel_y
+pusan_y <- con_travel_y %>% sapply(function(y) rand_weekly_spread(y, normal, parm))
+pusan_y_MC <- sapply(pusan_y, sum)
+hist(pusan_y_MC)
+summary(pusan_y_MC)
+```
+
+
+
+## Possion rate의 난수 생성
+
+만약에 특정일에 평균적으로 0.3명이 기차에 탑승한다고 하고, 이를 몬테칼로 10번을 한다면 아래와 같은 시뮬레이션이 가능함.
+
+```{r, echo=TRUE}
+rpois(10, 0.3)
+```
+
++ 그러므로 예를 들어서 0.5명이 탑승하는 것과 2.5명이 탑승하는 것을 비교하자면, 아래와 같이 MC_N=10에 대해서 시뮬레이션이 가능함.
+
+```{r, echo=TRUE}
+cbind(rpois(7, 0.0271788), rpois(7, 0.0271788*5))
+```
+
+```{r, echo=TRUE}
+
+record <- data.frame(matrix(ncol = 2, nrow = 10000))
+names(record) <- c("2019","2020")
+
+
+for (i in 1:nrow(record)){
+  
+  # sim_2019 <- rpois(7, 0.00543576*5) # 0.00543576 = 0.0012496(서울시 인구수: 3월 8일 확진자 수 = 기차 이용객 수 : x 로 구한 하루에 확진자가 몇명 탈것인가) * 522(20년 서울시 최대 확진자 수 : 최악의 상황 고려) / 122(3월 8일 확진자 수)
+  # sim_2020 <- rpois(7, 0.00543576)
+  # sim_2019 <- rpois(7, 0.00543576*5)
+  # sim_2020 <- rpois(7, 0.00543576)
+  
+    # sim_2019 <- rpois(7, 0.0271788*5) # 0.0271788 = 0.0012496(서울시 인구수: 3월 8일 확진자 수 = 기차 이용객 수 : x 로 구한 하루에 확진자가 몇명 탈것인가) * 522(20년 서울시 최대 확진자 수 : 최악의 상황 고려) / 122(3월 8일 확진자 수) * 5(평균 코로나 잠복기(5일) 고려)
+  # sim_2020 <- rpois(7, 0.0271788)
+  sim_2019 <- rpois(7, 0.0271788*5)
+  sim_2020 <- rpois(7, 0.0271788)
+  
+  if(sum(sim_2019)==0 && sum(sim_2020)==0){
+    record[i,1] = 0
+    record[i,2] = 0
+  } else{
+    simul_ifected_2019 <-rand_weekly_spread(sum(sim_2019), normal, parm)
+    simul_ifected_2020 <-rand_weekly_spread(sum(sim_2020), normal, parm)
+    
+    record[i,1] = sum(simul_ifected_2019)
+    record[i,2] = sum(simul_ifected_2020)
+    
+    
+  }
+
+}
+print(record)
+print(apply(record, 2, mean))
+```
+
+
+
+
+dataset6$weekly_spread %>% summary()
+
+
+
+```{r, echo=TRUE}
+
+print(record %>% summary())
+print(length(which(record$`2019`==0)))
+print(length(which(record$`2020`==0)))
+
+zxcv <- record$`2019`[record$`2019` >= 10]
+qwer <- record$`2019`[record$`2019` < 10 ]
+qwer <- qwer[qwer>0]
+asdf <- record$`2019`[record$`2019` > 0]
+
+hist(zxcv, bins = 5)
+hist(qwer, bins = 5)
+hist(asdf, bins = 10)
+hist(record$`2019`, bins = 10)
+
+
+
+```
+
+```{r, echo=TRUE}
+
+record %>% summary()
+
+zxcv <- record$`2020`[record$`2020` >= 10]
+qwer <- record$`2020`[record$`2020` < 10 ]
+qwer <- qwer[qwer>0]
+asdf <- record$`2020`[record$`2020` > 0]
+
+hist(zxcv, bins = 5)
+hist(qwer, bins = 5)
+hist(asdf, bins = 10)
+hist(record$`2020`, bins = 10)
+
+#geom_histogram(bins = 25, colour="black", fill="white") + 
+#  xlab("Weekly spread rate")
+```
+
+
