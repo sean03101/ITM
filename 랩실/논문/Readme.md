@@ -19,6 +19,7 @@ COVID-19과 같은 바이러스 전염병의 확산은 보균자의 지역 간 �
 |  **infsected_by**  | patient_id of individual infection source (NaN if group infection event or infection source unknown)  ex) 2002000001, 1000000002,... |
 | **confirmed_date** | the date when infection is confirmed by authority (YYYY-MM-DD)                                                                       |
 
+<br>
 
 > 국내 기차 탑승 데이터
 
