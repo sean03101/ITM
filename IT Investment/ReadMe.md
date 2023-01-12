@@ -44,6 +44,7 @@
 <p align="center">
  <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0015.jpg">
 </p>
+<br>
 
 > OTT Device
 
@@ -69,14 +70,13 @@ Current Subscriber 와 Non Subscriber 나눠 설문 조사 진행
 - Average time spent per week
 - Review
 
-<br>
-
 **PSM analysis**
 
 - Only for **currently subscribing service**
 - To cheap, Cheap, Expensive, Too expensive
 - Price range
 
+<br>
 
 > Non Subscribers
 
@@ -87,7 +87,6 @@ Current Subscriber 와 Non Subscriber 나눠 설문 조사 진행
 - Impact of original contents to service selection
 - Expectation
 
-<br>
 
 **PSM analysis**
 
