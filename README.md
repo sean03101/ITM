@@ -10,7 +10,7 @@
 
 <br>
 
-- [Etri 인턴 활동](https://github.com/sean03101/ITM_capstone)
+- [Etri 인턴 활동](https://github.com/sean03101/ITM/tree/main/%EC%97%90%ED%8A%B8%EB%A6%AC%20%EC%9D%B8%ED%84%B4)
 
 <br>
 
