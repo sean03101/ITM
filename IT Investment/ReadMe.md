@@ -277,3 +277,70 @@ Current Subscriber 와 Non Subscriber 나눠 설문 조사 진행
 
 
 ## AHP Analysis
+
+19년 6월에 발간된 'OTT 서비스 속성에 대한 이용자 인식 및 사업자 경쟁관계 분석' 과 비교하고 분석하여 AHP 분석 진행
+[팔로우 논문 주소](https://kiss15.kstudy.com/kiss5/download_viewer.asp)
+
+> Key Evaluation factors
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0053.jpg">
+</p>
+<br>
+
+> Survey Information
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0054.jpg">
+</p>
+<br>
+
+> Weight matrics
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0058.jpg">
+</p>
+<br>
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0059.jpg">
+</p>
+<br>
+
+> Score
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0063.jpg">
+</p>
+<br>
+
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0064.jpg">
+</p>
+<br>
+
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0065.jpg">
+</p>
+<br>
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0066.jpg">
+</p>
+<br>
+
+> AHP Result
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0067.jpg">
+</p>
+<br>
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0068.jpg">
+</p>
+<br>
+
+
