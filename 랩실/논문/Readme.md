@@ -147,4 +147,16 @@ KCDC 데이터셋은 감염자(infected_by)-피감염자(patient_id)의 형태�
 
 > 코로나 발발 전 vs 후 서울발 부산행 이동 승객 수 
 
-.tg {border-collapse:collapse;border-spacing:0;} .tg td{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px; overflow:hidden;padding:10px 5px;word-break:normal;} .tg th{border-color:black;border-style:solid;border-width:1px;font-family:Arial, sans-serif;font-size:14px; font-weight:normal;overflow:hidden;padding:10px 5px;word-break:normal;} .tg .tg-0pky{border-color:inherit;text-align:left;vertical-align:top}
+| 2019년 (총 이동인원 167,743명) |     |     |     |     |     |     |     |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+|     | 3/17 (일) | 3/18 (월) | 3/19 (화) | 3/20 (수) | 3/21 (목) | 3/22 (금) | 3/23 (토) |
+| 철도  | 12,537 | 9,041 | 8,347 | 9,620 | 10,414 | 17,541 | 15,904 |
+| 버스  | 6,288 | 4,535 | 4,187 | 4,825 | 5,223 | 8,798 | 7,977 |
+| 항공  | 7,113 | 5,130 | 4,736 | 5,458 | 5,909 | 9,953 | 9,024 |
+| 합계  | 25,938 | 18,705 | 17,269 | 19,902 | 21,546 | 36,291 | 32,905 |
+| 2020년 (총 이동인원 53,255명) |     |     |     |     |     |     |     |
+|     | 3/15 (일) | 3/16 (월) | 3/17 (화) | 3/18 (수) | 3/19 (목) | 3/20 (금) | 3/21 (토) |
+| 철도  | 3,315 | 3,413 | 3,136 | 3,242 | 3,786 | 5,480 | 3,368 |
+| 버스  | 1,663 | 1,712 | 1,573 | 1,626 | 1,899 | 2,749 | 1,689 |
+| 항공  | 1,881 | 1,937 | 1,779 | 1,839 | 2,148 | 3,109 | 1,911 |
+| 합계  | 6,858 | 7,062 | 6,488 | 6,707 | 7,834 | 11,338 | 6,968 |
