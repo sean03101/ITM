@@ -138,3 +138,132 @@ Current Subscriber 와 Non Subscriber 나눠 설문 조사 진행
 
 
 ### Watcha
+
+> Price
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0030.jpg">
+</p>
+<br>
+
+> B/C
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0031.jpg">
+</p>
+<br>
+
+> Implications
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0032.jpg">
+</p>
+<br>
+
+> Review
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0033.jpg">
+</p>
+<br>
+
+> Word Cloud
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0034.jpg">
+</p>
+<br>
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0035.jpg">
+</p>
+
+
+
+### Youtube Premium
+
+> Price
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0038.jpg">
+</p>
+<br>
+
+> B/C
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0039.jpg">
+</p>
+<br>
+
+> Implications
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0040.jpg">
+</p>
+<br>
+
+> Review
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0041.jpg">
+</p>
+<br>
+
+> Word Cloud
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0042.jpg">
+</p>
+<br>
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0043.jpg">
+</p>
+
+
+
+### Wavve
+
+> Price
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0045.jpg">
+</p>
+<br>
+
+> B/C
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0046.jpg">
+</p>
+<br>
+
+> Implications
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0047.jpg">
+</p>
+<br>
+
+> Review
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0048.jpg">
+</p>
+<br>
+
+> Word Cloud
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0049.jpg">
+</p>
+<br>
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0050.jpg">
+</p>
+
+
+### Benefit / Cost Summary
+
+<p align="center">
+ <img src = "./img/TEAM1_LAST_pdf_pages-to-jpg-0051.jpg">
+</p>
