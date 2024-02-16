@@ -42,8 +42,11 @@ IDF(t) = log(N / n_t)
 
 TF-IDF(t) = TF(t) * IDF(t)
 
-### 결과
-TF-IDF score: 0.66116
-긍정/부정 리뷰를 구분하는 데 중요한 단어가 많지 않다는 것을 의미
-
+### TF-IDF 결과
+TF-IDF score: 0.66(긍정/부정 리뷰를 구분하는 데 중요한 단어가 많지 않다는 것을 의미)
 ![데이터셋 내 단어 분포](img/fig2.png)
+
+
+## N gram & Mapping Keywords of 4 features
+
+
