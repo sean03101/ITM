@@ -50,4 +50,6 @@ TF-IDF score: 0.66(긍정/부정 리뷰를 구분하는 데 중요한 단어가 
 ## N gram & Mapping Keywords of 4 features
 *   N-gram : n개의 연속적인 단어 나열을 의미, 갖고 있는 코퍼스에서 n개의 단어 뭉치 단위로 끊어서 이를 하나의 토큰으로 간주
 *   한국인과 외국인의 리뷰에서 맛, 서비스, 가격, 분위기와 관련된 특정 단어를 찾고 비교하기 위해, 4개의 feature와 관련된 dictionary 생성 후 2-gram 적용
-![2-gram 적용 결과](img/fig3.png "한국어 단어 예시")
+![한국어 N-gram 결과](img/fig3.png "한국어 단어 예시")
+
+![영어 N-gram 결과](img/fig4.png "영어 단어 예시")
