@@ -22,7 +22,7 @@
 
 <br>
 
-- [트립어드바이저 & 망고플레이트 리뷰 분석](https://github.com/sean03101/ITM/tree/main/Business%20Analytics/%ED%8C%80%ED%94%8C)
+- [한국인 vs 외국인 맛집 리뷰 텍스트 분석](https://github.com/sean03101/ITM/tree/main/Business%20Analytics/%ED%8C%80%ED%94%8C)
 
 <br>
 
