@@ -82,8 +82,12 @@ TF-IDF score: 0.66(긍정/부정 리뷰를 구분하는 데 중요한 단어가 
 
 ## K-Means Clustering을 활용한 특성 분석
 
+### 영문 리뷰
 
-![image](https://github.com/user-attachments/assets/f7d45d7c-0509-43fa-938a-0be3726446fa)
+
+### 국문 리뷰
+![image](https://github.com/user-attachments/assets/8bcce84a-94c3-463e-9640-d6b0f79869e9)
+
 
 
 
