@@ -1,4 +1,4 @@
-# 한국인 vs 외국인 맛집 리뷰 텍스트 분석
+![image](https://github.com/user-attachments/assets/e14fc3d9-6a2b-4fa9-8591-1a943a5fb4b1)# 한국인 vs 외국인 맛집 리뷰 텍스트 분석
 
 **목표 : 한국의 맛집 리뷰 플랫폼 '망고플레이트'와 외국인 대상 리뷰 플랫폼 '트립어드바이저'의 식당 리뷰를 비교 분석하여 내국인과 외국인 사이의 맛집의 관점 및 평가 기준 차이를 분석**
 
@@ -53,3 +53,21 @@ TF-IDF score: 0.66(긍정/부정 리뷰를 구분하는 데 중요한 단어가 
 ![한국어 N-gram 결과](img/fig3.png "한국어 단어 예시")
 
 ![영어 N-gram 결과](img/fig4.png "영어 단어 예시")
+
+## Naive Bayes 모델 학습
+*   일반적으로 텍스트 분류에 사용되며 베이즈 정리에 기반한 기계 학습 기법
+*   텍스트 랭크 알고리즘으로 선택된 단어를 바탕으로 TF 행렬이 생성
+*   라벨 값(평가)은 긍정적인 리뷰의 경우 1이고 부정적인 리뷰의 경우 0
+
+### Naive Bayes 모델 결과
+![image](https://github.com/user-attachments/assets/2a7a3476-6649-4e3c-a1f2-bc66597841a5)
+
+![image](https://github.com/user-attachments/assets/d1ae4a1e-dff3-458c-9de3-b48fbee2448b)
+
+
+*   모델의 계수를 통해 어떤 단어가 긍정적 또는 부정적 리뷰로 분류하는 데 강력한지를 분석
+  -> 일반적으로 긍정 혹은 부정에 쓰이는 단어들이 그리 높지 않는 결과를 보임
+  -> xxx는 좋은데, ㅁㅁㅁ는 안좋다 혹은 '친절하지 않다' 와 같은 예시 때문으로 판단
+
+![image](https://github.com/user-attachments/assets/b7fba5d1-1e96-46b0-8b3a-6b936a571189)
+
