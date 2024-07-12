@@ -84,9 +84,23 @@ TF-IDF score: 0.66(긍정/부정 리뷰를 구분하는 데 중요한 단어가 
 
 ### 영문 리뷰
 
+![image](https://github.com/user-attachments/assets/76612ed6-a67c-42bd-8778-a704a77dde93)
+
+*   영문 리뷰는 하나의 리뷰에 여러 분야에 대해 긍정과 부정을 모두 한꺼번에 쓰는 글들이 많아, 클러스터링이 제대로 되지 않음 
+
 
 ### 국문 리뷰
 ![image](https://github.com/user-attachments/assets/8bcce84a-94c3-463e-9640-d6b0f79869e9)
+
+*   service_feature_cluster
+    *   ‘불/친절’  have been clustered 
+
+    *   ‘그냥’, ‘별로’  :  mostly used as negative
+
+    *   ‘아쉽’ used a lot  → there are disappointing parts  even when it is good in overall
+
+    *   ‘분하다’ is unexpectedly clustered together
+
 
 
 
