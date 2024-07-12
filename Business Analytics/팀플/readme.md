@@ -76,5 +76,6 @@ TF-IDF score: 0.66(긍정/부정 리뷰를 구분하는 데 중요한 단어가 
  
   -> 한국인들이 빠른 서비스를 당연하게 여기는 반면, 외국인들은 이를 서비스의 큰 장점으로 여길 수 있기 때문으로 추측
 
-![image](https://github.com/user-attachments/assets/b7fba5d1-1e96-46b0-8b3a-6b936a571189)
+![image](https://github.com/user-attachments/assets/abff3d3d-c98e-48ef-965c-5107a3a5aaca)
+
 
