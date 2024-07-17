@@ -22,7 +22,12 @@
 
 <br>
 
+- [맛집 추천 챗봇](https://github.com/sean03101/Chatbot_Reungee)
+
+<br>
+
 - [한국인 vs 외국인 맛집 리뷰 텍스트 분석](https://github.com/sean03101/ITM/tree/main/Business%20Analytics/%ED%8C%80%ED%94%8C)
+
 
 <br>
 
@@ -32,8 +37,3 @@
 
 - [SNS 형태 친환경 쇼핑몰 웹사이트 기획 & 제작](https://github.com/sean03101/kusitms)
 
-
-
-<br>
-
-- [맛집 추천 챗봇](https://github.com/sean03101/Chatbot_Reungee)
