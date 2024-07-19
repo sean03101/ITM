@@ -4,6 +4,9 @@
 ## 스마트 병영 프로젝트 
 *    활동 시간 동안 GPS 활용해 이동 거리를 측정한 뒤, 이동에 따른 활동 대사량 측정 
 
+![KakaoTalk_20240719_204443428](https://github.com/user-attachments/assets/fed228fb-df9c-4c20-aa5f-702161ace53e)
+
+
 ### GPS 데이터 수집
 *    휴대용 GPS 디바이스를 군복에 넣어두고 하루동안 이동량 측정
 *    디바이스를 중앙 컴퓨터에 연결해, 측정한 데이터(.gp) csv 파일로 변형
@@ -51,3 +54,16 @@
 
 
 ## 군용 시나리오 제작 & 분석
+
+![KakaoTalk_20240719_204443428_03](https://github.com/user-attachments/assets/010a25b9-124c-4e62-bf3d-88c760fe1875)
+
+
+
+
+### 그외 기타
+ㄴㅇㅇㄴ
+![KakaoTalk_20240719_204443428_01](https://github.com/user-attachments/assets/f1d44b5f-3cce-4720-b025-92567e0683ec)
+
+ㄴㅇㄴ
+![KakaoTalk_20240719_204443428_02](https://github.com/user-attachments/assets/d85d04b0-0287-4836-ace4-27afa3b29c80)
+
