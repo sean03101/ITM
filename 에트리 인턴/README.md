@@ -85,7 +85,7 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 
 ### 워게임 시나리오 구성 및 시나리오 로그 수집
 
-![image](https://github.com/user-attachments/assets/c0084102-baf7-49c2-bb1d-91becf7d2dcf)
+![image](https://github.com/user-attachments/assets/496f2428-f7f7-4b22-8fc8-414dcbf8a368)
 <br>
 ![image](https://github.com/user-attachments/assets/d850a42e-2b32-466d-b394-af268c1bb0ff)
 
@@ -96,8 +96,10 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 
 ## 그외 기타
 ![KakaoTalk_20240719_204443428_01](https://github.com/user-attachments/assets/f1d44b5f-3cce-4720-b025-92567e0683ec)
+<br>
 모션 캡처 시스템(Motion Capture System)을 사용해 무릎 관절 이상 판단 실험 보조
 
 
 ![KakaoTalk_20240719_204443428_02](https://github.com/user-attachments/assets/d85d04b0-0287-4836-ace4-27afa3b29c80)
+<br>
 카메라를 통해 사용자를 추적하여, 자동으로 운동량 측정하는 프로그램 제작 보조 
