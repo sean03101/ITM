@@ -52,8 +52,10 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 -> TDOA 측정값을 TDOA 이미지로 변환하여, CNN 모델을 통해 TDOA 오류가 추정 결과에 미치는 영향을 축소
 ![image](https://github.com/user-attachments/assets/755e052d-6750-4a9e-8ca9-8b9b44cbed1c)
 
+### TITT 알고리즘 검증 실험
 
-
+![image](https://github.com/user-attachments/assets/28bc6cf2-e587-489d-a6ad-19df827c2098)
+ㄴㅇㄴㅇㄴㅇ
 
 
 ## 군용 시나리오 제작 & 분석
