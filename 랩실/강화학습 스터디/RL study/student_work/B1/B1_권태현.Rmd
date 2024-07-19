@@ -1,0 +1,417 @@
+---
+title: "B1_Exercise"  
+author: "Tae Hyeon Kwon, undergrad(ITM)"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      #in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+# Exercise
+
+## Exercise 1
+
+
+
+*Problem : Assume  that D follows the following discrete distribution.*
+
+  \begin{table}[ht]
+  \begin{tabular}{l|llll}
+  \hline
+  d             & 20  & 25  & 30  & 35  \\ \hline
+  P{[}D=d{]}    & 0.1 & 0.2 & 0.4 & 0.3 \\ \hline
+  $30 \wedge d$ & 20  & 25  & 30  & 30  \\
+  $(30-d)^+$    & 10  & 5   & 0   & 0   \\
+  $24 \wedge d$ & 20  & 24  & 24  & 24  \\
+  $(24-D)^+$    & 4   & 0   & 0   & 0   \\ \hline
+  \end{tabular}
+  \end{table}
+
+\vspace{15pt}
+
+
+
+$\mathbb{E}[30 \wedge D] = 20\times0.1+25\times0.5+30\times0.4+30\times0.3=28$
+
+$\mathbb{E}[(30-D)^+]=10\times0.1+5\times0.2+0\times0.4+0\times0.3=2$
+
+$\mathbb{E}[24 \wedge D]=20\times0.1+24\times0.2+24\times0.4+24\times0.3=23.6$
+
+$\mathbb{E}[(24-D)^+]=4\times0.1+0\times0.2+0\times0.4+0\times0.3=0.4$
+
+\vspace{20pt}
+\newpage
+## Exercise 2
+
+
+
+*Problem : Find your brother's optimal stock level by the above Theorem 2. Then,find his expected profit using the Remark 1.*
+
+\vspace{20pt}
+
+<solution>
+
+$Price(p)=2$
+
+$Cost(c)=1$
+
+$Salvage \,\, Cost(s)=0.5$
+
+$\begin{aligned}C_u &= understock \,\,cost \\&= p-c\\&=2-1\\&=1\end{aligned}$
+
+$\begin{aligned}C_o &= overstock \,\, cost \\&= c-s\\&=1-0.5\\&=0.5\end{aligned}$
+
+by Theorem 2, $F(y)\geq(\frac{c_u}{c_o+c_u})=(\frac{1}{1+0.5})=\frac{2}{3}=0.6666$
+
+find smallest 'y' qualified that formula
+
+\begin{table}[ht]
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+             & 11  & 12  & 13  & 14  & 15  \\ \hline
+$P(D=d)$     & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 \\ \hline
+$P(D\leq d)$ & 0.2 & 0.4 & 0.6 & 0.8 & 1.0 \\ \hline
+\end{tabular}
+\end{table}
+
+$\therefore \,\,\, y=14\,\,\,(smallest \,\, y)$
+
+Expected profit = $\mathbb{E}[profit]=\mathbb{E}(sale\,\,rev.)+\mathbb{E}(salvage\,\,rev.)-\mathbb{E}(material\,\,cost)$
+
+\begin{table}[ht]
+\begin{tabular}{|l|l|l|l|l|l|}
+\hline
+stock=14/demand   & 11 & 12 & 13 & 14 & 15 \\ \hline
+sales quantity    & 11 & 12 & 13 & 14 & 14 \\ \hline
+left quantity     & 3  & 2  & 1  & 0  & 0  \\ \hline
+material quantity & 14 & 14 & 14 & 14 & 14 \\ \hline
+\end{tabular}
+\end{table}
+
+1. $\mathbb{E}(sale\,\,rev.)=0.2\times(11\times2+12\times2+13\times2+14\times2+14\times2)=25.6$
+
+2. $\mathbb{E}(salvage \,\,rev.)=0.2\times(3\times0.5+2\times0.5+1\times0.5+0\times0.5+0\times0.5)=0.6$
+
+3. $\mathbb{E}(material \,\,cost)=0.2\times(14\times1+14\times1+14\times1+14\times1+14\times1)=14$
+
+1+2-3 = $25.6+0.6-14=12.2$
+
+$Answer : Expected \,\,profit = 12.2$
+
+
+
+\vspace{20pt}
+\newpage
+## Exercise 3
+
+
+
+*Problem : Your brother is now selling milk. The customer demands follow 𝑈 (20, 40) gallons. Retail price is \textdollar2 per gallon, material cost is \textdollar1 per gallon, and salvage cost is $0.5 per gallon. Find optimal stock level and expected profit.*
+
+\vspace{15pt}
+
+
+\[f(x)=
+\begin{Bmatrix}
+\frac{1}{20} \,\,(20\leq x\leq 40) \\ 0 \,\,\,\,\,\,\,\,\,\,\,\,\, otherwise
+\end{Bmatrix}
+\]
+
+\[F(x)=
+\begin{Bmatrix}
+0 \,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,(20\leq x) \\ \frac{x-20}{20} \,\,\,\,\,\,\,(20\leq x \leq 40) \\1 \,\,\,\,\,\,\,\,\,\,\,\,\,(x>40)
+\end{Bmatrix}
+\]
+
+$price(p)=2$
+
+$material\,\,cost(c)=1$
+
+$salvage\,\,cost=0.5$
+
+\[
+\begin{Bmatrix}
+C_u =1\\C_o=0.5
+\end{Bmatrix}
+\]
+
+we must find 'y' qualified that $F(y)=\frac{2}{3}$
+
+$\therefore \,\,\,\, \frac{x-20}{20}=\frac{2}{3}$
+
+$=>x-20=\frac{40}{3}$
+
+$=>x=\frac{40}{3}+20=\frac{100}{3}$
+
+$\therefore \,\,\,\, y=\frac{100}{3}$
+
+<Expected profit>
+
+1. $\mathbb{E}(sale\,\,rev.)=\mathbb{E}[min(x,\frac{100}{3})]\times2=[{\int_{20}^{\frac{100}{3}}\frac{1}{20}x \,\, dx+\int_{\frac{100}{3}}^{40}\frac{100}{3}\times\frac{1}{20} \,\, dx}]\times2=\frac{520}{9}$
+
+2. $\mathbb{E}(salvage \,\,rev.)=\mathbb{E}[(\frac{100}{3}-X)^+]\times0.5=[{\int_{20}^{\frac{100}{3}}(\frac{100}{3}-x)\times\frac{1}{20} \,\, dx+\int_{\frac{100}{3}}^{40}0\times\frac{1}{20} \,\, dx}]\times0.5=\frac{20}{9}$
+
+3. $\mathbb{E}(material \,\,cost)=\frac{100}{3}\times1=\frac{100}{3}$
+
+1+2-3 = $\frac{520}{9}+\frac{20}{9}-\frac{100}{3}=$\textdollar$\frac{80}{3}$
+
+$Answer : optimal\,\,stock\,\,level=\frac{100}{3}, \,\,\,expected\,\,profit=$\textdollar$\frac{80}{3}$
+
+\vspace{20pt}
+\newpage
+## Exercise 4
+
+
+
+*Problem : Lemonade sells for \textdollar18 per gallon but only costs \textdollar3 per gallon to make. If we run out of lemonade, it will be impossible to get more. On the other hand, leftover lemonade has a value of \textdollar1. Express the following quantity using sals as X and demand as D.*
+
+\vspace{5pt}
+
+
+
+\ast $C_u$
+
+\ast $C_o$
+
+\ast Expected economic cost
+
+\ast Expected profit
+
+\vspace{15pt}
+
+$price(p)=18$
+
+$cost(c)=3$
+
+$Salvage\,\,value(s)=1$
+
+1. $C_u=18-3=15$
+
+2. $C_o=3-1=2$
+
+3. Expected economic cost = $2\mathbb{E}[(X-D)^+]+15\mathbb{E}[(D-X)^+]$
+
+4. Expected profit = $\mathbb{E}[profit]=\mathbb{E}[revenue]-\mathbb{E}[cost]-\mathbb{E}[economic\,\,cost]$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=18\mathbb{E}[X \wedge D]-3\times X-(2\mathbb{E}[(X-D)^+]+15\mathbb{E}[(D-X)^+])$
+
+\vspace{20pt}
+\newpage
+## Exercise 5
+
+
+
+*Problem : Prove Theorem 1.*
+
+\vspace{20pt}
+
+<solution>
+
+holding cost = -(salvage value) but, holding cost is already include that economic cost. So, we assume that salvage value is 0.
+
+\vspace{10pt}
+
+$c_u=p-c$
+
+$c_o=c$
+
+$F(y)=\frac{c_u}{c_u+c_o}=\frac{p-c}{c}$
+
+$\mathbb{E}[profit]=\mathbb{E}[revenue]-\mathbb{E}[cost]-\mathbb{E}[economic\,\,cost]$
+
+$\mathbb{E}[revenue]=p\times \mathbb{E}[D \wedge y]=p\times(\int_{0}^{y}xf(x)\,\,dx+\int_{y}^{\infty}yf(x)\,\,dx)$
+
+$\mathbb{E}[cost]=c\times y=cy$
+
+$\mathbb{E}[economic\,\,cost]=c_o\mathbb{E}[(y-D)^+]+c_u\mathbb{E}[(D-y)^+]$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=c_o\int_{0}^{y}(y-D)f(x)\,\,dx+c_u\int_{y}^{\infty}(D-y)f(x)\,\,dx$
+
+
+$\frac{d}{dy}\mathbb{E}[profit]=\frac{d}{dy}(\mathbb{E}[revenue]-\mathbb{E}[cost]-\mathbb{E}[economic\,\,cost])$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\frac{d}{dy}[p\times(\int_{0}^{y}xf(x)\,\,dx+\int_{y}^{\infty}yf(x)\,\,dx)+(cy)-(c_o\int_{0}^{y}(y-D)f(x)\,\,dx+c_u\int_{y}^{\infty}(D-y)f(x)\,\,dx)]$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=p\times(yf(y)+1-F(y)-yf(y))+c-[c_o(F(y)+yf(y)-yf(y))+c_u(-yf(y)-1+F(y)+yf(y)]$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=p(1-F(y))+c-(c_o(F(y)-c_u(F(y)-1))$
+
+Then, $F(y)=\frac{p-c}{c},\,\,\,p(1-F(y))+c=0$
+\vspace{10pt}
+
+Assume that 'y' is minimum point
+\vspace{10pt}
+
+$\frac{d}{dy}\mathbb{E}[economic\,\,cost]=0$
+
+$\therefore\frac{d}{dy}\mathbb{E}[profit]=0$
+\vspace{10pt}
+
+
+*To, maximum/minimum discrimination when find second derivative, the result always negative to be maximum point*
+\vspace{10pt}
+
+$\therefore\frac{d^2}{dy^2}\mathbb{E}[profit]=-f(y)(c_o+c_u)$
+\vspace{10pt}
+
+But, $f(y),(c_o+c_u)is \,\, always\,\,positive$
+\vspace{10pt}
+
+So, the result of second derivative is negative
+\vspace{10pt}
+
+$\therefore cost \,\,minimum \,\,point = profit\,\, maximum \,\,point$
+
+\newpage
+
+# DaiPark Exercise
+
+
+*1. Show that* $(D \wedge y)+(y-D)^+=y$
+
+if ($y<D$)
+
+$(D \wedge y)=y, \,\,(y-D)^+=0$
+
+$\therefore (D \wedge y)+(y-D)^+=y$
+
+else ($y>D$)
+
+$(D \wedge y)=D, \,\,(y-D)^+=y-D$
+
+$\therefore (D \wedge y)+(y-D)^+=y$
+
+$Answer : (D \wedge y)+(y-D)^+=y \,\,always \,\, qualified$
+\vspace{10pt}
+
+
+*2. Let D be a discrete random variable with the following pmf.*
+
+\begin{table}[ht]
+\begin{tabular}{l|lllll}
+\hline
+$d$        & 5                               & 6                               & 7                               & 8                               & 9                               \\ \hline
+$Pr(D=d)$ & $\frac{1}{10}$ & $\frac{3}{10}$ & $\frac{4}{10}$ & $\frac{1}{10}$ & $\frac{1}{10}$ \\ \hline
+\end{tabular}
+\end{table}
+
+$Find$
+
+\vspace{10pt}
+(a)$\mathbb{E}[min(D,7)$
+
+(b)$\mathbb{E}[(7-D)^+]$
+\vspace{10pt}
+
+(a)$5\times\frac{1}{10}+6\times\frac{3}{10}+7\times\frac{4}{10}+8\times\frac{1}{10}+9\times\frac{1}{10}=\frac{34}{5}$
+
+(b)$2\times\frac{1}{10}+1\times\frac{3}{10}+0+0+0=\frac{1}{2}$
+
+\vspace{10pt}
+
+
+
+
+*4. Let D be a continuous random variable and uniformly distributed between 5 and 10. Find*
+
+(a)$\mathbb{E}[max(D,8)]$
+
+(b)$\mathbb{E}[(D-8)^-]$
+
+\vspace{10pt}
+
+\[f(x)=
+\begin{Bmatrix}
+\frac{1}{5} \,\,(5\leq x\leq 10) \\ 0 \,\,\,\,\,\,\,\,\,\,\,\,\, otherwise
+\end{Bmatrix}
+\]
+
+(a)$\mathbb{E}[max(D,8)]=\int_{5}^{8}8f(x)\,\,dx+\int_{8}^{10}xf(x)\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\int_{5}^{8}\frac{8}{5}\,\,dx+\int_{8}^{10}\frac{1}{10}x^2\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\frac{24}{5}+\frac{18}{5}=\frac{42}{5}$
+
+(a)$\frac{42}{5}$
+
+\vspace{10pt}
+
+(b)$\mathbb{E}[(D-8)^-]=\int_{5}^{8}(8-D)f(x)\,\,dx+\int_{8}^{10}0\times f(x)\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\int_{5}^{8}(8-X)f(x)\,\,dx+0=\int_{5}^{8}(8-X)\frac{1}{5}\,\,dx=\int_{5}^{8}(\frac{8}{5}-\frac{1}{5}x)\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\frac{32}{5}-\frac{55}{10}=\frac{9}{10}$
+
+(b)$\frac{9}{10}$
+\vspace{10pt}
+
+*5. Let D be an exponential random variable with parameter 7. Find*
+
+(a)$\mathbb{E}[max(D,3)]$
+
+(b)$\mathbb{E}[(D-4)^-]$
+
+\vspace{10pt}
+
+$f(x)=7e^{-7x}$
+
+(a)$\mathbb{E}[max(D,3)]=\int_{-\infty}^{3}3\times 7e^{-7x}\,\,dx+\int_{3}^{\infty}x\times 7e^{-7x}\,\,dx$
+
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\int_{0}^{3}21e^{-7x}\,\,dx+\int_{3}^{\infty}7xe^{-7x}\,\,dx$
+
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=[-3e^{-7x}]_{0}^{3}+[-xe^{-7x}]_{3}^{\infty}-\int_{3}^{\infty}-e^{-7x}\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=(-3e^{21}-(-3))+(0-(-3e^{21}))+\int_{3}^{\infty}e^{-7x}\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=3+[-\frac{e^{-7x}}{7}]_{7}^{\infty}$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=3+(0-(-\frac{e^{-21}}{7}))$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=3+\frac{e^{-21}}{7}$
+
+(a)$3+\frac{e^{-21}}{7}$
+
+\vspace{10pt}
+(b)$\mathbb{E}[(D-4)^-]=\int_{0}^{4}(4-x)7e^{-7x}\,\,dx+\int_{4}^{\infty}0\times f(x)\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=\int_{0}^{4}28e^{-7x}\,\,dx-\int_{0}^{4}7xe^{-7x}\,\,dx$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=(-4e^{-28}+4)-(0+4e^{-28})+(0+\frac{e^{-28}}{7})$
+
+$\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,\,=4+\frac{e^{-28}}{7}$
+
+
+
+(b)$4+\frac{e^{-28}}{7}$
+
+
+
+
+
+
+
+
+
+

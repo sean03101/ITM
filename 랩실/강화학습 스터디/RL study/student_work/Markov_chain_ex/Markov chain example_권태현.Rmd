@@ -1,0 +1,39 @@
+---
+title: "Markov chain example"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+
+
+*Son-heung-min score*
+
+Son Heung-min is a South Korean football player and one of the best strikers in the EPL.
+In particular, Son Heung-min showed strong performance against the opposing team wearing a yellow uniform in the 2020 season.
+On average, he scored 1.5 goals per game against teams in yellow uniforms.
+On the other hand, he scored 0.7 goals per game for opponents in different colors.
+The team in the EPL is 19 teams except Tottenham, where Son Heung-min belongs, and each team will play 38 games.
+Son Heung-min is famous for scoring many goals in a short period of time in the league.
+When he scored in the previous game, he had a 0.8 chance of scoring in this match.
+If you don't score a goal in the previous game, you have a 0.6 chance of scoring in this game.  Son Heung-min has scored three goals in seven games, and the team he will meet this time is Wolverhampton wearing a yellow uniform. When Son Heung-min finishes this season, what is the expected number of points?
+
+\vspace{30pt}
+
+*state : the team of match with tottenham
+
+*transition probaility : 0.8 0.2 / 0.6 0.4 
+
+*reward : goal 
+
+\vspace{15pt}
+
+Solution
+
+1. Find the transition matrix
+
+2. Show the markov chain
+
+3. Find the expected reward
+
+

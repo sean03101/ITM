@@ -1,0 +1,163 @@
+---
+title: "DayPark - C1"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+\newpage
+
+## *Exercise 9*
+
+#### *A camera store specializes in a particular popular and fancy camera. Assume that these cameras become obsolete at the end of the month. They guarantee that if they are out of stock, they will special-order the camera and promise delivery the next day. In fact, what the store does is to purchase the camera from an out of state retailer and have it delivered through an express service. Thus, when the store is out of stock, they actually lose the sales price of the camera and the shipping charge, but they maintain their good reputation. The retail price of the camera is \$600, and the special delivery charge adds another \$50 to the cost. At the end of each month, there is an inventory holding cost of \$25 for each camera in stock (for doing inventory etc). Wholesale cost for the store to purchase the cameras is \$480 each. (Assume that the order can only be made at the beginning of the month.)*
+
+-   Retail Price : \$600
+-   Special Delivery Charge : \$50
+-   Holding Cost : \$25
+-   Wholesale cost : \$480
+
+\vspace{10pt}
+
+a\. Assume that the demand has a discrete uniform distribution from 10 to 15 cameras a month(inclusive). If 12 cameras are ordered at the beginning of a month, what are the expected overstock cost and the expected understock or shortage cost? What is the expected total cost?
+
++------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| d          | 10            | 11            | 12            | 13            | 14            | 15            |
++:==========:+:=============:+:=============:+:=============:+:=============:+:=============:+:=============:+
+| $P[D=d]$   | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ |
++------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| $P[D≤d]$   | $\frac{1}{6}$ | $\frac{2}{6}$ | $\frac{3}{6}$ | $\frac{4}{6}$ | $\frac{5}{6}$ | 1             |
++------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| $(12-d)^+$ | 2             | 1             | 0             | 0             | 0             | 0             |
++------------+---------------+---------------+---------------+---------------+---------------+---------------+
+| $(d-12)^+$ | 0             | 0             | 0             | 1             | 2             | 3             |
++------------+---------------+---------------+---------------+---------------+---------------+---------------+
+
+-   Overstock, $C_{o}$ : Wholesale cost + holding Cost = \$480+\$25 =\$505
+
+-   Understock, $C_{u}$ : Retail Price - Wholesale cost + Special Delivery Charge = \$600-\$480+\$50=\$170
+
+-   $\mathbb{E}[(12-D)^+]$
+
+```{=tex}
+\begin{eqnarray*}
+\mathbb{E}[(12-D)^+]&=& \sum_{d=10}^{15} \mathbb{P}(D=d)max(12-d,0) \\
+ \\
+&=& \frac{1}{6}·max(12-10,0)+\frac{1}{6}·max(12-11,0)+\frac{1}{6}·max(12-12,0)+\frac{1}{6}·max(12-13,0)+\frac{1}{6}·max(12-14,0)+\frac{1}{6}·max(12-15,0) \\
+ \\
+&=& \frac{1}{6}·2+\frac{1}{6}·1+\frac{1}{6}·0+\frac{1}{6}·0+\frac{1}{6}·0+\frac{1}{6}·0 \\
+ \\
+&=& \frac{2}{6}+\frac{1}{6} \\
+ \\
+&=& \frac{1}{2}
+\end{eqnarray*}
+```
+-   $\mathbb{E}[(D-12)^+]$
+
+```{=tex}
+\begin{eqnarray*}
+\mathbb{E}[(D-12)^+] &=& \sum_{d=10}^{15} \mathbb{P}(D=d)max(d-12,0) \\
+ \\
+&=& \frac{1}{6}·max(10-12,0)+\frac{1}{6}·max(11-12,0)+\frac{1}{6}·max(12-12,0)+\frac{1}{6}·max(13-12,0)+\frac{1}{6}·max(14-12,0)+\frac{1}{6}·max(15-12,0) \\
+ \\
+&=& \frac{1}{6}·0+\frac{1}{6}·0+\frac{1}{6}·0+\frac{1}{6}·1+\frac{1}{6}·2+\frac{1}{6}·3 \\
+ \\
+&=& \frac{1}{6}+ \frac{2}{6} + \frac{3}{6} \\
+ \\
+&=& 1
+\end{eqnarray*}
+```
+1.  Expected Overstock Cost = $C_{0}·\mathbb{E}[(12-D)^+] = 505×\frac{1}{2}= \$\frac{505}{2}$
+2.  Expected Understock Cost = $C_{u}·\mathbb{E}[(D-12)^+]=170×1= \$170$
+3.  Expected Total Cost = Expected Overstock Cost + Expected Understock Cost = $\frac{505}{2}+170= \$422.5$
+
+\vspace{15pt}
+
+b\. What is the optimal number of cameras to order to minimize the expected total cost ?
+
+$F(y) \ge \frac{C_{u}}{c_{u}+C_{o}} = \frac{170}{170+505}≒0.253$
+
+Thus, optimal number of cameras $y^*=11$
+
+\vspace{15pt}
+
+c\. Assume that the demand can be approximated by a normal distribution with mean 1000 and standard deviation 100 cameras a month. What is the optimal number of cameras to order to minimize the expected total cost?
+
+$D$ \~ $N(1000,100^2)$
+
+```{python,echo=T}
+from scipy.stats import norm
+from math import ceil
+
+rv=norm(loc=1000, scale=100)
+
+optimal_d=ceil(rv.ppf(170/(170+505)))
+
+print('Optimal number of cameras is ',optimal_d)
+```
+
+\newpage
+
+## Exercise 10
+
+#### *Next month's production at a manufacturing company will use a certain solvent for part of its production process. Assume that there is an ordering cost of \$1000 incurred whenever an order for the solvent is placed and the solvent costs \$40 per liter. Due to short product life cycle, unused solvent cannot be used in following months. There will be a \$10 disposal charge for each liter of solvent left over at the end of the month. If there is a shortage of solvent, the production process is seriously disrupted at a cost of \$100 per liter shot. Assume that the initial inventory level is* $m$, where $m$=0,100,300,500 and 700 liters.
+
+-   Ordering Cost : \$1000
+
+-   Solvent Cost : \$40 per liter
+
+-   Disposal Charge : \$10 per liter
+
+-   Shortage Cost : \$100 per liter
+
+-   Overstock = Solvent Cost + Disposal Cost = $C_{o}: 40 + 10 =\$50$
+
+-   Understock = Shortage Cost = $C_{u}:\$100$
+
+a.  What is the optimal ordering quantity for each case when the demand is discrete with $Pr\{D=500\}=Pr\{D=800\}=\frac{1}{8}, Pr\{D=600\}=\frac{1}{2}$ and $Pr\{D=700\}=\frac{1}{4}$?
+
++----------+---------------+---------------+---------------+---------------+
+| d        | 500           | 600           | 700           | 800           |
++:========:+:=============:+:=============:+:=============:+:=============:+
+| $P[D=d]$ | $\frac{1}{8}$ | $\frac{1}{2}$ | $\frac{1}{4}$ | $\frac{1}{8}$ |
++----------+---------------+---------------+---------------+---------------+
+| $P[D≤d]$ | $\frac{1}{8}$ | $\frac{5}{8}$ | $\frac{7}{8}$ | 1             |
++----------+---------------+---------------+---------------+---------------+
+
+$F(y)\ge \frac{C_{u}}{C_u+C_o}=\frac{100}{100+50}=\frac{2}{3}$
+
+Optimal ordering quantity ($y^*$) is 700.
+
+\vspace{15pt}
+
+b\. What is the optimal ordering policy for arbitrary initial inventory level $m$ ?
+
+(You need to specify the critical value $m^{*}$ in addition to the optimal order-up-to quantity $y^{*}$. When $m≤m^{*}$, you make an order. Otherwise, do not order.)
+
+..?
+
+\vspace{15pt}
+
+c\. Assume optimal quantity will be ordered. What is the total expected cost when the initial inventory $m=0$? What is total expected cost when the initial inventory $m=700$?
+
+..?

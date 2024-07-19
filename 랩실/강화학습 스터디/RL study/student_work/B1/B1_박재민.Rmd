@@ -1,0 +1,285 @@
+---
+title: "B1_Newsvendor Exercise"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+\newpage
+
+# Exercises
+
+## Exercise 1
+### Assume that D follows the following discrete distribution.
+
+
+\begin{table}[ht]
+\begin{tabular}{lllll}
+\cline{1-5}
+d          & 20  & 25  & 30  & 35  \\
+$\mathbb{P}[D=d]$ & 0.1  & 0.2  & 0.4  & 0.3  \\ \cline{1-5}
+$30\wedge d$  & 20 & 25 & 30 & 30  \\
+$(30-d)^+$ & 10 & 5 & 0 & 0 \\
+$24 \wedge d$ & 20 & 24 & 24 & 24 \\
+$(24-d)^+$ & 4 & 0 & 0 & 0 \\ \cline{1-5}
+\end{tabular}
+\end{table}
+
+\normalsize (1)  $\mathbb{E}[30 \wedge D]$
+$$
+\begin{aligned}
+\mathbb{E}[30 \wedge D] &= [30 \wedge 20] * 0.1 + [30 \wedge 25] * 0.2 + [30 \wedge 30] * 0.4 + [30 \wedge 35] * 0.3 \\
+ &= 20 * 0.1+25*0.2 +30*0.4+30*0.3 \\
+\end{aligned}
+$$
+\Large A.  `r 20 * 0.1 + 25 * 0.2 +30 * 0.4 + 30  *0.3`\
+
+\normalsize (2)  $\mathbb{E}[(30-D)^+]$
+$$
+\begin{aligned}
+\mathbb{E}[(30-D)^+] &= [(30-20)^+] * 0.1 + [(30-25)^+] * 0.2 + [(30-30)^+] * 0.4 + [(30-35)^+] * 0.3 \\
+ &= 10 * 0.1+5*0.2 +0*0.4+0*0.3 \\
+\end{aligned}
+$$
+\Large A.  `r 10 * 0.1+5*0.2 +0*0.4+0*0.3`\
+
+\normalsize (3)  $\mathbb{E}[24 \wedge D]$
+$$
+\begin{aligned}
+\mathbb{E}[24 \wedge D] &= [24 \wedge 20] * 0.1 + [24 \wedge 25] * 0.2 + [24 \wedge 30] * 0.4 + [24 \wedge 35] * 0.3 \\
+ &= 20 * 0.1+24*0.2 +24*0.4+24*0.3 \\
+\end{aligned}
+$$
+\Large A.  `r 20 * 0.1+24*0.2 +24*0.4+24*0.3`\
+
+\normalsize (4)  $\mathbb{E}[(24-D)^+]$
+$$
+\begin{aligned}
+\mathbb{E}[(24-D)^+] &= [(24-20)^+] * 0.1 + [(24-25)^+] * 0.2 + [(24-30)^+] * 0.4 + [(24-35)^+] * 0.3 \\
+ &= 4 * 0.1+0*0.2 +0*0.4+0*0.3 \\
+\end{aligned}
+$$
+\Large A.  `r 4 * 0.1+0*0.2 +0*0.4+0*0.3`\
+\normalsize
+\newpage
+
+## Exercise 2   
+### Find your brother’s optimal stock level by the above Theorem 2. Then, find his expected profit using the Remark 1.
+
+1. Optimal Stock\
+retail price = \$2, material cost = \$1, salvage value = \$0.5 \
+$c_{o} = \$0.5 \rightarrow (mateirial\ cost - salvage \ value), \\ c_{u} = \$1 \rightarrow (retail\ price - material \ cost)$\
+$x^* =$ Smallest Y s.t $F(y) \geq \frac{c_{u}}{c_{o} +\ c_{u}}$\
+\begin{table}[ht]
+\begin{tabular}{llllll}
+\cline{1-6}
+          & 11  & 12  & 13  & 14  & 15  \\ \cline{1-6}
+$P(D = d)$  & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 \\
+$P(D \leq d)$ & 0.2 & 0.4 & 0.6 & 0.8 & 1.0
+\end{tabular}
+\end{table}
+$x^* =$ Smallest Y s.t $F(y) \geq \frac{2}{3}$\
+$x^* = 14$\
+\Large $\therefore$ Optimal Stock = 14
+
+
+\normalsize
+2. Expected Profit\
+$\mathbb{E}[profit] = \mathbb{E}[sale\ rev.] + \mathbb{E}[salvage\ rev.] - \mathbb{E}[material\ cost]$\
+$\mathbb{E}[sale\ rev.] = \sum_{i=11}^{15}\ (i \wedge 14) \times 0.2\ \times \$2$\
+$\mathbb{E}[salvage\ rev.] = \sum_{i=11}^{15}\ [(14-i)^+] \times 0.2\ \times \$0.5$\
+$\mathbb{E}[material\ cost] = 14\ \times \$1\ = \$14$\
+$\mathbb{E}[profit] = \$ 25.6\ + \$0.6\ - \$14\ =\ \$12.2$\
+\Large $\therefore\ $ Expected Profit = \$12.2
+
+
+
+\newpage  
+
+## Exercise 3
+### Your brother is now selling milk. The customer demands follow U(20,40) gallons. Retail price is $2 per gallon, material cost is $1 per gallon, and salvage cost is $0.5 per gallon. Find optimal stock level and expected profit.
+\normalsize
+
+1. Optimal Stock\
+retail price = \$2, material cost = \$1, salvage value = \$0.5 \
+$c_{o} = \$0.5 \rightarrow (mateirial\ cost - salvage \ value), \\ c_{u} = \$1 \rightarrow (retail\ price - material \ cost)$\
+$x^* =$ Smallest Y s.t $F(y) = \frac{c_{u}}{c_{o} +\ c_{u}}$\
+\Large$\mathbf{U}\ (20, 40)$
+\normalsize
+\begin{equation*}
+  f(x) =
+  \begin{cases}
+        \frac{1}{20} & \text{when $20 \leq\ x\ \leq\ 40$} \\
+        0           & \text{otherwise} 
+  \end{cases}
+\end{equation*}\
+\begin{equation*}
+  F(x) =
+  \begin{cases}
+        0           & \text{when $x\ \leq 20$}\\
+        \frac{x}{20} -1 & \text{when $20 \leq\ x\ \leq\ 40$} \\
+        1           & \text{when $x\ \geq 40$} 
+  \end{cases}
+\end{equation*}\
+$x^* =$ Smallest Y s.t $F(y) =\frac{2}{3}$\
+$x^* = \frac{100}{3}$\
+\Large $\therefore\ $ Optimal Stock = $\frac{100}{3}$
+\normalsize 
+
+
+2. Exected Profit\
+$\mathbb{E}[profit] = \mathbb{E}[sale\ rev.] + \mathbb{E}[salvage\ rev.] - \mathbb{E}[material\ cost]$\
+$\mathbb{E}[sale\ rev.] = \mathbb{E}[x\ \wedge\ \frac{100}{3}] \times \$2 \\ = \$2\times(\int_{0}^{20} 0\,dx\ +\int_{20}^{\frac{100}{3}} \frac{1}{20}x\,dx\ +\int_{\frac{100}{3}}^{40} {\frac{100}{3}}\times{\frac{1}{20}}\,dx\ + \int_{40}^{\infty} 0\,dx)$\
+$\mathbb{E}[salvage\ rev.] = \mathbb{E}[ (\frac{100}{3}-x)^+]\times \$0.5 =\$0.5\times(\int_{20}^{\frac{100}{3}} \frac{1}{20}(\frac{100}{3}-x)\,dx\ +\int_{\frac{100}{3}}^{40} {0}\,dx)$
+$\mathbb{E}[material\ cost] = \frac{100}{3} \times \$1$\
+$\mathbb{E}[sale\ rev.] = \frac{520}{9},\ \mathbb{E}[salvage\ rev.] = \frac{20}{9},\ \mathbb{E}[material\ cost]\ = \frac{100}{3}$\
+$\frac{520}{9}\ + \frac{20}{9}\ - \frac{100}{3} = \$ \frac{80}{3}$\
+\Large $\therefore$ Expected Profit = \$ $\frac{80}{3}$
+
+
+\normalsize
+
+\newpage  
+
+## Exercise 4
+### Lemonade sells for $18 per gallon but only costs $3 per gallon to make. If we run out of lemonade, it will be impossible to get more. On the other hand, leftover lemonade has a value of $1. Express the following quantity using sale as X and demand as D.
+
+retail price = \$18, material cost = \$3, salvage value = \$1 \
+
+$(1) \\c_{u} = \$15 \rightarrow$ (retail price - material cost)\
+
+$(2) \\ c_{o} = \$2 \rightarrow$ (material cost - salvage value)\
+
+(3)\
+Economic cost = (Understock cost) + (Overstock cost)\
+Expected economic cost = $c_{u}\ \times\ \mathbb{E}[(X-D)^+] + C_{o}\ \times\ \mathbb{E}[(D-X)^+] \\ \\= \$2 \times \mathbb{E}[(X-D)^+]\ +\ \$15 \times \mathbb{E}[(D-X)^+]$\
+
+(4)\
+$$
+\begin{aligned}
+Profit &= Revenue - Cost\\
+&= Revenue\ -\ Ordering\ cost\ -\ Holding\ cost\ -\ Backorder\ cost\\
+&=Revenue\ -\ Ordering\ cost\ -\ Economic\ cost
+\end{aligned}
+$$\
+
+$\mathbb{E}[profit]\ \\= \mathbb{E}[Revenue]\ -\ \mathbb{E}[Ordering\ cost]\ -\ \mathbb{E}[Economic\ cost]\ $
+
+$=\ \$18 \times \mathbb{E}[(X \wedge D)]\ -\ \$3\times X\ -\ (\$2 \times \mathbb{E}[(X-D)^+]\ +\ \$15 \times \mathbb{E}[(D-X)^+])$
+
+\newpage
+## Exercise 5
+### Prove Theorem 1. (Hint: you may use formulation from Exercise 4)
+Cost shows Quadratic Function Graph with minimum value. if we can prove that Profit graph shows Quadratic Function Graph with maximum value and point of mimimum cost is equal to maximum profit, we can prove $Theorem 1$.\
+
+**1.**\
+**Prove that point of minimum cost is equal to maximum/minimum point of profit (Using Differential)**\
+
+Demand follows f(x),\ \ Order size = y,\ \ Retail price - S,\ \ Material cost - C\ \ Economic cost - E(y)\
+
+$\mathbb{E}(profit) = \mathbb{E}(Revenue) - \mathbb{E}(Material cost) - \mathbb{E}(Economic cost)$\
+$\mathbb{E}(profit) = S\times\mathbb{E}([y\ \wedge\ D]) - C\times y - E(y)$\
+$\mathbb{E}(profit) = S\times(\int_{0}^{y} xf(x)\,dx\ +\ \int_{y}^{\infty} yf(x)\,dx)\ -Cy - E(y)$\
+$P(y) = S\times(\int_{0}^{y} xf(x)\,dx\ +\ \int_{y}^{\infty} yf(x)\,dx)\ -Cy - E(y)$\
+$P^{'}(y) = S\times(yf(y)\ +y(1-\int_{0}^{y}f(x)\,dx) -C - E^{'}(y)$\
+$P^{'}(y) = S\times(1-F(y)) -C - E^{'}(y)$\
+
+
+Since cost graph follows quadric format, and y that matches E'(y) = 0 is minumum cost.\
+If we set $\alpha$ as E'($\alpha$) = 0,\
+
+$P^{'}(\alpha) = S\times(1-F(\alpha)) -C - E^{'}(\alpha)$\
+$F(\alpha) = \frac{c_{u}}{c_{u}+c_{o}}$\
+$C_{u} = S-C,\ C_{o} = C$ (since salvage value transformed to holding cost in E(y))\
+$F(\alpha) = \frac{S-C}{S}$\
+$P^{'}(\alpha) = S\times(1-\frac{S-C}{S}) -C - E^{'}(\alpha)$\
+$\therefore \ P^{'}(\alpha) = 0$\
+
+Since $P^{'}(\alpha)$ is 0, we can know that point that minimize cost($= \alpha$) is equivalent point that maximize or minimize (we don' know yet) profit.
+
+\newpage
+**2.**\
+**Prove that profit graph has maximum value**\
+
+To prove that $P^{'}(\alpha)$ is maximum of quadratic graph, \
+
+$P^{'}(y) = S\times(1-F(y)) -C - E^{'}(y)$\
+$P^{''}(y) = -Sf(y)- E^{''}(y)$\
+
+Since $E^{''}(y)$ is always positive (cost graph have minimum value),\
+S is positive (Sale price), f(y) is positive(because demand graph),\
+
+We can know that $P^{''}(y)$ is **always negative** and in quadratic graph, P(y) has **maximum value**.\
+
+\Large
+$P^{'}(\alpha) = E^{'}(\alpha)=0$,\
+we can find that point that minimize cost is equivalent to maximize profit.
+
+
+\newpage
+
+# Daipark
+## Exercise 8
+### Suppose that a bakery specializes in chocolate cakes. Assume the cakes retail at \$20 per cake, but it takes $10 to prepare each cake. Cakes cannot be sold after one week, and they have a negligible salvage value. It is estimated that the weekly demand for cakes is: 15 cakes in 5% of the weeks, 16 cakes in 20% of the weeks, 17 cakes in 30% of the weeks, 18 cakes in 25% of the weeks, 19 cakes in 10% of the weeks, and 20 cakes in 10% of the weeks. How many cakes should the bakery prepare each week? What is the bakery's expected optimal weekly profit?
+
+\normalsize
+1. Optimal Stock\
+retail price = \$20, material cost = \$10, salvage value = \$0 \
+$c_{o} = \$10 \rightarrow$ (material cost - salvage value)\
+$c_{u} = \$10 \rightarrow$ (retail price - material cost)\
+$x^* =$ Smallest Y s.t $F(y) \geq \frac{c_{u}}{c_{o} +\ c_{u}}$\
+\begin{table}[ht]
+\begin{tabular}{lllllll}
+\cline{1-7}
+          & 15  & 16  & 17  & 18  & 19  &20 \\ \cline{1-7}
+$P(D = d)$  & 0.05 & 0.2 & 0.3 & 0.25 & 0.1 &0.1 \\
+$P(D \leq d)$ & 0.05 & 0.25 & 0.55 & 0.8 & 0.9 & 1.0
+\end{tabular}
+\end{table}
+$x^* =$ Smallest Y s.t $F(y) \geq \frac{1}{2}$\
+$x^* = 17$\
+\Large $\therefore$ Optimal stock = 17
+
+\normalsize
+2. Expected Profit\
+$\mathbb{E}[profit] = \mathbb{E}[sale\ rev.] + \mathbb{E}[salvage\ rev.] - \mathbb{E}[material\ cost]$\
+$\mathbb{E}[sale\ rev.] = \sum_{i=15}^{20}\ (i \wedge 17) \times P(i)\ \times \$20$\
+$\mathbb{E}[salvage\ rev.] = 0$\
+$\mathbb{E}[material\ cost] = 17\ \times \$10\ = \$170$\
+$\mathbb{E}[profit] = \$ 334\ + \$0\ - \$170\ =\ \$164$\
+\Large $\therefore$ Expected Profit = \$164
+
+
+
+
+
+
+
+
+
+
+\newpage
+```{#numCode .R .numberLines}
+
+```
+

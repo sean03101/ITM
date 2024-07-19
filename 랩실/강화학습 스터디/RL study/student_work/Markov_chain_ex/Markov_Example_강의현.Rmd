@@ -1,0 +1,34 @@
+---
+title: "Markov Chain Example"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\vspace{50pt}
+## Lazy Minsu
+
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　
+
+#### Lazy Minsu spends most of his day in bed. Minus's mom nags at the lazy Minsu. "Don't just lie down like that. Sit down and study!". Minsu thinks about getting out of the bed after hearing mother's nagging. Minsu has no choice but to sit at the desk. But, Minsu has no patience. The probability that Minsu still sits at the desk after one hour is only 0.2, and once he goes back to bed, the probability that he sits at the desk again is 0.5. What will Minsu become when he grows up?  
+
+　　　　　　　　　　　　　　　　　　
+　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　
+
+1.  What is the state space?
+2.  What is the transition matrix?
+3.  What is the initial distribution?
+4.  After 8 hours, where is Minsu more likely to be?

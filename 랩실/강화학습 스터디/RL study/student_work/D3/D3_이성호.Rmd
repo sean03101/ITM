@@ -1,0 +1,167 @@
+---
+title: "D3"
+author: "Lee SungHo"
+date:  "`r Sys.Date()`"
+output: 
+   pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+  
+
+
+
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+```
+
+
+
+
+\newpage
+## Exercise 1
+**How would you generalize this game with arbitrary value of $m_1$ (minimum increment), $m_2$ (maximum increment), and $N$ (the winning number)? **
+
+
+\begin{itemize}
+\item $m_{1} = 1$
+\item $m_{2} = 2$
+\item $N = 31$
+\end{itemize}
+
+\newpage
+## Exercise 2
+**Two players are to play a game. The two players take turns to call out integers. The rules are as follows. Describe A’s winning strategy.**
+
+
+
+
+
+
+
+
+
+
+\newpage
+## Exercise 3
+**There is only finite number of deterministic stationary policy. How many is it?**
+
+\
+\vspace{30pt}
+
+Answer is $|\pi|=|A|^{|S|}$ ($length\ of\ policy\ matrix^{finite \ numer}$)
+
+
+\newpage
+## Exercise 4
+**Formulate the first example in this lecture note using the terminology including state, action, reward, policy, transition. \\ Describe the optimal policy using the terminology as well.**
+
+
+
+A and B are to play a game. They take turn to call out integers. \\
+1. The serving player must call out an integer between 1 or 2. \\
+2. The opponent player 1) takes the other player’s number and 2) increments it by 1 or 2, then 3) call out the number. \\
+3. Keep playing back and forth until someone calling out the number 31. The person calling out 31 is winner. 
+    }%
+}
+
+\vspace{30pt}
+
+\begin{itemize}
+\item State = $1\le S_{t} \le 31\ \& S_{t}\ is\ intger$
+\item $a_{1}$ is increased by 1
+\item $a_{2}$ is increased by 2
+\end{itemize}
+
+
+\begin{center}
+Policy
+\end{center}
+******
+
+if $S_{t}$ == 0:
+  $a_{1}$
+elif $S_{t}$ % 3 == 1:
+  $a_{2}$
+elif $S_{t}$ % 3 == 2:
+  $a_{1}$
+
+
+
+\begin{center}
+Reward
+\end{center}
+******
+
+
+\begin{itemize}
+\item $If\ S_{t} == 31$ reward is 100
+\item otherwise 0
+\end{itemize}
+
+
+\begin{center}
+Transition
+\end{center}
+******
+
+$P_{ss'}^a = P(S_{t+1} = S' \mid S_t = s, A_t = a) =1$  
+
+
+
+
+\newpage
+## Exercise 5
+**From the first example**
+\begin{itemize}
+\item Assume that your opponent increments by 1 with prob 0.5 and by 2 with prob 0.5
+\item Assume that the winning number is 0 instead of 31
+\item your opponent played first and she called out 1
+\item your current a policy $\pi_{0}$ is that
+\begin{itemize}
+\item if the current state s \le 5 then increment by 2
+\item if the current state s > 5 then increment by 1
+\end{itemize}
+\end{itemize}
+
+**Evaluate $V^{\pi_{0}}(1)$ **
+
+$S_{1} = 1$
+
+while $S_{t} \le 10$
+
+
+\quad P = random Prob
+
+\quad if P > 0.5 
+
+\qquad $S_{t}=S_{t}+1$
+
+\quad elif P \le 0.5
+
+\qquad $S_{t}=S_{t}+2$
+
+\quad If $S_{t}==10$ # when you lose
+
+
+\qquad return 0
+
+\quad If $S_{t}\le 5$
+
+\qquad $S_{t+1}=S_{t}+2$
+
+\quad If $S_{t} > 5$
+
+\qquad $S_{t+1}=S_{t}+1$
+
+\quad If $S_{t}$ == 10 # when you win
+
+\qquad return 1

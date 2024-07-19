@@ -1,0 +1,112 @@
+---
+title: "Inotes2_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+```
+
+\newpage
+
+## Markorv Process p.3 Mars rover 그림 마코프체인 문제 다이어그램, 메트릭스를 작성하고 이때까지 배운것 적용해보기
+
+![Diagram](C://Users/user/Desktop/Reinforcement learning/Inotes2/diagram.png)
+
+\vspace{20pt}
+
+$$
+P=\begin{pmatrix} 0.6 & 0.4 & 0 & 0 & 0 & 0 & 0\\ 0.4 & 0.2 & 0.4 & 0 & 0 & 0 & 0\\0 & 0.4 & 0.2 & 0.4 & 0 & 0 & 0\\0 & 0 & 0.4 & 0.2 & 0.4 & 0 & 0\\0 & 0 & 0 & 0.4 & 0.2 & 0.4 & 0\\0 & 0 & 0 & 0 & 0.4 & 0.2 & 0.4\\0 & 0 & 0 & 0 & 0 & 0.4 & 0.6\\ \end{pmatrix}
+$$
+
+\newpage
+
+## Mars Rover Markov Process MC로 파이썬 구현해서 reward 계산하기(Time Horizon 10일이라 가정, S4에서 시작)
+
+
+```{python}
+import numpy as np
+MC_N = 100000
+H=10
+def mars_simul(state):
+    n=np.random.rand()
+    
+    
+    if(state==0 and n<=0.6):
+        state=0
+    elif(state==0 and n>0.6):
+        state+=1
+    elif(state>=1 and state<=8):
+        if(n<=0.4):
+            state-=1
+        elif(n>0.4 and n<=0.8):
+            state+=1
+    if(state==H-1 and n<=0.6):
+        state=H-1
+    elif(state==H-1 and n>0.6):
+        state-=1
+        
+    return state
+    
+    
+def reward_eval(path):
+    reward = path.count(0)*1 + path.count(9)*10
+    return reward
+    
+reward = np.array([])
+result = []
+start_state = 4
+for i in range(MC_N):
+    state = start_state
+    for t in range(H):
+        result.append(state)
+        state = mars_simul(state)
+    reward=np.append(reward, reward_eval(result))
+    result=[]
+print(np.mean(reward))     
+
+```
+
+
+
+```{python}
+import numpy as np
+P = np.array([[0.6,0.4,0,0,0,0,0,0,0,0],[0.4,0.2,0.4,0,0,0,0,0,0,0],[0,0.4,0.2,0.4,0,0,0,0,0,0],
+[0,0,0.4,0.2,0.4,0,0,0,0,0],[0,0,0,0.4,0.2,0.4,0,0,0,0],[0,0,0,0,0.4,0.2,0.4,0,0,0],
+[0,0,0,0,0,0.4,0.2,0.4,0,0],[0,0,0,0,0,0,0.4,0.2,0.4,0],[0,0,0,0,0,0,0,0.4,0.2,0.4],
+[0,0,0,0,0,0,0,0,0.4,0.6]])
+R = np.array([1,0,0,0,0,0,0,0,0,10]).reshape(10,1)
+H=10
+v_t1 = np.array([0,0,0,0,0,0,0,0,0,0]).reshape(10,1)
+t=H-1
+
+while(t>=0):
+    v_t = R + np.dot(P,v_t1)
+    t=t-1
+    v_t1 = v_t
+print(v_t)
+```
+
+thus, $1.1463639$
+```{r, results='hide'}
+"Inotes2_Exercises"
+```

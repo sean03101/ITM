@@ -1,0 +1,94 @@
+---
+title: "B2_황재훈"
+author: "Jaehun Hwang"
+date: "1/4/2021"
+output:   
+  pdf_document:  
+    # latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    # toc: true   
+    # toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+header-includes:
+  \usepackage{kotex}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("reticulate")
+knitr::opts_chunk$set(python.reticulate=FALSE)
+
+use_condaenv("tensorflow2")
+
+options(encoding = "UTF-8")
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+## P4.Implementation
+
+- Following code tries the stock level $X \in \{11,12,13,14,15\}$
+
+```{python p4}
+import numpy as np
+
+for X in range(11,16):
+    MC_N = 1000
+    D = np.random.choice(list(range(11,16)), MC_N, replace=True)
+    sales_rev = 2 * np.minimum(D, X)
+    salvage_rev = 0.5 * np.maximum(np.subtract(X,D), 0)
+    material_cost = 1 * X
+    profit = sales_rev + salvage_rev - material_cost
+    print("X: ", X, ", expected profit: ", np.mean(profit))
+```
+
+\newpage
+
+## P5.Uniform
+
+```{python p5, echo=TRUE}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+try_X = np.arange(20, 40.001, 0.01)
+# print(try_X)
+
+result = {"try_X": [], "exp_profits": []}
+# exp_profits = None
+
+for X in try_X:
+  MC_N = 10000
+  D = np.random.uniform(20, 40, size=MC_N)
+  sales_rev = 2 * np.minimum(D, X)
+  salvage_rev = 0.5 * np.maximum(np.subtract(X,D), 0)
+  material_cost = 1 * X
+  exp_profit = np.mean(sales_rev + salvage_rev - material_cost)
+  result["try_X"].append(X)
+  result["exp_profits"].append(exp_profit)
+    
+result_frame = pd.DataFrame(result) 
+
+print(result_frame.head(10))
+
+
+
+plt.figure()
+result_frame.plot.scatter(x="try_X", y="exp_profits")
+plt.savefig("B1_P6.png", bbox_inches="tight")
+
+```
+
+Output:
+
+![output](B1_P6.png)
+
+

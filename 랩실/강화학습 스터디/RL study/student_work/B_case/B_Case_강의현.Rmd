@@ -1,0 +1,43 @@
+---
+title: "B_Case"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    #includes:
+    #  in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+
+**Problem**
+
+You run a sushi restaurant in Seoul. You buy a fish for \$3 at the fish market and sell them as a sushi for \$6. If you can't sell all the fish on that day, you'll have to resell it for $1.5 per fish in the fish market. When the demand for sushi is as shown in the table below, answer to questions.
+
++--------+-----+-----+-----+-----+-----+
+|$d$     |30   |  31 |  32 |   33|34   |
++:======:+:===:+:===:+:===:+:===:+:===:+
+|$P(D=d)$|$0.4$|$0.1$|$0.1$|$0.2$|$0.2$|
++--------+-----+-----+-----+-----+-----+
+
+**Question.**
+
+  1. Find Optimal stock
+  
+  2. What is Expected profit?

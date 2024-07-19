@@ -1,0 +1,318 @@
+---
+title: "F4 Python Code"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+```
+
+\newpage
+
+# Preparation
+
+```{python}
+
+states=np.arange(0,70+10,10).astype('str')
+states
+
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+P_normal
+
+
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                                [.1,0,0,.9,0,0,0,0],
+                                [0,.1,0,0,.9,0,0,0],
+                                [0,0,.1,0,0,.9,0,0],
+                                [0,0,0,.1,0,0,.9,0],
+                                [0,0,0,0,.1,0,0,.9],
+                                [0,0,0,0,0,.1,0,.9],
+                                [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+P_speed
+
+
+R_s_a=pd.DataFrame(np.c_[[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]], index=states, columns=['n','s'])
+
+R_s_a.T
+
+q_s_a_init=pd.DataFrame(np.c_[np.repeat(0.0,len(states)), np.repeat(0.0,len(states))], index=states, columns=['n','s'])
+
+q_s_a_init.T
+
+
+# Policy
+
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1, len(states))], index=states, columns=['n','s'])
+
+pi_speed.T
+
+
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5, len(states)), np.repeat(0.5, len(states))], index=states, columns=['n','s'])
+
+pi_50.T
+
+
+# simul_step()
+
+def simul_step(pi, s_now, P_normal, P_speed, R_s_a):
+    if np.random.uniform(0,1) < pi.loc[s_now]['n']:
+        a_now='n'
+        P=P_normal
+    else:
+        a_now='s'
+        P=P_speed
+        
+    r_now=R_s_a.loc[s_now][a_now]
+    s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+    
+    if np.random.uniform(0,1) < pi.loc[s_next]['n']:
+        a_next='n'
+    else:
+        a_next='s'
+        
+    sarsa=[s_now, a_now, r_now, s_next, a_next]
+    
+    return sarsa
+
+sample_step=simul_step(pi=pi_speed, s_now='0', P_normal=P_normal, P_speed=P_speed, R_s_a=R_s_a)
+sample_step
+
+# pol_eval_TD
+
+def pol_eval_TD(sample_step, q_s_a, alpha):
+    s=sample_step[0]
+    a=sample_step[1]
+    r=sample_step[2]
+    s_next=sample_step[3]
+    a_next=sample_step[4]
+    
+    q_s_a.loc[s][a]=q_s_a.loc[s][a]+alpha*(r+q_s_a.loc[s_next][a_next]-q_s_a.loc[s][a])
+    
+    return q_s_a
+
+# pol_eval_Q
+    
+def pol_eval_Q(sample_step, q_s_a, alpha):
+    s=sample_step[0]
+    a=sample_step[1]
+    r=sample_step[2]
+    s_next=sample_step[3]
+    a_next=sample_step[4]
+    
+    q_s_a.loc[s][a]=q_s_a.loc[s][a]+alpha*(r+max(q_s_a.loc[s_next])-q_s_a.loc[s][a])
+    return q_s_a
+
+# pol_imp()
+
+def pol_imp(pi, q_s_a, epsilon): # epsilon=exploration_rate
+    for i in range(0, pi.shape[0]):
+        if np.random.uniform(0,1)>epsilon: #exploitation
+            pi.iloc[i]=0
+            pi.iloc[i][q_s_a.iloc[i].idxmax()]=1
+        else:
+            pi.iloc[i]=1/q_s_a.shape[1]
+    
+    return pi
+```
+
+\newpage
+
+# Q - Learning
+
+```{python}
+
+from time import time
+from copy import deepcopy
+
+num_ep=10**5
+beg_time=time()
+q_s_a=deepcopy(q_s_a_init)
+pi=deepcopy(pi_50)
+exploration_rate=1
+
+for epi_i in range(1,num_ep+1):
+    s_now='0'
+    while s_now!='70':
+        sample_step=simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a=pol_eval_Q(sample_step, q_s_a, alpha=max(1/epi_i, 0.05))
+        if epi_i%100 == 0 :
+            pi=pol_imp(pi, q_s_a, epsilon=exploration_rate)
+            
+        s_now=sample_step[3]
+        exploration_rate=max(exploration_rate*0.9995, 0.001)
+        
+end_time=time()
+
+q_s_a.T
+
+print(end_time-beg_time)
+
+pi.T
+```
+
+\newpage
+
+# Double Q - Learning
+
+```{python}
+
+
+def pol_eval_Q(sample_step, q_s_a, alpha):
+    s=sample_step[0]
+    a=sample_step[1]
+    r=sample_step[2]
+    s_next=sample_step[3]
+    a_next=sample_step[4]
+    
+    q_s_a.loc[s][a]=q_s_a.loc[s][a]+alpha*(r+max(q_s_a.loc[s_next])-q_s_a.loc[s][a])
+    return q_s_a
+
+def pol_eval_dbl_Q(sample_step, q_s_a_1, q_s_a_2, alpha):
+    s=sample_step[0]
+    a=sample_step[1]
+    r=sample_step[2]
+    s_next=sample_step[3]
+    
+    if np.random.uniform(0,1) < 0.5 :
+        q_s_a_1.loc[s][a]=q_s_a_2.loc[s][a]+alpha*(r+q_s_a_2.loc[s_next][q_s_a_1.loc[s_next].idxmax()]-q_s_a_1.loc[s][a])
+    else:
+        q_s_a_2.loc[s][a]=q_s_a_2.loc[s][a]+alpha*(r+q_s_a_1.loc[s_next][q_s_a_2.loc[s_next].idxmax()]-q_s_a_2.loc[s][a])
+        
+    return q_s_a_1, q_s_a_2
+```
+
+\newpage
+
+# Double Q-Learning (11p)
+
+```{python}
+
+num_ep=10**5
+beg_time=time()
+q_s_a_1=deepcopy(q_s_a_init)
+q_s_a_2=deepcopy(q_s_a_init)
+pi=deepcopy(pi_50)
+exploration_rate=1
+
+for epi_i in range(1, num_ep+1):
+    s_now='0'
+    while s_now!='70':
+        sample_step=simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a_1, q_s_a_2=pol_eval_dbl_Q(sample_step, q_s_a_1, q_s_a_2, alpha=max(1/epi_i, 0.05))
+        
+        if epi_i % 100 == 0:
+            pi=pol_imp(pi, q_s_a_1+q_s_a_2, epsilon=exploration_rate)
+        
+        s_now=sample_step[3]
+        exploration_rate=max(exploration_rate*0.9995, 0.001)
+        
+end_time=time()
+
+pd.DataFrame(((q_s_a_1+q_s_a_2)/2), index=states, columns=['n','s']).T
+
+print(end_time-beg_time)
+
+pi.T
+```
+
+\newpage
+
+# Exercise (case : epi_i%500==0)
+
+```{python}
+
+num_ep=10**5
+beg_time=time()
+q_s_a_1=deepcopy(q_s_a_init)
+q_s_a_2=deepcopy(q_s_a_init)
+pi=deepcopy(pi_50)
+exploration_rate=1
+
+for epi_i in range(1, num_ep+1):
+    s_now='0'
+    while s_now!='70':
+        sample_step=simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a_1,q_s_a_2=pol_eval_dbl_Q(sample_step, q_s_a_1, q_s_a_2, alpha=max(1/epi_i, 0.05))
+        
+        if epi_i % 500 == 0:
+            pi=pol_imp(pi, q_s_a_1+q_s_a_2, epsilon=exploration_rate)
+        
+        s_now=sample_step[3]
+        exploration_rate=max(exploration_rate*0.9995, 0.001)
+        
+end_time=time()
+
+pd.DataFrame(((q_s_a_1+q_s_a_2)/2), index=states, columns=['n','s']).T
+
+print(end_time-beg_time)
+
+pi.T
+```
+
+\newpage
+
+# Exercise (case : alpha=max(n, 0.1))
+
+```{python}
+
+num_ep=10**5
+beg_time=time()
+q_s_a_1=deepcopy(q_s_a_init)
+q_s_a_2=deepcopy(q_s_a_init)
+pi=deepcopy(pi_50)
+exploration_rate=1
+
+for epi_i in range(1, num_ep+1):
+    s_now='0'
+    while s_now!='70':
+        sample_step=simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a_1,q_s_a_2=pol_eval_dbl_Q(sample_step, q_s_a_1, q_s_a_2, alpha=max(1/epi_i, 0.1))
+        
+
+        if epi_i % 100 == 0:
+            pi=pol_imp(pi, q_s_a_1+q_s_a_2, epsilon=exploration_rate)
+        
+        s_now=sample_step[3]
+        exploration_rate=max(exploration_rate*0.9995, 0.001)
+        
+end_time=time()
+
+pd.DataFrame(((q_s_a_1+q_s_a_2)/2), index=states, columns=['n','s']).T
+
+print(end_time-beg_time)
+
+pi.T
+```

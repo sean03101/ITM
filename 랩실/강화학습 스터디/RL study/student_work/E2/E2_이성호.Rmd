@@ -1,0 +1,231 @@
+---
+title: "E2 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("pandas")
+py_install("matplotlib")
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+## Page 4 policy eval 
+```{python, echo = TRUE}
+import numpy as np
+import pandas as pd
+
+gamma = 1
+states = np.arange(0,80,10).astype('str')
+P_normal = pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+def transition(given_pi, states, P_normal, P_speed):
+    P_out=pd.DataFrame(np.zeros((len(states),len(states))),index=states, columns=states)
+    
+    for s in states:
+        action_dist=given_pi.loc[s]
+        P=action_dist['normal']*P_normal+action_dist['speed']*P_speed
+        P_out.loc[s]=P.loc[s]
+        
+    return P_out
+
+R_s_a=pd.DataFrame(np.matrix([-1,-1,-1,-1,0.0,-1,-1,0,-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['normal','speed'],index=states)
+
+def reward_fn(given_pi):
+    
+    R_pi=np.array((given_pi*R_s_a).sum(axis=1)).reshape(-1,1)
+    return R_pi
+
+def policy_eval(given_pi):
+    R=reward_fn(given_pi)
+    P=transition(given_pi, states=states, P_normal=P_normal, P_speed=P_speed)
+    
+    gamma=1.0
+    epsilon=10**(-8)
+    
+    v_old=np.repeat(0,8).reshape(8,1)
+    v_new=R+np.dot(gamma*P, v_old)
+    
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)
+        
+    return v_new
+
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))],index=states, columns=['normal','speed'])
+a = policy_eval(pi_speed).T
+a = a.flatten()
+
+pi_speed_dict = dict(zip([0,10,20,30,40,50,60,70],a)) 
+print(pi_speed_dict)
+
+
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],index=states, columns=['normal','speed'])
+b = policy_eval(pi_50).T
+b = b.flatten()
+
+
+pi_50_dict = dict(zip([0,10,20,30,40,50,60,70],b)) 
+print(pi_50_dict)
+
+
+```
+
+
+
+\newpage
+
+## p.12 Implementation
+
+```{python,echo=TRUE}
+
+V_old=policy_eval(pi_speed)
+pi_old=pi_speed
+
+q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)))
+print(q_s_a)
+
+```
+
+## p.12 Implementation
+
+```{python,echo=TRUE}
+
+idxmax = q_s_a.idxmax(axis=1).tolist()
+count = 0
+pi_new = pd.DataFrame(np.zeros(16).reshape(8,2),index = q_s_a.index,columns = q_s_a.columns)
+for i in q_s_a.index.tolist():
+    
+    pi_new.loc[i][idxmax[count]] = 1
+    count +=1
+pi_new
+
+
+
+
+
+def policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed):
+    q_s_a=R_s_a+np.c_[np.dot(gamma*P_normal,V_old), np.dot(gamma*P_speed, V_old)]
+    
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+    
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec[i]]=1
+        
+    return pi_new
+pi_old=pi_speed
+V_old=policy_eval(pi_old)
+pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed)
+pi_old
+pi_new
+```
+
+
+\newpage
+
+## p.16 Policy iteration
+
+```{python, echo=TRUE}
+# step0
+pi_old=pi_speed
+pi_old
+# step1
+V_old=policy_eval(pi_old)
+pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed)
+pi_old=pi_new
+pi_old
+# step2
+V_old=policy_eval(pi_old)
+pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed)
+pi_old=pi_new
+pi_old
+# step3
+V_old=policy_eval(pi_old)
+pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed)
+pi_old=pi_new
+pi_old
+```
+
+\newpage
+
+## P.18 Policy iteration process (from $\pi^{speed}$)
+
+```{python, ehco=TRUE}
+pi_old=pi_speed
+cnt=0
+while True:
+    print(cnt,'-th iteration')
+    print(pi_old.T)
+    
+    V_old=policy_eval(pi_old)
+    pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed)
+    
+    if pi_new.equals(pi_old)==True:
+        break
+    
+    pi_old=pi_new
+    cnt+=1
+    
+print(policy_eval(pi_new))
+```
+
+\newpage
+
+## P.19 Policy iteration process (from $\pi^{50}$)
+
+```{python,echo=TRUE}
+pi_old=pi_50
+cnt=0
+while True:
+    print(cnt,'-th iteration')
+    print(pi_old.T)
+    
+    V_old=policy_eval(pi_old)
+    pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_normal=P_normal, P_speed=P_speed)
+    
+    if pi_new.equals(pi_old)==True:
+        break
+    
+    pi_old=pi_new
+    cnt+=1
+    
+print(policy_eval(pi_new))
+```

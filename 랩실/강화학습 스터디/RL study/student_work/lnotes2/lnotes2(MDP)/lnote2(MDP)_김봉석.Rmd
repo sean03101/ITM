@@ -1,0 +1,284 @@
+---
+title: "Lecture lnotes2 Mars Rover(MDP)"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+## Example of a Markov decision process : Mars Rover
+As an example of a MDP, consider the example given in Figure 3. The agent is again a Mars rover
+whose state space is given by S = \{S1, S2, S3, S4, S5, S6, S7\}. The agent has two actions in each
+state called "try left" and "try right", and so the action space is given by A = \{TL, TR\}. Taking an
+action always succeeds, unless we hit an edge in which case we stay in the same state. This leads to
+the two transition probability matrices for each of the two actions as shown in Figure 3. The rewards
+from each state are the same for all actions, and is 0 in the states \{S2, S3, S4, S5, S6\}, while for the
+states S1, S7 the rewards are 1, 10 respectively. The discount factor for this MDP is some γ ∈ [0, 1].
+
+## Preparation
+
+State space = \{S1,S2,S3,S4,S5,S6,S7\}
+
+action = \{try left, try right\} =\{TL,TR\} action always succeeds unless hit an edge
+
+Reward = S1, S7 1, 10 respectively else 0
+
+Transition Probabilty ,$P_{ss\prime}^a$  in Figure 3
+
+
+
+### Pi S->A
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd 
+
+states = ['S1','S2','S3','S4','S5','S6','S7']
+
+pi_TL = np.c_[np.repeat(1,len(states)), np.repeat(0,len(states))]
+pi_TL = pd.DataFrame(pi_TL, columns=['TL','TR'],index= states)
+
+pi_TR = np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))]
+pi_TR = pd.DataFrame(pi_TR, columns=['TL','TR'],index= states)
+
+pi_50 = np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))]
+pi_50 = pd.DataFrame(pi_50, columns=['TL','TR'],index= states)
+
+
+pi_TL
+```
+
+### P^pi SXA -> S`
+
+```{python, echo=TRUE}
+P_TL = np.matrix([
+                  [1,0,0,0,0,0,0],
+                  [1,0,0,0,0,0,0],
+                  [0,1,0,0,0,0,0],
+                  [0,0,1,0,0,0,0],
+                  [0,0,0,1,0,0,0],
+                  [0,0,0,0,1,0,0],
+                  [0,0,0,0,0,1,0],
+                 ])
+
+P_TR = np.matrix([[0,1,0,0,0,0,0],
+                  [0,0,1,0,0,0,0],
+                  [0,0,0,1,0,0,0],
+                  [0,0,0,0,1,0,0],
+                  [0,0,0,0,0,1,0],
+                  [0,0,0,0,0,0,1],
+                  [0,0,0,0,0,0,1],
+                  
+                 ])
+                 
+P_TL
+```
+
+
+```{python, echo=TRUE}
+def transition(given_pi,states, P_TL, P_TR):
+    P_out = np.zeros(shape=(7,7))
+    
+    for i in range(len(states)):
+        action_dist = given_pi.iloc[i,:]
+        
+        P= action_dist['TL']*P_TL + action_dist['TR']*P_TR
+        P_out[i,]=P[i,]
+        
+    return P_out
+
+transition(pi_TL, states=states, P_TL=P_TL, P_TR=P_TR)
+```
+
+
+### R^pi S->R
+```{python, echo=TRUE}
+R_s_a = pd.DataFrame(np.array([[1,0,0,0,0,0,10],
+                                  [1,0,0,0,0,0,10]]).T,columns=['TL','TR'],index=states)
+                                  
+def reward_fn(given_pi):
+    R_s_a = pd.DataFrame(np.array([[1,0,0,0,0,0,10],
+                                  [1,0,0,0,0,0,10]]).T,columns=['TL','TR'],index=states) # all action got same reward 
+    R_pi = np.sum(R_s_a*given_pi, axis=1)
+                         
+    return R_pi
+
+reward_fn(pi_TR)        
+
+```
+
+## Policy evaluation
+```{python, echo=TRUE}
+def policy_eval(given_pi,gamma=0.99):
+    R = reward_fn(given_pi).values.reshape(7,1)
+    P = transition(given_pi,states, P_TL = P_TL, P_TR = P_TR)
+
+    gamma = gamma
+    epsilon = 10**(-8)
+    
+    v_old=np.repeat(0,7).reshape(7,1)
+    v_new = R+gamma*np.dot(P, v_old)
+        
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)
+        
+    
+    return v_new
+```
+
+
+```{python, echo=TRUE}
+policy_eval(pi_TL, gamma=0.9).astype(int)
+policy_eval(pi_TL, gamma=0).astype(int)
+policy_eval(pi_TL, gamma=0.1).astype(int)
+
+
+
+```
+
+
+## Policy Improvement
+
+```{python, echo=TRUE}
+gamma=0.1
+V_old = policy_eval(pi_TL)
+pi_old = pi_TL
+q_s_a = R_s_a + np.c_[gamma*np.dot(P_TL,V_old), gamma*np.dot(P_TR,V_old)]
+q_s_a
+
+```
+
+```{python, echo=TRUE}
+pi_new_vec=q_s_a.idxmax(axis=1)
+pi_new_vec
+
+
+pi_new = pd.DataFrame(np.zeros(shape=(pi_old.shape)),columns=['TL','TR'])
+
+
+for i in range(len(pi_new_vec)):
+    pi_new.iloc[i][pi_new_vec[i]]=1 
+
+pi_new
+
+```
+
+```{python, echo=TRUE}
+def policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_TL = P_TL, P_TR = P_TR):
+    
+    q_s_a=R_s_a + np.c_[np.dot(P_TL,V_old),np.dot(P_TR,V_old)]
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new = pd.DataFrame(np.zeros(shape=(pi_old.shape)),columns=['TL','TR'],index=states)
+    
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec[i]]=1 
+    
+    return pi_new
+
+```
+
+
+## Policy iteration
+
+```{python, echo=TRUE}
+
+pi_old = pi_TL
+gamma =0.99
+
+cnt = 0 
+
+while True :
+    print("-------------------")
+    print(cnt,"-th iteration")
+    print(pi_old)
+    V_old = policy_eval(pi_old)
+    pi_new  = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_TL = P_TL, P_TR = P_TR)
+    
+    if(np.sum((pi_old==pi_new).values) != pi_new.shape[0]*pi_new.shape[1]):
+        cnt+=1
+        pi_old=pi_new
+        continue
+    break
+
+print("-------------------")
+print(policy_eval(pi_new,0.1).astype(int))   
+```
+
+
+## Value imporvement
+
+```{python, echo=TRUE}
+cnt=0
+gamma=0.99
+epsilon=10**(-6)
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+results=V_old.T
+while True:
+    q_s_a=R_s_a + np.c_[gamma*np.dot(P_TL,V_old),gamma*np.dot(P_TR,V_old)]
+    V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+    
+    if np.max(np.abs(V_new-V_old)).item() < epsilon :
+        break
+    
+    results=np.r_[results, V_new.T]
+    V_old=V_new
+
+    
+    cnt+=1
+
+```
+
+
+```{python, echo=TRUE}
+value_iter_process = results
+
+results = pd.DataFrame(results, columns=states)
+
+results
+
+```
+
+```{python, echo=TRUE}
+V_opt=value_iter_process[-1]
+q_s_a=R_s_a+np.c_[np.dot(gamma*P_TL,V_opt.T),np.dot(gamma*P_TR,V_opt.T)]
+q_s_a
+
+pi_opt_vec=q_s_a.idxmax(axis=1)
+
+pi_opt = pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['TL','TR'])
+
+for i in states:
+    pi_opt.loc[i][[pi_opt_vec][0][i]]=1
+
+pi_opt
+```
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture E1.MDP with Model1 "
+```

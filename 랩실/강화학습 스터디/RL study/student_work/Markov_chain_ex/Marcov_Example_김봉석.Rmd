@@ -1,0 +1,79 @@
+---
+title: "Markov Chain Applicaition in Recommendation System"  
+author: "BongSeokKim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+
+## Introduction (Markov Chain Applicaition in Personalized Recommendation System)
+
+Recommendation system is one of the hot topics these days. Companies like Netflix and 
+Watcha are making great success using the recommendation system as a key technology.
+as I know, they are using item-based or user-based recommendation systems or Hybrid Ensemble Technique.
+But Usr`s web log data or Purchase data contians TimeSeries history, which is one of most important feature in prediction of future works.
+I Think it would be modeled as a Markov Chain, further more MDP or RL Problem 
+
+
+We will be able to answer 'what is the best recommendation item or what is optimal action in now ?' in the process of solving this problem.
+
+Unlike User-based and Item=based Recomendation System, I want to create a more personalized agent.
+
+
+## Problem Formulation 
+There is a clear limit because I do not know the Makov chain perfectly yet.
+Following, the basic level of Problem Folmulation I tried is described.
+
+I'll give you an example MDP with Netflix that I like.
+
+
+\begin{itemize}
+	\item State : set of recent history of Watching Movies. ex) recent 5 history of recent Movie Title and Raiting  
+	\item Action : Based on that history(State) recommend several similar movies, which will be action of each of Recommendation
+	\item Trainsition Probability : ? 1 or 0 
+	\item Reward : if User see the Recommended Movies +1 else 0 or Rating Point 
+\end{itemize}
+
+
+we will find what is Optimal action to maximize the reward, 
+
+the agent will be traind, The more rewards receive, the better will recommend
+
+**FInally, The more users use, the more likely have a better personalized agent.**
+
+
+
+## Imitation 
+
+yet, I only came up with ideas, but I do not know how to model them perfectly.
+
+what is Transition Probability? .. State?
+
+
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done"
+```

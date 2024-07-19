@@ -1,0 +1,105 @@
+---
+title: "C1_황재훈"
+author: "Jaehun Hwang"
+date: "1/4/2021"
+output:   
+  pdf_document:  
+    # latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    # toc: true   
+    # toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+header-includes:
+  \usepackage{kotex}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("reticulate")
+knitr::opts_chunk$set(python.reticulate=FALSE)
+
+use_condaenv("tensorflow2")
+
+options(encoding = "UTF-8")
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+## P25.Simulating stochastic paths
+
+```{python p25}
+
+import numpy as np
+
+def soda_simul(this_state):
+    u = np.random.rand()
+    if (this_state == "c"):
+        if(u<=0.7):
+            next_state = "c"
+        else:
+            next_state = "p"
+    else:
+        if(u<=0.5):
+            next_state = "c"
+        else:
+            next_state = "p"    
+    return next_state
+    
+
+for i in range(1,6):
+    path = "c"
+    for n in range(1,10):
+        this_state = path[-1] # read lastest state
+        next_state = soda_simul(this_state) # determine next state
+        path = path + next_state
+    print(i, path)
+
+```
+
+## P25.Simulating stochastic paths (cont.)
+
+```{python p26}
+
+import numpy as np
+
+def soda_simul(this_state):
+    u = np.random.rand()
+    if (this_state == "c"):
+        if(u<=0.7):
+            next_state = "c"
+        else:
+            next_state = "p"
+    else:
+        if(u<=0.5):
+            next_state = "c"
+        else:
+            next_state = "p"    
+    return next_state
+
+def cost_eval(path):
+    cost_one_path = path.count("c") * 1.5 + path.count("p") * 1
+    return cost_one_path
+    
+    
+MC_N = 10000
+spending_records = [0] * MC_N
+
+for i in range(MC_N):
+    path = "c"
+    for t in range(1,10):
+        this_state = path[-1] # read lastest state
+        next_state = soda_simul(this_state) # determine next state
+        path = path + next_state
+    spending_records[i] = cost_eval(path)
+    
+print(np.mean(spending_records))
+
+```

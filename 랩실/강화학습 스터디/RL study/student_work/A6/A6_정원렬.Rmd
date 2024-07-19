@@ -1,0 +1,171 @@
+---
+title: "A6_Jeong,Wonryoel"
+author: "Jeong, wonryeol"
+date: "1/23/2021"
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    toc : true
+    toc_depth: 2  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newpage
+
+
+```{python echo = FALSE}
+import numpy as np 
+import pandas as pd
+import time 
+import matplotlib.pyplot as plt
+
+```
+
+## 4_page Implementation -basic 
+```{python}
+
+
+# 4_page Implementation
+
+MC_N = 10**3
+
+x= np.random.uniform(0,1,MC_N)*2-1
+y= np.random.uniform(0,1,MC_N)*2-1
+
+
+t = np.sqrt(np.power(x,2) +np.power(y,2))
+
+pi_hat=4*sum(t<=1)/MC_N
+pi_hat
+```
+
+## 5_page Implementation - "The first-timer would write"
+
+
+```{python}
+np.random.seed(1234)
+MC_N = 10**3
+count = 0 
+for MC_i in range(MC_N):
+    x_i= np.random.uniform(0,1,1)*2-1
+    y_i= np.random.uniform(0,1,1)*2-1
+    
+
+    t_i = np.sqrt(np.power(x_i,2) +np.power(y_i,2))
+    if t_i <= 1:
+        count +=1
+    
+pi_hat=4*count/MC_N
+
+pi_hat
+```
+\newpage
+
+
+
+## 9_page Implementation
+
+```{python}
+np.random.seed(1234)
+beg_time = time.time()
+old_est = 0 
+n = 1
+MC_N = 10**6
+old_est = 0
+while True:
+    x_i= np.random.uniform(0,1,1)*2-1
+    y_i= np.random.uniform(0,1,1)*2-1
+    t_i = np.sqrt(np.power(x_i,2) +np.power(y_i,2))
+
+    A_n = 4*(t_i<=1)
+    new_est = ((n-1)/n)*old_est + (1/n)*A_n
+    
+    if n>MC_N :
+        break
+
+    n = n+1
+    old_est = new_est
+    
+print(new_est)
+end_time = time.time()
+
+print("Time difference of ",(end_time-beg_time),'sec')
+```
+
+
+\newpage
+## 10_page Convergence trajectory
+
+
+
+
+```{python}
+np.random.seed(1234)
+beg_time = time.time()
+old_est = 0 
+n = 1
+MC_N = 10**6
+old_est = 0
+results = np.zeros(MC_N+1)
+count = 0 
+while True:
+    x_i= np.random.uniform(0,1,1)*2-1
+    y_i= np.random.uniform(0,1,1)*2-1
+    t_i = np.sqrt(np.power(x_i,2) +np.power(y_i,2))
+    A_n = 4*(t_i<=1)
+    new_est = ((n-1)/n)*old_est + (1/n)*A_n
+    results[count] = new_est
+    if n>MC_N :
+        break
+
+    n +=1
+    count +=1
+    old_est = new_est
+    
+print(new_est)
+end_time = time.time()
+
+print("Time difference of ",(end_time-beg_time),'sec')
+```
+\newpage
+
+# 10_page Graphs 
+
+```{python}
+plt.plot(results[:21],marker='o')
+plt.rcParams['figure.figsize'] =(10,10)
+plt.xlabel('Index')
+plt.ylabel('results[0:21]')
+plt.xticks([5,10,15,20])
+plt.show()
+```
+
+
+
+```{python}
+plt.plot(results[1000:1021],marker='o')
+plt.rcParams['figure.figsize'] =(10,10)
+plt.xlabel('Index')
+plt.ylabel('results[1000:1020]')
+plt.xticks([5,10,15,20])
+plt.show()
+```
+
+
+```{python}
+plt.plot(results[100000:100021],marker='o')
+plt.rcParams['figure.figsize'] =(10,10)
+plt.xlabel('Index')
+plt.ylabel('results[100000:100020]')
+plt.xticks([5,10,15,20])
+plt.show()
+```
+
+
+
+

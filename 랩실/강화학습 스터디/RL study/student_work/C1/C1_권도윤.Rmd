@@ -1,0 +1,202 @@
+---
+title: "C1_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+```
+
+
+## Exercise 1
+
+\begin{enumerate}
+  \item State Space
+  \item Transition Probability Matrix
+  \item Transition Diagram
+  \item Initial distribution
+\end{enumerate}
+
+* State Space
+
+  a set of all possible states that $S$. can take Coke or Pepsi, $S= \{c,p\}$
+  
+* Transition Probability Matrix
+
+\begin{equation}
+  P_{2,2}=
+  \begin{bmatrix}
+    0.7 & 0.3\\
+    0.5 & 0.5
+  \end{bmatrix}
+\end{equation}
+
+\vspace{10pt}
+
+
+* Transition Diagram
+  
+![Transition Diagram](C://Users/user/Desktop/Reinforcement learning/C1/diagram.png)
+
+* Initial distribution
+
+   $\mathbb{P}(S_0=c)=0.6,\mathbb{P}(S_0=p)=0.4 \Leftrightarrow a_0=(0.6,0.4)$
+   
+
+## Exercise 2
+
+### Suppose, $\mathbb{P}(S_0=c)=0.6,\mathbb{P}(S_0=p)=0.4$ then, what is  $\mathbb{P}(S_1=c)=?$
+
+
+\begin{equation}
+  a_{0} = (0.6,0.4)
+\end{equation}
+
+\begin{equation}
+  P=
+  \begin{pmatrix}
+    0.7 & 0.3\\
+    0.5 & 0.5
+  \end{pmatrix}
+\end{equation}
+
+\begin{equation}  
+  a_{0}P=
+  \begin{matrix}
+    (.6&.4)
+  \end{matrix}
+  \begin{pmatrix}
+    .7&.3\\.5&.5
+  \end{pmatrix}
+  =0.62
+\end{equation}
+
+
+## Excercise 3
+
+### Suppose, $\mathbb{P}(S_0=c)=0.6,\mathbb{P}(S_0=p)=0.4$ then, what is  $\mathbb{P}(S_2=c)=?$
+
+\begin{equation}
+  a_{0} = (0.6,0.4)
+\end{equation}
+
+\begin{equation}
+  a_{0}P = a_{1}
+\end{equation}
+
+\begin{equation}
+  a_{1}P = a_{2}
+\end{equation}
+
+\begin{equation}
+  a_{2} = a_{0}PP
+\end{equation}
+
+\begin{equation}
+  a_0P^2=
+  \begin{matrix}
+    (.6&.4)
+  \end{matrix}
+  \begin{pmatrix}
+    .64&.36\\.6&.4
+  \end{pmatrix}
+  = \begin{matrix}
+    (.624&.376)
+  \end{matrix}
+\end{equation}
+
+
+
+## Excercise 4
+
+### Suppose, $\mathbb{P}(S_0=c)=0.6,\mathbb{P}(S_0=p)=0.4$ then, what is  $\mathbb{P}(S_2=p)=?$
+
+
+\begin{equation}
+  \mathbb{P}(S_0=p) = a_{0}=
+  \begin{matrix}
+    (0&1)
+  \end{matrix}
+\end{equation}
+
+\begin{equation}
+ \mathbb{P}(S_2=p)=a_{0}p^2=
+ \begin{matrix}
+    (0&1)
+  \end{matrix}
+  \begin{pmatrix}
+    .64&.36\\.6&.4
+  \end{pmatrix}
+  =
+  \begin{matrix}
+    (.6&.4)
+  \end{matrix}
+\end{equation}
+
+Thus, $\mathbb{P}(S_2=p)=0.4$
+
+## DTMC Simulator (p.25)
+```{python}
+import numpy as np
+def soda_simul(this_state):
+  u=np.random.rand(1)
+  if (this_state == "c"):
+    if(u<=0.7):
+      next_state = "c"
+    else:
+      next_state = "p"
+  else:
+    if(u<=0.5):
+      next_state = "c"
+    else:
+      next_state = "p"
+  return next_state
+for i in range(5):
+  path ="c"
+  for i in range (9):
+    this_state=path[-1]
+    next_state=soda_simul(this_state)
+    path=path+next_state
+  print(path)
+```
+
+## p.26
+
+```{python}
+def cost_eval(path):
+    cost_one_path=path.count("c")*1.5+path.count("p")*1
+    return cost_one_path
+MC_N=100000
+spending_records=np.arange(0,MC_N)
+for i in range(MC_N):
+    path="c"
+    for t in range (9):
+        this_state = path[-1]
+        next_state = soda_simul(this_state)
+        path=path+next_state
+    spending_records[i]=cost_eval(path)
+print(np.mean(spending_records))
+```
+
+```{r, results='hide'}
+"Man can learn nothing unless he proceeds from the known to the unknown. - Claude Bernard"
+```

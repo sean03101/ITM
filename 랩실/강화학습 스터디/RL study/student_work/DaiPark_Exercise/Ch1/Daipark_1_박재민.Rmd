@@ -1,0 +1,144 @@
+---
+title: "DaiPark Exercise"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+library(expm)
+```
+
+\newpage
+
+# Chapter 1
+## Q9
+A camera store specializes in a particular popular and fancy camera. Assume that these cameras become obsolete at the end of the month. They guarantee that if they are out of stock, they will special-order the camera and promise delivery the next day. In fact, what the store does is to purchase the camera from an out of state retailer and have it delivered through an express service. Thus, when the store is out of stock, they actually lose the sales price of the camera and the shipping charge, but they maintain their good reputation. The retail price of the camera is $600, and the special delivery charge adds another $50 to the cost. At the end of each month, there is an inventory holding cost of $25 for each camera in stock (for doing inventory etc). Wholesale cost for the store to purchase the cameras is $480 each. (Assume that the order can only be made at the beginning of the month.)\
+
+$C_u$ = loss sale + special delivery charge = \$170\
+$C_o$ = inventory holding cost = \$25\
+
+**(a)
+Assume that the demand has a discrete uniform distribution from 10 to 15 cameras a month (inclusive). If 12 cameras are ordered at the beginning of a month, what are the expected overstock cost and the expected understock or shortage cost? What is the expected total
+cost?**\
+
+*Expected understock cost* = $(12-11)*\mathbb{P}(d=11) * c_u = 1/5*\$170 = \$34$\
+
+*Expected overstock cost* = $\sum_{i=13}^{15} (i-12)*\mathbb{P}(d=i) * c_o \\= 1/5*\$25 + 2* 1/5*\$25 + 3* 1/5*\$25 = \$30$\
+
+*Expected total cost* = Expected understock cost + Expected overstock cost = \$64\
+
+**(b) What is optimal number of cameras to order to minimize the expected total cost?**\
+
+Demand follows discrete uniform distribution from 10 to 15,\
+\begin{table}[ht]
+\begin{tabular}{llllll}
+\cline{1-6}
+          & 11  & 12  & 13  & 14  & 15  \\ \cline{1-6}
+$P(D = d)$  & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 \\
+$P(D \leq d)$ & 0.2 & 0.4 & 0.6 & 0.8 & 1.0
+\end{tabular}
+\end{table}
+
+optimal order number is Y that matches smallest Y s.t $F(Y) \ge \frac{C_u}{C_u+C_o}$\
+$\frac{C_u}{C_u+C_o} = \frac{170}{195}$, smallest Y that matches $F(Y) \ge \frac{170}{195}$ is Y = 15\
+
+**(c) Assume that the demand can be approximated by a normal distribution with mean 1000 and standard deviation 100 cameras a month. What is the optimal number of cameras to order to minimize the
+expected total cost?**\
+
+Demand follows normal distribution with mean 1000 and stdv 100.\
+if we call demand graph as $f(x)$, optimal order number is Y that matches \
+$F(Y) = \frac{C_u}{C_u+C_o} = \frac{170}{195}$.\
+$\int_{-\infty}^{Y} f(x)dx = \frac{170}{195} = 0.8718$\
+Using R for calculate optimal order number Y,
+```{r}
+qnorm(0.8718,1000,100)
+```
+optimal order number Y is about 1113
+\newpage
+
+## Q10
+
+Next month's production at a manufacturing company will use a certain solvent for part of its production process. Assume that there is an ordering cost of \$1,000 incurred whenever an order for the solvent is placed and the solvent costs \$40 per liter. Due to short product life cycle, unused solvent cannot be used in following months. There will be a \$10 disposal charge for each liter of solvent left over at the end of the month. If there is a shortage of solvent, the production process is seriously disrupted at a cost of \$100 per liter short. Assume that the initial inventory level is m, where m = 0; 100; 300; 500 and 700 liters.\
+
+$C_u$ = disrupted cost = \$100\
+$C_o$ = purchase cost - salvage value + disposal cost = \$50\
+
+**(a) What is the optimal ordering quantity for each case when the demand is discrete with Pr{D = 500} = Pr{D = 800} = $\frac{1}{8}$, Pr{D = 600} = $\frac{1}{2}$ and Pr{D = 700} = $\frac{1}{4}$?**
+
+\begin{table}[ht]
+\begin{tabular}{lllll}
+\cline{1-5}
+          & 500  & 600  & 700  & 800 \\ \cline{1-5}
+$P(D = d)$  & $\frac{1}{8}$ & $\frac{1}{2}$ & $\frac{1}{4}$ & $\frac{1}{8}$  \\
+$P(D \leq d)$ & $\frac{1}{8}$ & $\frac{5}{8}$ & $\frac{7}{8}$ & 1 
+\end{tabular}
+\end{table}
+
+Optimal quantity Y is s.t $F(Y) \ge \frac{C_u}{C_u+C_o} = \frac{100}{150}$\
+Optima quantity Y is 700.\
+
+**(b) What is the optimal ordering policy for arbitrary initial inventory level $m$? (You need to specify the critical value $m^*$ in addition to the optimal order-up-to quantity $y^*$. When $m \le m^*$, you make an order. Otherwise, do not order.)**\
+
+optimal order-up-to quantity **$y^*$ is 700.**(according to (a) answer)\
+However, $m^*$ is not 700, since there is fixed order cost and material cost, sometimes making $m$ to 700 cause more material cost and fixed cost than saving expected cost.\
+Expected cost is Expected understock + Expected overstock cost.\
+
+**when m=700**,\
+$\mathbb{E}[cost]= 1/8 * (700-500)*\$50_{=C_o} + 1/2*(700-600)*\$50 + 1/8*(800-700)*\$100_{=C_u}$\
+= \$5,000 \
+**when m=600**,\
+$\mathbb{E}[cost]= 1/8 * (600-500)*\$50 + 1/4*(700-600)*\$100 + 1/8*(800-600)*\$100$\
+= \$5,625 \
+To make m to 700, material cost and fixed cost is\
+$\$1,000_{fixed\ cost} + (700-600)* \$40_{material\ cost} = \$5,000$\
+
+By making m to 700, we can save \$625 (difference of $\mathbb{E}[cost]$ m=600, m=700), but we need to pay \$5,000 more of order cost, it is not beneficial of ordering when m is 600.
+
+**when m=500**,\
+$\mathbb{E}[cost]= 1/2 * (600-500)*\$100 + 1/4*(700-500)*\$100 + 1/8*(800-500)*\$100$\
+= \$13,750 \
+To make m to 700, material cost and fixed cost is\
+$\$1,000 + (700-500)* \$40 = \$9,000$\
+By making m to 700, we can save \$8,750, but we need to pay \$9,000 more of order cost, it is not beneficial of ordering when m is 600.\
+
+So we can know that $m^*$ is less than 500.\
+**when m is less than 500**,\
+$\mathbb{E}[cost]=*\$100(1/8(500-m)+ 1/2*(600-m)+1/4*(700-m)+1/8*(800-m))$\
+$= \$(63,750-100m)$ \
+To make m to 700, material cost and fixed cost is\
+$\$1,000 + (700-m)* \$40 = \$(29,000-40m)$\
+
+$m^*$ is $m$ that matches difference of Order cost is less than difference of Expected cost,\
+$-40m+29000 \le 63750-100m-5000_{\mathbb{E}[cost|m=700]}$\
+$m \le 495.83$\
+
+$\therefore y^* = 700, m^*=495.83$\
+
+**(C) Assume optimal quantity will be ordered. What is the total expected cost when the initial inventory m = 0? What is the total expected cost when the initial inventory m = 700?**
+
+from answer of (b), we know that expected cost when m=700 is \$5,000\
+when m=0, m<$m^* = \$495.83$, it is benefitial to order for quantity 700.\
+Order cost = fixed order cost + material cost\
+Order cost = \$1,000 + (700-0)*\$40 = \$29,000\
+when m=0 Expected cost is Order cost + Expected cost when m=700\
+$\therefore$ Expected cost when m=0 is \$34,000\

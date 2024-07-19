@@ -1,0 +1,79 @@
+---
+title: "Markiv_Example_손민상"
+author: "Son Min Sang"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage  
+
+# Effect of advertisement for new product
+
+\vspace{20pt}
+
+## Introduction 
+When the company decide whether they advertise some product or not, they compare the effect of the advertisement. And if they do not have a promotion for the product, the product will lose its popularity. The effect of the advertisement is also decided by the type of the advertisement. 
+\vspace{15pt}
+
+## Problem
+
+MS company release new product and plan to promote for this product. There are three choices: Youtube advertisement, SNS advertisement, do nothing. State 1 means the people who do not know the product or be willing to buy the product; 2 means the people who sometimes buy the product; 3 means regular customers. The diagram for each effect is below. Make an optimal policy.
+
+\begin{itemize}
+\item $State=S=\{1,2,3\}$
+\item $Reward\,\,\,\,\,R(1)=0\,, R(2)=100\,, R(3)=1000$
+\end{itemize}
+
+If advertisement cost and number of customers are given, we can make a optimal problem. and we also have to think about advertising using both Youtube and SNS in same time. I think it need to think about differcy of results from different duration.
+
+
+\newpage
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=9cm]{ex_good.png}
+   \hfil
+\caption{Youtube}
+\label{Figure 2.}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=9cm]{better.png}
+   \hfil
+\caption{SNS}
+\label{Figure 2.}
+\end{figure}
+
+\begin{figure}
+\centering
+   \includegraphics[width=9cm]{none.png}
+   \hfil
+\caption{None}
+\label{Figure 2.}
+\end{figure}
+
+\vspace{15pt}
+
+
+

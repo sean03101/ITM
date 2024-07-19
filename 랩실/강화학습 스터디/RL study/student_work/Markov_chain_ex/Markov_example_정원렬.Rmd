@@ -1,0 +1,73 @@
+---
+title: "Markov_example_Jeong,wonryeol"
+author: "Jeong, wonryeol"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:  
+      latex_engine: xelatex
+      highlight: haddock  
+      keep_tex: true  
+      includes:
+      # in_header: rmd-pdf-support/latex-topmatter.tex
+      # pandoc_args: [
+      #  "-V", "classoption=twocolumn"
+      # ]
+      toc: true   
+      toc_depth: 2  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newpage  
+
+# Effect of Exercise policy for muscle growth 
+
+\vspace{20pt}
+
+## Introduction 
+
+**A student who likes to exercise decided to make a strategy for his lower body muscle growth. There are two exercises. First is squat and second is deadlift. If he Squats, he get guaranteed a low injury rate but his muscle grow slowly. However, If he Deadlift, he has a high probability of injury but his muscle grow fast.  He have to calculate optimal exercise strategy for maximum muscle growth with optimal effort. As a result, two actions could be defined:**
+
+\vspace{15pt}
+
+
+## Problem Formulation
+
+
+
+\begin{itemize}
+\item $State=S=\{1,2,3,.....\}$
+\item Action $A = \{Squat, DeadLift\}$
+\item Squat's Transition Prob $\{ 0.9,0.1\}$
+\item DeadLift's Transition Prob $\{ 0.7,0.3\}$
+\item $Reward\,\,\,\,\,R(Squat_{Success})=1.5\ , R(Squat_{Failed} = -1),R(DeadLift_{success}),R(DeadLift_{failed})=1 $
+\end{itemize}
+
+\vspace{20pt}
+
+**Use the Markov chain temperamental difference trait to establish a movement strategy.**
+
+\newpage
+
+### Squat Figure
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=9cm]{Squat.png}
+   \hfil
+\caption{Squat}
+\label{Figure 2.}
+\end{figure}
+\vspace{30pt}
+### DeadLift Figure
+
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=9cm]{DeadLift.png}
+   \hfil
+\caption{Deadlift}
+\label{Figure 2.}
+\end{figure}

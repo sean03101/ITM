@@ -1,0 +1,127 @@
+---
+title: "C2 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("sympy")
+py_install("matplotlib")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+\newpage
+## page 12 Method1 eigen decomposition
+```{python, echo = TRUE}
+import numpy as np
+import numpy.linalg as ln
+
+P = np.array([[0.7,0.5],[0.3,0.5]])
+ln.eig(P.T)
+
+```
+
+```{python, echo = TRUE}
+w, x_1 = np.linalg.eig(P)
+x_1 = x_1[:, 0]
+x_1
+
+```
+```{python, echo = TRUE}
+v = x_1 / sum(x_1)
+v
+```
+
+
+
+\newpage
+## page 15 Method2 System of linear equation
+
+```{python, echo = TRUE}
+P = np.array([[0.7,0.3],[0.5,0.5]])
+n = len(P)  #n=|S|
+I = np.eye(2) #identity matrix
+A = np.c_[P-I,np.repeat(1,n)]
+b = np.append(np.repeat(0,n),np.array([1]))
+A
+```
+
+```{python, echo = TRUE}
+b
+```
+```{python, echo = TRUE}
+v = np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+v
+```
+
+\newpage
+## page 17 Motivation
+
+```{python, echo = TRUE}
+from sympy import *
+p = Matrix([[0.7,0.3],[0.5,0.5]])
+```
+
+```{python, echo = TRUE}
+np.dot(P,P) #matrix multiplication
+```
+
+```{python, echo = TRUE}
+p**3
+```
+
+```{python, echo = TRUE}
+p**4
+```
+
+
+```{python, echo = TRUE}
+p**20
+```
+
+
+
+\newpage
+## page 19
+```{python, echo = TRUE}
+p = Matrix([[0,1],[1,0]])
+```
+
+```{python, echo = TRUE}
+p**2
+```
+```{python, echo = TRUE}
+p**3
+```
+
+
+
+
+
+
+

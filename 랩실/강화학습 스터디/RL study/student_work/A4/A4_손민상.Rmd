@@ -1,0 +1,260 @@
+---
+title: "A4_python"  
+author: "Son Min Sang"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("scipy")
+py_install("matplotlib")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+\newpage
+## page 11
+```{python, echo = TRUE}
+from datetime import datetime
+import numpy as np
+np.random.seed(1234) #fix the random seed
+N= 10**3
+x = np.random.rand(N, 1)*2-1 # runif() generates U(0,1)
+y = np.random.rand(N, 1)*2-1 # runif() generates U(0,1)
+t = np.sqrt(x**2+y**2)
+cbind=np.concatenate((x, y, t), axis=1)
+print(cbind[:5]) #always display and check!
+```
+
+```{python, echo = TRUE}
+pi_hat = 4*np.sum(t <= 1)/N
+print(pi_hat)
+```
+
+
+\newpage
+## page 12
+```{python , echo=TRUE}
+from datetime import datetime
+import numpy as np
+beg_time = datetime.now()
+np.random.seed(1234)
+N= 10**6
+
+x = np.random.rand(N, 1)*2-1
+y = np.random.rand(N, 1)*2-1
+t = np.sqrt(x**2+y**2)
+  
+pi_hat = 4*np.sum(t <= 1)/N
+
+end_time = datetime.now()
+print(end_time - beg_time)
+```
+
+
+
+
+```{python , echo=TRUE}
+from datetime import datetime
+import numpy as np
+
+beg_time = datetime.now()
+np.random.seed(1234)
+N= 10**6
+count =0
+
+for i in range(N):
+    x_i = np.random.rand(1)*2-1
+    y_i = np.random.rand(1)*2-1
+    t_i = np.sqrt(x_i**2+y_i**2)
+    if t_i<=1:
+        count+=1
+        
+pi_hat=4*count/N    
+end_time = datetime.now()
+
+print(end_time - beg_time)
+```
+
+## page 13
+```{python, echo=TRUE}
+import numpy as np
+
+def pi_simulator(N):
+  np.random.seed(1234)
+  x = np.random.rand(N,1)*2-1
+  y = np.random.rand(N,1)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat=4*np.sum(t <= 1)/N    
+  return pi_hat
+```
+
+```{python, echo=TRUE}
+pi_simulator(100)
+```
+
+```{python, echo=TRUE}
+pi_simulator(1000)
+```
+
+```{python, echo=TRUE}
+pi_simulator(10000)
+```
+
+```{python, echo=TRUE}
+pi_simulator(100000)
+```
+
+```{python , echo=TRUE}
+import numpy as np
+
+def pi_simulator(N):
+  np.random.seed(1234)
+  x = np.random.rand(N,1)*2-1
+  y = np.random.rand(N,1)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat=4*np.sum(t <= 1)/N    
+  return pi_hat
+num_trials = [10**i for i in range(2,8)]
+outcomes=list(map(pi_simulator, num_trials))
+results = dict(zip(num_trials,outcomes))
+print(results)
+
+```
+
+## page 15
+
+```{python , echo=TRUE}
+import numpy as np
+from datetime import datetime 
+import matplotlib.pyplot as plt
+
+plt.scatter(num_trials,outcomes, c='blue')
+plt.plot(num_trials,outcomes, c='blue')
+plt.axhline(3.14159,0,1,color='black',linestyle='--')
+plt.xscale('log')
+plt.grid(True,axis='both')
+plt.xlabel('num_trials')
+plt.ylabel('outcomes')
+plt.rc('font', size=25)  
+plt.show()
+
+```
+
+
+\newpage
+## page 17
+
+```{python , echo=TRUE}
+import numpy as np
+from datetime import datetime 
+def pi_simulator2(N): # name change 
+  beg_time= datetime.now() # newly added
+  np.random.seed(1234)
+  x = np.random.rand(N,1)*2-1
+  y = np.random.rand(N,1)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat=4*np.sum(t <= 1)/N    
+  end_time=datetime.now() # newly added 
+  print(N)
+  print(end_time-beg_time) # newly added
+  return pi_hat
+num_trials = [10**i for i in range(2,8)]
+list(map(pi_simulator2, num_trials))
+```
+
+\newpage
+## page 22
+
+```{python, echo=TRUE}
+import numpy as np
+import scipy.stats as st
+from datetime import datetime 
+def pi_simulator3(N):#name change
+  #np.random.seed(1234) #seed must not be fixed
+  x = np.random.rand(N,1)*2-1
+  y = np.random.rand(N,1)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat=4*np.sum(t <= 1)/N    
+  return pi_hat
+n = 100 # number of experiments to repeat
+MC_N = 1000 # number of simulation repetition in a single experiment
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n): #create an empty Zero vector
+  samples[i] = pi_simulator3(MC_N) # do this for MC_N times
+print(samples[:5])
+```
+
+
+## page 23
+```{python , echo=TRUE}
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t= st.t.ppf(0.975, n-1)
+
+print("X_bar :",X_bar)
+print("s :",s)
+print("t :",t)
+```
+
+\newpage
+## page 24
+```{python , echo=TRUE}
+n = 100 # number of experiments to repeat
+MC_N = 1000 # number of simulation repetition in a single experiment
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n): 
+  samples[i] = pi_simulator3(MC_N) 
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t= st.t.ppf(0.975, n-1)
+lb = X_bar-t*s/np.sqrt(n) # lower bound
+ub = X_bar+t*s/np.sqrt(n) # upper bound
+```
+\newpage
+## page 25
+```{python, echo=TRUE}
+n = 1000 # number of experiments to repeat
+MC_N = 10000 # number of simulation repetition in a single experiment
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n): 
+  samples[i] = pi_simulator3(MC_N) 
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t= st.t.ppf(0.975, n-1)
+
+lb = X_bar-t*s/np.sqrt(n) # lower bound
+ub = X_bar+t*s/np.sqrt(n) # upper bound
+print("lb :",lb)
+print("ub :",ub)
+print("ub-lb :",ub-lb)
+```
+
+
+

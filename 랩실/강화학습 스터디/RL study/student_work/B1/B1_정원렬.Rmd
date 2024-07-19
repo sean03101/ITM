@@ -1,0 +1,254 @@
+---
+title: "B1_(Jeong,wonryeol)"
+author: "Jeong, wonryeol"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+---
+
+\vspace{20pt}
+# Ex1
+\vspace{10pt}
+
++------------+---+---+---+---+
+|　　$d$　   | 20|25 | 30|35 |
+|   $P[D=d]$ |0.1|0.2|0.4|0.3|
++:==========:+:=:+:=:+:=:+:=:+
+| $30∧d$     | 20|25 |30 |30 |
++------------+---+---+---+---+
+|$(30-d)^{+}$|10 |5  |0  |0  |
++------------+---+---+---+---+
+|$24∧d$      |20 |24 |24 |24 |
++------------+---+---+---+---+
+|$(24-d)^{+}$|4  |0  |0  |0  |
++------------+---+---+---+---+
+
+
+\vspace{20pt}
+
+ + $E[30∧D] = \sum((30∧D)*P(D)) =$
+ `r 20*0.1+25*0.2+30*0.4+30*0.3 `
+ 
+ + $E[(30-D)^+] = \sum((30-d)^+*P(D)) =$ 
+ `r 10*0.1+5*0.2+0*0.4+0*0.3 `
+ 
+ + $E[24∧D] = \sum((24∧D)*P(D)) =$
+ `r 20*0.1+24*0.2+24*0.4+24*0.3 `
+ 
+ + $E[(24-d)^+] = \sum(((24-d)^+)*P(D)) =$
+ `r 4*0.1+0*0.2+0*0.4+0*0.3 `
+
+\vspace{40pt}
+
+
+# Ex2
+
+
+## Find your brother's optimal stock level by the above Theorem 2. Then, find his expected profit using the Remark 1.
+
+
+#### Theorem 2
+
+
++ If D is a continuous r.v, with cdf $F(·)$, then find $y$ s.t. $F(y) = \frac{c_u}{c_o+c_u}$.
++ If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$.
+
+
+#### Remark1 
+
++ $E[Profit]$=E(Sale Rev.)+E(salvage Rev.)-E(material Cost)
+
+\vspace{30pt}
+
+#### Table
+
+\vspace{10pt}
+
+| $d$    |$11$ |$12$ |$13$ |$14$ |$15$ |
+|--------|-----|-----|-----|-----|-----|
+| $P(D=d)$ | $\frac{1}{5}$ | $\frac{1}{5}$ | $\frac{1}{5}$ | $\frac{1}{5}$ | $\frac{1}{5}$ |
+
+\vspace{10pt}
+
++ $c_o$ ( Overcost ) is $ (2-1)*(X-D)^+ $ 
+
++ $c_u$ ( Undercost ) is $ (1-0.5)*(D-X)^+ $ 
+
+\vspace{10pt}
+
+$F(y) =  \frac{1}{0.5+1}$  and it also can be written as $\frac{2}{3}$
+
+
+\vspace{10pt}
+
+To find smallest $x^*$ we need to calculate cummulative function.
+
+$F_D(11)=\frac{1}{5}$                                                     $< \frac{2}{3}$
+
+$F_D(12)=\frac{1}{5}+\frac{1}{5}=\frac{2}{5}$                             $<\frac{2}{3}$  
+
+$F_D(13)=\frac{1}{5}+\frac{1}{5}+\frac{1}{5}=\frac{3}{5}$                 $<\frac{2}{3}$  
+
+$F_D(14)=\frac{1}{5}+\frac{1}{5}+\frac{1}{5}+\frac{1}{5}=\frac{4}{5}$     $\ge\frac{2}{3}$  
+
+
+\vspace{20pt}
+
+Therefore, 14 is most optimal number
+
+\vspace{10pt}
+
+\noindent$E[Profit]$=$E(Sale Rev.)+E(salvage Rev.)-E(material Cost)$
+
+　　　　　=$E[2·(D∧Y)]+E[\frac{1}{2}·(Y-D)^{+}]-E[Y]$  
+　　　　　
+in this case, Y is 14 ( optimal solution )
+
+　　　　　=$2·(\frac{11+12+13+14}{5}+\frac{14}{5})+\frac{1}{2}·(\frac{3+2+1+0}{5})-14$  
+        
+          = `r 2*(((11+12+13+14)/5)+(14/5))+ (1/2)*(3+2+1+0)/5 - 14`
+       
+          
+          
+# Ex3
+
+in this case, there are 3 cases to show cummulative density probability
+
+$f_d(x)=\begin{cases}\frac{1}{20}&20\le x \le 40\\0&otherwise\end{cases}$  
+
+$F_d(x)=\begin{cases}0&20<x\\\frac{x-20}{20}&20\le x \le 40\\1&x>40\end{cases}$ 
+
+\vspace{10pt}
+$F(Y)=\frac{C_u}{C_o+C_u}$  
+
+$C_u = (Material Cost - Salvage Price)$ = 0.5
+
+$C_o = (Retail Price - Material Cost)$ = 1
+
+$F(Y) = \frac{0.5}{1+0.5}$
+
+$F(Y) = \frac{2}{3}$
+
+\vspace{10pt}
+
+#### Theorem 2
+
+
++ If D is a continuous r.v, with cdf $F(·)$, then find $y$ s.t. $F(y) = \frac{c_u}{c_o+c_u}$.
++ If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$.
+
+\vspace{10pt}
+As following continous condition, we should make a equation as $F(y) = \frac{2}{3}$
+
+\vspace{10pt}
+$\frac{x-20}{20} = \frac{2}{3}$
+
+\vspace{10pt}
+After calculate , we can get those optimal number 
+
+\vspace{10pt}
+$Y^{*} = \frac{100}{3}$
+
+\vspace{10pt}
+
+Therefore, we can calculate as below 
+
+\vspace{10pt}
+
+$E[Profit]=\int_{20}^{40}(2*(D∧\frac{100}{3})*\frac{1}{20}) d_D+\int_{20}^{40}(\frac{1}{2}*(\frac{100}{3}-D)^{+}*\frac{1}{20}) d_D-\int_{20}^{40}(1*\frac{100}{30}*\frac{1}{20}) d_D$ 
+
+\vspace{10pt}
+
+$2*\frac{1}{20}*\int_{20}^{40}(D)d_D + \frac{1}{2}*\frac{1}{20}\int_{20}^{\frac{100}{3}}(\frac{100}{3}-D)d_D +1*\frac{1}{20}*\int_{20}^{40}(\frac{100}{30})d_D$
+
+\vspace{10pt}
+
+**After calculate**
+
+
+\vspace{10pt}
+
+$E[Profit]= \frac{80}{3}$ 
+
+\vspace{30pt}
+
+#Ex4
+
+    
+  
+
+\vspace{10pt}
+
+$C_u=(Retail Price - Material Cost)=(18-3)=15$
+\vspace{10pt}
+
+$C_o=(Material Cost - Salvage Price)=(3-1)=2$
+\vspace{10pt}
+
+$Expected Cost = E[Manufacturing Cost] + E[understock cost]  + E[overstock cost ]$ 
+　　　　　　　　　　　 = $C_m·E[X]+C_u·E[(D-X)^{+}]+C_o·E[(X-D)^{+}]$  
+　　　　　　　　　　　 = $3E[X]+15E[(D-X)^{+}]+2E[(X-D)^{+}]$
+\vspace{10pt}
+$Expected Profit = E[Sale] - E[Cost]$  
+
+　　　　　　　　= $18E[(X∧D)]-(3E[X]+15E[(D-X)^{+}]+2E[(X-D)^{+}])$  
+
+\vspace{10pt}
+
+
+
+
+#Ex5
+
+#### Prove Theorem 1.
+
+$Expected Cost = E[Manufacturing Cost] + E[understock cost]  + E[overstock cost ]$ 
+
+
+to show how above equation process, we have to define some items
+
+
+
+\begin{itemize}
+\item  Selling Price : p
+\item  manufacturing cost : c
+\item  Salvage value : s
+\item  Leftover Cost : h
+\item  Demand : D
+\item  How many make : X
+\end{itemize}
+
+$Expected Profit = E[Revenue] - E[Cost]$
+
+To figure out cost details, decomposition is needed 
+
+$Expected Cost = E[Manufacturing Cost] + E[understock cost]  + E[overstock cost ]$ 
+
+
+　　　　　　　　= $E[Revenue] - E[Manufacturing Cost] - E[Understock Cost] - E[OverstockCost]$
+
+　　　　　　　　= $p·E[(X∧D)]-(c·E[X]+(c-s)·E[(X-D)^{+}]+(p-c)·E[(D-X)^{+}])$
+
+　　　　　　　　= $p·E[(X∧D)]-E[Cost]$
+
+\vspace{20pt}
+
+Therefore ,  
+
+\vspace{10pt}
+$E[profit] = \alpha - E[cost]$  $(\alpha \ge 0)$.
+
+
+
+
+

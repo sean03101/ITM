@@ -1,0 +1,243 @@
+---
+title: "E2_Solution"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+
+## Recap (P.4) 강의현 
+
+### Policy_eval()
+
+```{python,echo=T}
+import numpy as np
+import pandas as pd
+
+gamma=1
+states=np.arange(0,70+10,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_normal
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+P_speed
+
+def transition(given_pi, states, P_normal, P_speed):
+    P_out=pd.DataFrame(np.zeros((len(states),len(states))),index=states, columns=states)
+    
+    for s in states:
+        action_dist=given_pi.loc[s]
+        P=action_dist['normal']*P_normal+action_dist['speed']*P_speed
+        P_out.loc[s]=P.loc[s]
+        
+    return P_out
+
+R_s_a=pd.DataFrame(np.matrix([-1,-1,-1,-1,0.0,-1,-1,0,
+-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),
+columns=['normal','speed'],index=states)
+R_s_a
+
+def reward_fn(given_pi):
+    R_s_a=pd.DataFrame(np.matrix([-1,-1,-1,-1,0.0,-1,-1,0,
+    -1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),
+    columns=['normal','speed'],index=states)
+    
+    R_pi=np.asarray((given_pi*R_s_a).sum(axis=1)).reshape(-1,1)
+    
+    return R_pi
+def policy_eval(given_pi):
+    R=reward_fn(given_pi)
+    P=transition(given_pi, states=states, P_normal=P_normal, P_speed=P_speed)
+    
+    gamma=1.0
+    epsilon=10**(-8)
+    
+    v_old=np.repeat(0,8).reshape(8,1)
+    v_new=R+np.dot(gamma*P, v_old)
+    
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)
+        
+    return v_new
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))],
+index=states, columns=['normal','speed'])
+policy_eval(pi_speed).T
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],
+index=states, columns=['normal','speed'])
+policy_eval(pi_50).T
+```
+
+\newpage
+
+## Implementation (P. 12) 권도윤
+
+```{python}
+V_old = policy_eval(pi_speed)
+pi_old = pi_speed
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+q_s_a
+```
+
+```{python}
+pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+idx = q_s_a.idxmax(axis=1).values
+count = 0
+for i in states:
+    pi_new.loc[i][idx[count]] = 1
+    count +=1
+pi_new
+```
+
+```{python}
+def policy_imporve(V_old,pi_old,R_s_a,gamma,P_normal,P_speed):
+    q_s_a = R_s_a + np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+    idxmax = q_s_a.idxmax(axis=1).values
+    count = 0
+    for i in states:
+        pi_new.loc[i][idxmax[count]] = 1
+        count +=1
+    return pi_new
+
+```
+
+```{python}
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_imporve(V_old,pi_old,R_s_a,gamma,P_normal,P_speed)
+```
+
+```{python}
+pi_old
+```
+
+```{python}
+pi_new
+```
+
+\newpage
+
+## Try do it over and over until no change from $\pi^Speed$ (P. 16) 김봉석
+
+### Step 0
+
+```{python, echo=TRUE}
+pi_old = pi_speed
+pi_old
+```
+
+### Step1
+```{python, echo=TRUE}
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+pi_old=pi_new
+pi_old
+```
+
+### Step2
+```{python, echo=TRUE}
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+pi_old=pi_new
+pi_old
+```
+
+### Step3
+```{python, echo=TRUE}
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+pi_old=pi_new
+pi_old
+```
+
+### Policy iteration process from $\pi^Speed$ (P. 18)
+
+```{python, echo=TRUE}
+pi_old = pi_speed
+cnt = 0 
+while True :
+    print("-------------------")
+    print(cnt,"-th iteration")
+    print(pi_old)
+    V_old = policy_eval(pi_old)
+    pi_new  = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+    
+    if(np.sum((pi_old==pi_new).values) != pi_new.shape[0]*pi_new.shape[1]):
+        cnt+=1
+        pi_old=pi_new
+        continue
+    break
+print("-------------------")
+print(policy_eval(pi_new))   
+```
+
+
+### Policy iteration process $\Pi^50$ (P. 19)
+
+```{python, echo=TRUE}
+pi_old = pi_50
+cnt = 0 
+while True :
+    print("-------------------")
+    print(cnt,"-th iteration")
+    print(pi_old)
+    V_old = policy_eval(pi_old)
+    pi_new  = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+    
+    if(np.sum((pi_old==pi_new).values) != pi_new.shape[0]*pi_new.shape[1]):
+        cnt+=1
+        pi_old=pi_new
+        continue
+    break
+print("-------------------")
+print(policy_eval(pi_new))   
+    
+```
+
+
+
+```{r, results='hide'}
+"E2_Solution"
+```

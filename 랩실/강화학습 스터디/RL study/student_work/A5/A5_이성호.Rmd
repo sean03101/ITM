@@ -1,0 +1,119 @@
+---
+title: "A4 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("matplotlib")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## page 10 Exercise 1
+```{python, echo=TRUE}
+import numpy as np
+N = 1000
+u = np.random.rand(N)
+x = -np.log(1-u)/3
+x[:6]
+
+```
+\newpage
+## page 15 Uniform random number
+```{python, echo=TRUE}
+import numpy as np
+import matplotlib.pyplot as plt
+
+X = np.random.rand(1000)*2-1
+temp = plt.hist(X)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+
+```
+
+\newpage
+## page 16 Normal random numbers
+
+```{python, echo=TRUE}
+X = np.random.normal(3,2,size=1000)
+temp = plt.hist(X)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+\newpage
+## page 17 Exponential random numbers
+```{python, echo=TRUE}
+X = np.random.exponential(1/5,size=10000)
+temp = plt.hist(X)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+\newpage
+## page 18 Poisson random numbers
+```{python, echo=TRUE}
+X = np.random.poisson(5, size=10000)
+temp = plt.hist(X)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

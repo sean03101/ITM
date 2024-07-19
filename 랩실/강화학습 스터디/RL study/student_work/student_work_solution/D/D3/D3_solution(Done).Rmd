@@ -1,0 +1,200 @@
+---
+title: "D3_solution"
+author: "Son Min Sang"
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+
+```
+
+\newpage
+
+## Exercise 1
+
+### Problem
+
+How would you genalize this game with arbitraty value of $m_1$ (minimum increment),$m_2$ (maximum increment), and $N$ (the winning number)?
+
+### Solution
+
+\begin{itemize}
+\item $State=S=\{1,2,\dots ,N\}$
+\item $Action=A= \{a_{m1},a_{m1}+1, \dots ,a_{m2}\}$
+\item $a_{m}$ means the action of incrementing the previous number by $m$
+\item $Reward=R(N-m_{1},m_{1})=R(N-m_{2},m_{2})=1$ and other $R(s,a)=0$.
+\end{itemize}
+
+When $State = N-a_{m1}$, optimal action $=a_{m1}$
+
+When $State = N-a_{m2}$, optimal action $=a_{m2}$
+
+When $State = N-a_{m1}-l-k*(a_{m1}+a_{m2})\,(l\leq a_{m2}-a_{m1})\,(k:integer)$,
+
+optimal action $=a_{m1}+l$
+
+## Exercise 2 
+
+### Problem
+
+Two players are to play a game. The two players take turns to call out integers. The rules are as follows. Describe $A$’s winning strategy.
+
+\begin{itemize}
+\item A must call out an integer between 4 and 8, inclusive.
+\item B must call out a number by adding A’s last number and an integer between 5 and 9, inclusive.
+\item A must call out a number by adding B’s last number and an integer between 2 and 6, inclusive.
+\item Keep playing until the number larger than or equal to 100 is called by the winner of this game.
+\end{itemize}
+
+### Solution
+
+\begin{itemize}
+\item $S=\{1,2,\dots ,100\}$
+\item $A_{start}= \{4,5,6,7,8\}$
+\item $A_B= \{5,6,7,8,9\}$
+\item $A_A= \{2,3,4,5,6\}$
+\item $Reward=R(100-A_A,A_A)=R(N-A_B,A_B)=1$ and other $R(S,A)=0$.
+\end{itemize}
+
+There is no A's winning strategy
+
+\newpage 
+
+## Exercise 3
+
+### Problem
+
+#### There is only finite number of deterministic stationary policiy. How many is it?
+
+### Solution
+
+If we say number of states as S, and number of possible actions as A
+
+$|\prod|=|A|^{|S|}$
+
+## Exercise 4
+
+### Problem
+
+Formulate the first example in this lecture note using the terminology including state,action, reward, policy, transition. Describe the optimal policy using the terminology as well.
+
+### Solution
+
+\vspace{5pt}
+
+**State** : 
+
+$S = \{1,2,\dots ,31\}$
+
+\vspace{5pt}
+ 
+**Action** :
+
+$A = \{a_1,a_2\}$
+
+$a_{m}$ means the action of incrementing the previous number by $m$
+ 
+\vspace{5pt}
+ 
+**Reward** :
+
+$R(30,a_1)=R(29,a_2)=1$ otherwise $R(s,a)$ = 0
+
+\vspace{5pt}
+
+**Transition** : 
+
+$P_{ss^\prime}^a =P(S_{t+1}=S^{\prime} |S_t=s, A_t=a) =1$ 
+
+  $s^{\prime}=s+1, if(a=a_1)$ 
+ 
+  $s^{\prime}=s+2, if(a=a_2)$
+ 
+  otherwise 0.
+
+\vspace{5pt}
+
+**Optimal Policy** :
+
+$\pi^*=argmax_{\pi}V_t(s)^\pi$ 
+
+$S(3n-1) : a_2$ 
+
+$S(3n) : a_1$
+
+\newpage
+## Exercise 5
+ 
+### Problem
+
+From the first example,
+\begin{itemize}
+\item Assume that your opponent increments by 1 with prob. 0.5 and by 2 with prob. 0.5.
+\item Assume that the winning number is 10 instead of 31.
+\item Your opponent played first and she called out 1.
+\item Your current a policy $\pi_0$ is that
+\item If the current state $s\leq5$ then increment by 2.
+\item If the current state $s>5$ then increment by 1.
+\end{itemize}
+
+Evaluate $V^{\pi_0}(1)$.
+
+### Solution
+
+```{python, echo=TRUE}
+import numpy as np
+R=np.array([[0],[0],[0],[0],[0],[0],[0],[0],[0],[1]])
+P=np.array([[0,0,0,0.5,0,0.5,0,0,0,0],
+           [0,0,0,0,0.5,0.5,0,0,0,0],
+           [0,0,0,0,0,0.5,0.5,0,0,0],
+           [0,0,0,0,0,0,0.5,0.5,0,0],
+           [0,0,0,0,0,0,0,0.5,0.5,0],
+           [0,0,0,0,0,0,0,0.5,0.5,0],
+           [0,0,0,0,0,0,0,0,0.5,0.5],
+           [0,0,0,0,0,0,0,0,0,1],
+           [0,0,0,0,0,0,0,0,0,1],
+           [0,0,0,0,0,0,0,0,0,1]])
+states=[1,2,3,4,5,6,7,8,9,10]
+gamma=0.9
+epsilon=10**(-8)
+
+v_old = np.array([[0],[0],[0],[0],[0],[0],[0],[0],[0],[0]])
+v_new = R+gamma*np.dot(P,v_old)
+results = np.array(v_old) # to save
+results= np.append(results,v_new,axis=0) # to save
+while np.max(np.abs(v_new-v_old))>epsilon:  
+    v_old=v_new
+    v_new=R+gamma*np.dot(P,v_old)
+    results= np.append(results,v_new) # to save
+
+```
+
+```{python, echo=TRUE}
+import pandas as pd
+results = pd.DataFrame(np.array(results).reshape(len(results)//10,10),columns = states)
+```
+
+```{python, echo=TRUE}
+results.head()
+```
+
+```{python, echo=TRUE}
+results.tail()
+```

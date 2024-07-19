@@ -1,0 +1,233 @@
+---
+title: "E3"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+use_virtualenv("r-reticulate")
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+\newpage
+
+## Preparation
+
+[전원 비슷하게 코드를 제출하였습니다.]
+```{python, echo=TRUE}
+gamma = 1
+states = np.arange(0,80,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                                [0,0,1,0,0,0,0,0],
+                                [0,0,0,1,0,0,0,0],
+                                [0,0,0,0,1,0,0,0],
+                                [0,0,0,0,0,1,0,0],
+                                [0,0,0,0,0,0,1,0],
+                                [0,0,0,0,0,0,0,1],
+                                [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                               [.1,0,0,.9,0,0,0,0],
+                               [0,.1,0,0,.9,0,0,0],
+                               [0,0,.1,0,0,.9,0,0],
+                               [0,0,0,.1,0,0,.9,0],
+                               [0,0,0,0,.1,0,0,.9],
+                               [0,0,0,0,0,.1,0,.9],
+                               [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+R_s_a=pd.DataFrame(np.array([-1,-1,-1,-1,0.0,-1,-1,0,
+                              -1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['normal','speed'],index=states)
+```
+
+## Implementation
+#### Initialize V\
+
+[v_old 선언방법에서 약간의 차이는 있었습니다(np.repeat, np.zeros)]\
+
+----------------------------------------------\
+**교수님 Feedback:**\
+$\color{blue}{\text{1번 방식이 가장 좋습니다.}}$\
+----------------------------------------------\
+
+ 1.\
+ **V_old = np.zeros(len(states)).T**\
+ **V_old = pd.DataFrame(V_old,states)**\
+ 2.\
+ V_old = np.zeros(states.shape[0]).reshape(states.shape[0],1)\
+ 3. \
+```{python, echo=TRUE, error=T}
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+V_old.T
+```
+
+#### Evaluate the Q‑function\
+[열을 합치는 방법이 나뉘었습니다 (np.c, np.hstack)]\
+
+----------------------------------------------\
+**교수님 Feedback:**\
+$\color{blue}{\text{1번 방식이 가장 좋습니다. hstack이 더 구체적임. np.c- alternative way}}$\
+----------------------------------------------\
+
+ **1. (np.hstack)**\
+ **q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)))**\
+ 2. (np.c_) \
+```{python, echo=TRUE}
+
+q_s_a = R_s_a+np.c_[gamma*np.dot(P_normal,V_old), gamma*np.dot(P_speed,V_old)]
+q_s_a
+```
+
+#### Find the best action for each state
+[전원 동일]
+```{python, echo=TRUE}
+
+V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+V_new.T
+```
+
+\newpage
+## Value Iteration -Implementation
+
+
+[반복문 종료하는 if 문에서 np.linalg.norm, np.max(np.abs) 사용차이가 있었습니다]
+
+----------------------------------------------\
+**교수님 Feedback:**\
+$\color{blue}{\text{ np.linalg.norm에 ord라는 argument에 "inf"를 넣으면  np.max(np.abs)가 나옵니다. 그러므로 1번은}}$\
+$\color{blue}{\text{ 이해하기 쉬운 코드이고 2번은 일반화된 코드입니다.equally Good 하다는 생각입니다.}}$\
+----------------------------------------------\
+```{python, echo=TRUE}
+cnt=0
+epsilon=10**(-8)
+# p.8 like Init V_old, difference between using np.repeat or np.zeros
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+results=V_old.T
+while True:
+    q_s_a=R_s_a+np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+    V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+    
+    # using linalg.norm function
+    # if(np.linalg.norm(V_new-V_old)<epsilon):
+    
+    # using np.max(np.abs) function
+    if np.max(np.abs(V_new-V_old)).item() < epsilon :
+        break
+    
+    results=np.r_[results, V_new.T]
+    V_old=V_new
+    
+    cnt+=1
+    
+```
+
+
+```{python, echo=TRUE}
+# result codes are all the same!
+value_iter_process = results
+results = pd.DataFrame(results, columns=states)
+results.head()
+results.tail()
+```
+
+\newpage
+
+## Visualization\
+[Visualization 코드 전원 동일]
+
+#### 
+
+1.  Iteration from 6 to 12
+
+```{python,echo=T}
+for i in range(6):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+\newpage
+
+2.  Iteration from 7 to 12
+
+```{python,echo=T}
+for i in range(7,13):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 7 to 12', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+#### 
+
+\newpage
+
+3.  Iteration from 13 to 18
+
+```{python,echo=T}
+for i in range(13,19):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 13 to 18', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+\newpage
+
+## Optimal Value function → Optimal policy
+[코드 전원 비슷합니다]
+```{python,echo=T}
+V_opt=results.tail(1).T
+V_opt.T
+q_s_a=R_s_a+np.c_[np.dot(gamma*P_normal,V_opt), np.dot(gamma*P_speed, V_opt)]
+q_s_a
+pi_opt_vec=q_s_a.idxmax(axis=1)
+pi_opt_vec
+pi_opt=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['normal','speed'])
+for i in range(len(pi_opt_vec)):
+    pi_opt.iloc[i][pi_opt_vec[i]]=1
+    
+pi_opt.T
+```

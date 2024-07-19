@@ -1,0 +1,206 @@
+---
+title: "Lecture C3. Discrete Time Markov Chain 3"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#library(reticulate)
+#matplotlib <- import("matplotlib")
+#matplotlib$use("Agg", force = TRUE)
+```
+
+## Example 1
+
+### Trainsition Matrix :
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1/2& 1/2& 0& \\
+    &1/2& 1/4&  1/4& \\ 
+    &0& 1/3& 2/3&\\
+  \end{pmatrix}
+\end{align*}
+
+### Trainsition Diagram : 
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=10cm]{example1.png}
+   \hfil
+\caption{Example 1 Trainsition Diagram}
+\label{Figure 1.}
+\end{figure}
+
+\vspace{20pt}
+
+### Remark
+* A state $i$ is said to be recurrent if, starting from $i$, the probability of getting back to $i$ is 1 
+
+* A state $i$ is said to be trainsient if, starting from $i$, the probability of getting back to $i$ is less than 1 
+
+recurrent state :{1,2,3} ,All states communicate, all states recurrent
+
+\newpage
+
+## Example 2
+
+### Trainsition Matrix :
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1 & 0& 0& \\
+    &1/4& 1/2&  1/4& \\ 
+    &0& 0& 1\\
+  \end{pmatrix}
+\end{align*}
+
+### Trainsition Diagram : 
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=10cm]{example2.png}
+   \hfil
+\caption{Example 2 Trainsition Diagram}
+\label{Figure 2.}
+\end{figure}
+
+\vspace{20pt}
+
+### Remark
+* A state $i$ is said to be recurrent if, starting from $i$, the probability of getting back to $i$ is 1 
+
+* A state $i$ is said to be trainsient if, starting from $i$, the probability of getting back to $i$ is less than 1 
+
+* A state $i$ is said to be abosrbing state, as a special case of reccurent state, if $P_ii=1$ (You can naver leave the state $i$ if you get there) 
+
+
+
+recurrent state : {1,3}
+
+trainsient state : {2} 
+
+abosrbing state : {1,3}
+
+
+\newpage
+
+## Example 3
+
+### Trainsition Matrix :
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1 & 0& 0& \\
+    &1/3& 1/2&  1/6& \\ 
+    &0& 0& 1\\
+  \end{pmatrix}
+\end{align*}
+
+### Trainsition Diagram : 
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=10cm]{example3.png}
+   \hfil
+\caption{Example 3 Trainsition Diagram}
+\label{Figure 3.}
+\end{figure}
+
+\vspace{20pt}
+
+### Remark
+* A state $i$ is said to be recurrent if, starting from $i$, the probability of getting back to $i$ is 1 
+
+* A state $i$ is said to be trainsient if, starting from $i$, the probability of getting back to $i$ is less than 1 
+
+* A state $i$ is said to be abosrbing state, as a special case of reccurent state, if $P_ii=1$ (You can naver leave the state $i$ if you get there) 
+
+
+
+recurrent state : {1,3}
+
+trainsient state : {2} 
+
+abosrbing state : {1,3}
+
+\newpage 
+
+## Example 4
+
+### Trainsition Matrix :
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1/2 &1/2 & 0 &0 \\
+    &1/2 &1/2 & 0 &0 \\ 
+    &1/4 &1/4 &1/4 &1/4\\
+    &0   &0 &0 &1\\
+  \end{pmatrix}
+\end{align*}
+
+### Trainsition Diagram : 
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=10cm]{example4.png}
+   \hfil
+\caption{Example 4 Trainsition Diagram}
+\label{Figure 4.}
+\end{figure}
+
+\vspace{20pt}
+
+### Remark
+* A state $i$ is said to be recurrent if, starting from $i$, the probability of getting back to $i$ is 1 
+
+* A state $i$ is said to be trainsient if, starting from $i$, the probability of getting back to $i$ is less than 1 
+
+* A state $i$ is said to be abosrbing state, as a special case of reccurent state, if $P_ii=1$ (You can naver leave the state $i$ if you get there) 
+
+
+
+recurrent state : {1,2}
+
+trainsient state : {3} 
+
+abosrbing state : {4}
+
+
+
+
+
+
+
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture C2. Discrete Time Markov Chain2 "
+```

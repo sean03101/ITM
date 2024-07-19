@@ -1,0 +1,225 @@
+---
+title: "F1_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## Preparation (P. 9)
+
+```{python, echo=T}
+import numpy as np
+import pandas as pd
+states=np.arange(0,80,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+R_s_a=pd.DataFrame(np.matrix([-1,-1,-1,-1,0.0,-1,-1,0,-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['n','s'],index=states)
+R_s_a.T
+
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))], index=states, columns=['n','s'])
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],index=states, columns=['n','s'])
+pi_speed.T
+pi_50.T
+```
+
+## Simulator - $\pi^{speed}$  (P. 11)
+
+```{python,echo=T,message=FALSE, warning=FALSE}
+pi=pi_speed
+np.random.seed(1234)
+history=[]
+MC_N=10000
+for MC_i in range(MC_N):
+    s_now='0'
+    history_i=list(s_now)
+    
+    while s_now != '70' :
+        if np.random.uniform(0,1) < pi.loc[s_now]['n']:
+            a_now='n'
+            P=P_normal
+        else:
+            a_now='s'
+            P=P_speed
+            
+        r_now=str(R_s_a.loc[s_now][a_now])
+        s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now=s_next
+        
+    history.append(history_i)
+    
+history_speed=history
+func=np.vectorize(lambda x: ','.join(x))
+pd.Series(func(history_speed[:20]))
+```
+
+## Simulator - $\pi^{50}$ (P. 13)
+
+```{python,echo=T,message=FALSE, warning=FALSE}
+pi=pi_50
+np.random.seed(1234)
+history=[]
+MC_N=10000
+for MC_i in range(MC_N):
+    s_now='0'
+    history_i=list(s_now)
+    
+    while s_now != '70' :
+        if np.random.uniform(0,1) < pi.loc[s_now]['n']:
+            a_now='n'
+            P=P_normal
+        else:
+            a_now='s'
+            P=P_speed
+            
+        r_now=str(R_s_a.loc[s_now][a_now])
+        s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now=s_next
+        
+    history.append(history_i)
+    
+history_50=history
+func=np.vectorize(lambda x: ','.join(x))
+pd.Series(func(history_50[:20]))
+```
+
+## Implementation 1 - $\pi^{speed}$ (vectorized) (P. 17)
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','sum'])
+pol_eval.T
+for MC_i in range(len(history_speed)):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]['sum']+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            pol_eval.loc[history_i[j]]['sum']+=0
+pol_eval.T
+pol_eval['sum']/pol_eval['count']
+```
+
+## Implementation 2 - $\pi^{speed}$ (running estimate)  (P. 19)
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+pol_eval.T
+for MC_i in range(len(history_speed)):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            new_info=0
+        
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+np.round(pol_eval.T,2)
+```
+
+## Implementation 3 - $\pi^{50}$ (vectorized) (P. 21)
+
+```{python, echo=T}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','sum'])
+pol_eval.T
+for MC_i in range(len(history_50)):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]['sum']+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            pol_eval.loc[history_i[j]]['sum']+=0
+pol_eval.T
+pol_eval['sum']/pol_eval['count']
+```
+
+## Implementation 4 - $\pi^{50}$ (running estimate) (P. 23)
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+pol_eval.T
+for MC_i in range(len(history_50)):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # increment count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            new_info=0
+          
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+np.round(pol_eval.T,2)
+```
+
+```{r, results='hide'}
+"F1_Exercises"
+```

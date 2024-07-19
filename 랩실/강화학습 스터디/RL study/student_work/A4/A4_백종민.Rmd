@@ -1,0 +1,282 @@
+---
+title: "Lecture A4.Simulation 1"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+library(rmarkdown)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) 
+reticulate::py_config()
+```
+
+```{python, include=FALSE}
+import numpy as np
+import pandas as pd
+import time
+import matplotlib.pyplot as plt
+from scipy.stats import t
+```
+
+\newpage
+
+## Implementation - basic(Page 11) 
+
+\vspace{10pt}
+
+```{python}
+np.random.seed(1234)
+N = 10**3
+x = np.random.uniform(low=0,high=1,size=N)*2-1
+y = np.random.uniform(low=0,high=1,size=N)*2-1
+t = np.sqrt(x**2+y**2)
+result = np.c_[x,y,t]
+pi_hat = 4*np.sum(t<=1)/N
+print(f'x : {x[:5]}')
+print(f'y : {y[:5]}')
+print(f't : {t[:5]}')
+print(result[:5])
+print('pi_hat : \n {}'.format(pi_hat))
+```
+
+\newpage
+
+## Vectorized programming(Page 12)
+
+\vspace{5pt}
+
+```{python}
+start_time = time.time()
+np.random.seed(1234)
+N = 10**6
+x = np.random.uniform(low=0,high=1,size=N)*2-1
+y = np.random.uniform(low=0,high=1,size=N)*2-1
+t = np.sqrt(x**2+y**2)
+pi_hat = 4*np.sum(t<=1)/N
+end_time = time.time()
+print(end_time - start_time)
+```
+
+## Implementation - varying number of trials
+
+1) Approach with a custom function
+
+\vspace{5pt}
+
+```{python}
+def pi_simulator(N):
+  np.random.seed(1234)
+  x = np.random.uniform(low=0,high=1,size=N)*2-1
+  y = np.random.uniform(low=0,high=1,size=N)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat = 4*np.sum(t<=1)/N
+  return pi_hat
+```
+
+```{python}
+pi_simulator(100)
+pi_simulator(1000)
+pi_simulator(10000)
+pi_simulator(100000)
+```
+
+\newpage
+
+2) How many repetition is necessary to get closer?
+
+\vspace{10pt}
+
+```{python}
+num_trials =[10 ** N for N in range(2,7)]
+print('num_trail : {}'.format(num_trials))
+
+outcomes = np.array(list(map(pi_simulator,num_trials)))
+print('outcomes : {}'.format(outcomes))
+
+result = np.c_[np.array(num_trials).T,outcomes.T]
+print('result : \n {}'.format(result))
+
+results = pd.DataFrame(result)
+print(results)
+```
+
+\newpage
+
+3) How many repetition is necessary to get closer?(Visualization)
+
+\vspace{10pt}
+
+```{python}
+plt.plot(results[0],results[1],'bo-')
+plt.axhline(y=3.14159, color='black', linestyle='--',linewidth=0.8)
+plt.xscale('log')
+plt.xlabel('num_trial')
+plt.ylabel('outcomes')
+plt.grid(True)
+plt.show()
+```
+
+\newpage
+
+#$ Computation Time(Page 17)
+
+\vspace{10pt}
+
+```{python}
+def pi_simulator2(N):
+  start_time = time.time()
+
+  np.random.seed(1234)
+  x = np.random.uniform(low=0,high=1,size=N)*2-1
+  y = np.random.uniform(low=0,high=1,size=N)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat = 4*np.sum(t<=1)/N
+
+  end_time = time.time()
+
+  print('N : {}'.format(N))
+  print('end_time - start_time : {} '.format(end_time - start_time))
+
+  return pi_hat
+```
+
+```{python}
+outcomes = np.array(list(map(pi_simulator2,num_trials)))
+print('outcomes : {}'.format(outcomes))
+```
+
+\newpage
+
+## Repetitive simulation experiments(Page 22)
+
+\vspace{10pt}
+
+```{python}
+def pi_simulator3(N):
+
+  x = np.random.uniform(low=0,high=1,size=N)*2-1
+  y = np.random.uniform(low=0,high=1,size=N)*2-1
+  t = np.sqrt(x**2+y**2)
+  pi_hat = 4*np.sum(t<=1)/N
+
+  return pi_hat
+```
+
+
+```{python}
+n = 100
+N = 1000
+np.random.seed(1234)
+samples = np.zeros(n)
+for i in range(0,n):
+  samples[i] = pi_simulator3(N)
+
+samples[:5]
+
+```
+
+\vspace{10pt}
+
+## From LN.A4.p13(Page 23)  
+
+```{python}
+from scipy.stats import t
+
+X_bar = np.mean(samples)
+s = np.sqrt(np.sum(X_bar-samples)**2)/(n-1)
+tt = t.ppf(q=0.975, df = n-1)
+print(X_bar)
+print(s)
+print(tt)
+```
+
+\newpage
+
+## Exercise 1
+
+Don the above experiment with MN-N increased by the factor of ten, and present the confidence interval(Use set.seed(1234))  
+
+\vspace{10pt}
+
+```{python}
+from scipy.stats import t
+
+n = 100
+N = 1000
+np.random.seed(1234)
+samples = np.zeros(n)
+for i in range(0,n):
+  samples[i] = pi_simulator3(N)
+
+X_bar = np.mean(samples)
+s = np.sqrt(np.sum((X_bar-samples)**2)/(n-1))
+tt  = t.ppf(q=0.975,df=n-1)
+
+lb = X_bar - tt*s/np.sqrt(n)
+ub = X_bar + tt*s/np.sqrt(n)
+
+print(lb)
+print(ub)
+print(ub-lb)
+
+```
+
+\newpage
+
+## Exercise 2 
+
+Do the Exercise 1 above with n increased by the factor of ten, and present the confidence interval(Use set.seed(1234))  
+
+\vspace{10pt}
+
+```{python}
+from scipy.stats import t
+
+n =100
+N = 10000
+np.random.seed(1234)
+samples = np.zeros(n)
+for i in range(0,n):
+  samples[i] = pi_simulator3(N)
+X_bar = np.mean(samples)
+s = np.sqrt(np.sum(X_bar-samples)**2/(n-1))
+tt = t.ppf(q=0.975,df = n-1)
+lb = X_bar-tt*s/np.sqrt(n)
+ub = X_bar+tt*s/np.sqrt(n)
+
+print(lb)
+print(ub)
+print(ub-lb)
+```
+
+\newpage
+
+A4.Rmd
+```{r}
+"No pain No gain"
+```
+
+
+
+

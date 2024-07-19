@@ -1,0 +1,157 @@
+---
+title: "Dai Park Excercise_김봉석"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+## Excercise 9
+A camera store specializes in a particular popular and fancy camera. Assume that these cameras become obsolete at the end of the month. They guarantee that if they are out of stock, they will special-order the camera and promise delivery the next day. In fact, what the store does is to purchase the camera from an out of state retailer and have it delivered through an express service. Thus, when the store is out of stock, they
+actually lose the sales price of the camera and the shipping charge, but they maintain their good reputation. The retail price of the camera is \$600, and the special delivery charge adds another \$50 to the cost. At
+the end of each month, there is an inventory holding cost of \$25 for each camera in stock (for doing inventory etc). Wholesale cost for the store to purchase the cameras is $480 each. (Assume that the order can only be
+made at the beginning of the month.)
+
+
+
+### (a) Assume that the demand has a discrete uniform distribution from 10 to 15 cameras a month (inclusive). If 12 cameras are ordered at the beginning of a month, what are the expected overstock cost and the expected understock or shortage cost? What is the expected total cost?
+
+solution :
+
+$C_u$ = (retail price - wholesale price) + (shipping charge) = $(600-480)+50=170$ 
+
+$C_o$ = (holding cost + wholesale price) = $(25+480)=505$
+
+\begin{table}[ht]
+\begin{tabular}{l|llllll}
+\hline
+$d$             & 10            & 11            & 12            & 13            & 14            & 15            \\ \hline
+$Pr={D=d}$      & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ \\ \hline
+$Pr={D \leq d}$ & $\frac{1}{6}$ & $\frac{2}{6}$ & $\frac{3}{6}$ & $\frac{4}{6}$ & $\frac{5}{6}$ & $1$           \\ \hline
+$(D-12)^+$      & 0             & 0             & 0             & 1             & 2             & 3             \\ \hline
+$(12-D)^+$      & 2             & 1             & 0             & 0             & 0             & 0             \\ \hline
+\end{tabular}
+\end{table}
+
+
+$\mathbb E[(D-12)^+]= 1(\frac{1}{6})+2(\frac{1}{6})+3(\frac{1}{6})=1$
+
+$\mathbb E[(12-D)^+]= 2(\frac{1}{6})+1(\frac{1}{6})=0.5$
+
+$\therefore$ 
+
+Expected overstock cost = $C_o \mathbb E[(D-12)^+]=505$
+
+Expected understock cost = $C_u \mathbb E[(12-D)^+]=0.5(170)=85$
+
+Expected total cost = Expected overstock cost + Expected understock cost = 590
+
+
+### (b) What is optimal number of cameras to order to minimize the expected total cost
+
+solution :
+
+If D is a discrete r.v with cdf F(x), then find smallest y s.t $F(y) \geq {c_u \over c_u+c_o}={170 \over 170+505}= {0.2518..}\\$
+
+\begin{table}[ht]
+\begin{tabular}{l|llllll}
+\hline
+$d$             & 10            & 11            & 12            & 13            & 14            & 15            \\ \hline
+$Pr={D=d}$      & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ & $\frac{1}{6}$ \\ \hline
+$Pr={D \leq d}$ & $\frac{1}{6}$ & $\frac{2}{6}$ & $\frac{3}{6}$ & $\frac{4}{6}$ & $\frac{5}{6}$ & $1$           \\ \hline
+\end{tabular}
+\end{table}
+
+$\therefore y^*=11$
+
+
+### (c) Assume that the demand can be approximated by a normal distribution with mean 1000 and standard deviation 100 cameras a month. What is the optimal number of cameras to order to minimize the expected total cost?
+
+solution :
+
+D follows $N(1000,100)$
+
+If D is a continious r.v with cdf F(x), then find y s.t $F(y) = {c_u \over c_u+c_o}={170 \over 170+505}= {0.2518..}\\$
+
+find y, such that $F(y)=0.2518$
+
+
+```{r,echo=TRUE}
+qnorm(0.2518)*100+1000
+```
+
+
+\newpage
+
+## Excercise 10
+
+next month's production at a manufacturing company will use a certain solvent for part of its production process. Assume that there is an ordering cost of $1,000 incurred whenever an order for the solvent is placed and
+the solvent costs \$40 per liter. Due to short product life cycle, unused solvent cannot be used in following months. There will be a \$10 disposal charge for each liter of solvent left over at the end of the month. If there
+is a shortage of solvent, the production process is seriously disrupted at a cost of $100 per liter short. Assume that the initial inventory level is m, where m = 0, 100, 300, 500 and 700 liters.
+
+
+### (a)
+What is the optimal ordering quantity for each case when the demand is discrete with
+
+$Pr\{D=500\}$  = $Pr\{D=800\}$ = $\frac{1}{8}$,$Pr\{D=600\}=\frac{1}{2}$ and $Pr\{D=700\}=\frac{1}{4}$?
+
+solution :
+
+$C_u$ = (disrupted shortage cost)  = $100$ 
+
+$C_o$ = (solvent cost + disposal charge) = $(40+10)=50$
+
+
+
+\begin{table}[ht]
+\begin{tabular}{l|llll}
+\hline
+$d$             & 500             & 600             & 700             & 800             \\ \hline
+$Pr\{D=d\}$      & $\frac{1}{8}$ & $\frac{1}{2}$ & $\frac{1}{4}$ & $\frac{1}{8}$ \\ \hline
+$Pr\{D \leq d\}$ & $\frac{1}{8}$ & $\frac{5}{8}$ & $\frac{7}{8}$ & $1$           \\ \hline
+\end{tabular}
+\end{table}
+\vspace{15pt}
+
+
+If D is a discrete r.v with cdf F(x), then find smallest y s.t $F(y) \geq {c_u \over c_u+c_o}={100 \over 100+50}= {0.666...}\\$
+
+$\therefore y^*=700$
+
+
+### (b)
+What is the optimal ordering policy for arbitrary initial inventory level m? (You need to specify the critical value m* in addition to the optimal order-up-to quantity $y*$. When m$\leq$m*, you make an order. Otherwise, do not order.)
+
+solution :
+
+
+### (c)
+Assume optimal quantity will be ordered. What is the total expected cost when the initial inventory m = 0? What is the total expected cost when the initial inventory m = 700?
+
+solution :
+
+\vspace{15pt}
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Newsvendor"
+```

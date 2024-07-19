@@ -1,0 +1,249 @@
+---
+title: "Newsvendor Exercises"
+author: "Sang, Ji in"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+\newpage
+## *Exercise 1*
+#### Assume that D follows the following discrete distribution.
+
++------------+---+---+---+---+
+|　　$d$　   | 20|25 | 30|35 |
+|   $P[D=d]$ |0.1|0.2|0.4|0.3|
++:==========:+:=:+:=:+:=:+:=:+
+| $30∧d$     |20 |25 |30 |30 |
++------------+---+---+---+---+
+|$(30-d)^{+}$|10 |5  |0  |0  |
++------------+---+---+---+---+
+|$24∧d$      |20 |24 |24 |24 |
++------------+---+---+---+---+
+|$(24-d)^{+}$|4  |0  |0  |0  |
++------------+---+---+---+---+
+
+#### Answer the followings.
+ - $E[30∧D] = 20×0.1+25×0.2+30×0.4+30×0.3 = 28$
+ 
+ - $E[(30-D)^{+}] = 10×0.1+5×0.2 = 2$
+ 
+ - $E[24∧D] = 20×0.1+24×0.2+24×0.4+24×0.3 = 23.6$
+ 
+ - $E[(24-D)^{+}] = 4×0.1 = 0.4$
+
+
+\newpage
+## *Exercise 2*
+#### Find your brother's optimal stock level by the above Theorem 2. Then, find his expected profit using the Remark 1.
+
+1. Optimal stock level
+
+In this problem, retail price $(p) = \$2$, material cost $(c) = \$1$, and salvage price  $(s) = \$0.5$.
+
+Understock cost equals retail price - material cost, and overstock cost equals material cost - salvage cost.
+
+Therefore, $c_u = p-c = \$1$ and $c_o = c-s = \$0.5$.
+
+*If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$. (Theorem 2)*
+
+According to *Theorem 2*, $F(y) \ge \frac{c_u}{c_o+c_u} = \frac{1}{1+0.5} = 0.666..$..
+
+Since the problem follows discrete uniform distribution, $F_D(14)=0.2+0.2+0.2+0.2=0.8 \ge\ 0.66..$.
+
+\vspace{15pt}
+$\therefore$ Optimal stock level is 14 units.
+
+\vspace{30pt}
+2. Expected profit
+
+In this problem, sale Revenue = $2·(D∧Y)$, salvage revenue = $0.5·(Y-D)^{+}$, material cost = $Y$, and optimal stock level ($y^{*}$) = 14.  
+
+\begin{align}
+E[Profit] = E(sale Revenue)+E(salvage Revenue)-E(material Cost) (Remark 1) \\
+          = E[2·(D∧Y)]+E[0.5·(Y-D)^{+}]-E[Y] \\
+　　　　　= \sum_{D=11}^{15}(2·(D∧Y)·P(D))+\sum_{D=11}^{15}(0.5·(D-Y)^{+}·P(D))-\sum_{D=11}^{15}(Y·P(D)) \\
+　　　　　= \sum_{D=11}^{15}(2·(D∧14)·P(D))+\sum_{D=11}^{15}(0.5·(D-14)^{+}·P(D))-\sum_{D=11}^{15}(14·P(D))\\
+　　　　　= 2·(\sum_{D=11}^{14}(D·P(D))+14·P(15))+0.5·\sum_{D=11}^{14}((14-D)·P(D))-14 \\
+　　　　　= 2·((11+12+13+14+14)·0.2) + (0.5·(3+2+1+0)·0.2) - 14 \\
+　　　　　= 12.2
+\end{align}
+
+\vspace{15pt}
+$\therefore$ Expected profit is $12.2.
+
+　　　　　
+
+\newpage
+## *Exercise 3*
+#### Your brother is now selling milk. The customer demands follow $U(20,40)$ gallons. Retail price is $2 per gallon, material cost is $1 per gallon, and salvage cost is $0.5 per gallon. Find optimal stock level and expected profit.  
+
+
+
+1. Optimal stock level
+
+In this problem, retail price $(p) = \$2$, material cost $(c) = \$1$, and salvage price  $(s) = \$0.5$.
+
+Understock cost equals retail price - material cost, and overstock cost equals material cost - salvage cost.
+
+Therefore, $c_u = p-c = \$1$ and $c_o = c-s = \$0.5$.
+
+According to *Theorem 2 (If D is a continuous r.v, with cdf $F(·)$, then find $y$ such that $F(y) = \frac{c_u}{c_o+c_u}$)*,
+
+$F(Y)=\frac{C_u}{C_o+C_u} = \frac{1}{1+0.5} = 0.666..$.
+
+Since $D$~$U(20,40)$, 
+
+$f_d(x)=\begin{cases}\frac{1}{20}&20\le x \le 40\\0&otherwise\end{cases}$  
+
+$F_d(x)=\begin{cases}0&x<20\\\frac{x-20}{20}&20\le x \le 40\\1&x>40\end{cases}$  
+
+$F(y) = \frac{Y-20}{20} = \frac{2}{3}$
+
+$Y = 33.33...$
+
+\vspace{15pt}
+$\therefore$ Optimal stock level is 34 gallons.
+
+\vspace{30pt}
+2. Expected profit
+
+In this problem, sale Revenue = $2·(D∧Y)$, salvage revenue = $0.5·(Y-D)^{+}$, material cost = $Y$, and optimal stock level ($y^{*}$) = 34.  
+
+\begin{align}
+E[Profit] = E(sale Revenue)+E(salvage Revenue)-E(material Cost) (Remark 1) \\
+          = E[2·(D∧Y)]+E[0.5·(Y-D)^{+}]-E[Y] \\
+　　　　　= \int_{20}^{40}(2·(D∧34)·\frac{1}{20}) d_D+\int_{20}^{40}(0.5·(34-D)^{+}·\frac{1}{20}) d_D-\int_{20}^{40}(34·\frac{1}{20}) d_D \\
+　　　　　= \frac{1}{10}·\int_{20}^{40}(D∧34) d_D+\frac{1}{40}·\int_{20}^{40}(34-D)^{+} d_D-1.7·[D]^{40}_{20}\\
+　　　　　= \frac{1}{10}·(\int_{20}^{34}(D) d_D+\int_{34}^{40}(34)d_D)+\frac{1}{40}·\int_{20}^{34}(34-D)d_D-34 \\
+　　　　　= \frac{1}{10}·([\frac{1}{2}D^2]^{34}_{20}+34[D]^{40}_{34})+\frac{1}{40}·[34D-\frac{1}{2}D^2]^{34}_{20}-34 \\
+　　　　　= 31.65
+\end{align}
+\vspace{15pt}
+$\therefore$ Expected profit is $31.65.
+
+
+
+
+\newpage
+## *Exercise 4*
+#### Lemonade sells for $18 per gallon but only costs $3 per gallon to make. If we run out of lemonade, it will be impossible to get more. On the other hand, leftover lemonade has a value of $1. Express the following quantity using sale as X and demand as D.
+
+
+
+  + $C_u$ = (Retail Price - Material Cost) = $18 - 3 = 15$
+  + $C_o$ = (Material Cost - Salvage Price) = $3 - 1 = 2$  
+  + Expected economic cost = $3E[X]+15E[(D-X)^{+}]+2E[(X-D)^{+}]$
+  + Expected Profit = $18E[(X∧D)]-(3E[X]+15E[(D-X)^{+}]+2E[(X-D)^{+}])$
+
+        
+E[cost] = E[Manufacturing Cost] + E[Understock Cost] + E[Overstock Cost] 
+
+　　　　= $c_v·E[X]+c_u·E[(D-X)^{+}]+c_o·E[(X-D)^{+}]$  
+
+　　　　= $3E[X]+15E[(D-X)^{+}]+2E[(X-D)^{+}]$
+　　　　　　　　　　　 
+
+E[profit] = E[Revenue] - E[Cost]
+
+　　　　  = $18E[(X∧D)]-(3E[X]+15E[(D-X)^{+}]+2E[(X-D)^{+}])$  
+
+\newpage
+## *Exercise 5*
+#### Prove Theorem 1: Maximizing the expected profit is equivalent to minimizing the expected economic cost). 
+\vspace{10pt}
+
+E[Profit] = E[Revenue] - E[Cost],
+E[Cost] = E[Manufacturing Cost] + E[Understock Cost] + E[Overstock Cost] by definition,
+
+$E[Cost] = c·E[X]+(p-c)·E[(D-X)^{+}]+(c-s)·E[(X-D)^{+}]$.
+
+$E[Profit] = p·E[(X∧D)]-c·E[X]-h·E[(X-D)^{+}]-(p-c)·E[(D-X)^{+}]$.
+
+Since $p·E[(X∧D)]$ is always positive, maximizing the E[P] is equivalent to minimize E[C].
+
+
+\newpage
+## *Exercise 6 on P.20 of Dai, Park 2011*
+#### David buys fruits and vegetables wholesale and retails them at Davids Produce on La Vista Road. One of the more difficult decisions is the amount of bananas to buy. Let us make some simplifying assumptions, and assume that David purchases bananas once a week at 10 cents per pound and retails them at 30 cents per pound during the week. Bananas that are more than a week old are too ripe and are sold for 5 cents per pound.
+
+(a) Suppose the demand for the good bananas follows the same distribution as D given in Problem 2. What is the expected profit of David in a week if he buys 7 pounds of banana?
+
+(b) Now assume that the demand for the good bananas is uniformly distributed between 5 and 10 like in Problem 4. What is the expected profit of David in a week if he buys 7 pounds of banana?
+
+(c) Find the expected profit if David’s demand for the good bananas follows an exponential distribution with mean 7 and if he buys 7 pounds of banana.
+
+
+\vspace{10pt}
+*(a)*  
+
+E[profit] = E[Revenue] - E[Cost]
+
+　　　　  = $30·(D∧7) + 5·(7-D)^{+} - 10·7 $  
+　　　　  
+　　　　　= $\sum_{D=5}^{9}(30·(D∧7)·P(D))+\sum_{D=5}^{9}(5·(7-D)^{+}·P(D))-10·7$  
+
+　　　　　= $127.5$  
+　　　　　
+　　　　　
+　　　　　
+$\therefore$ Expected weekly profit of preparing 7 pounds of banana is $12.75.
+
+
+\vspace{10pt}
+*(b)*
+
+Since $D$~$U(5, 10)$, 
+
+$f_d(x)=\begin{cases}\frac{1}{5}&5\le x \le 10\\0&otherwise\end{cases}$  
+
+$F_d(x)=\begin{cases}0&x<5\\\frac{x-5}{5}&5\le x \le 10\\1&x>10\end{cases}$ 
+
+In this problem, sale revenue = $30·(D∧7)$, salvage revenue = $5·(7-D)^{+}$, material cost = $7·10=70$ cents for preparing 7 pounds of banana.
+
+\begin{align}
+E[Profit] = E(sale Revenue)+E(salvage Revenue)-E(material Cost) \\
+          = E[30·(D∧7)]+E[5·(7-D)^{+}]-7·10 \\
+　　　　　= \int_{5}^{10}(30·(D∧7)·\frac{1}{5}) d_D+\int_{5}^{10}(5·(7-D)^{+}·\frac{1}{5}) d_D-70 \\
+　　　　　= 6·\int_{5}^{10}(D∧7) d_D+\int_{5}^{10}(7-D)^{+} d_D-70\\
+　　　　　= 6·(\int_{5}^{7}(D) d_D+\int_{7}^{10}(7)d_D)+\int_{5}^{7}(7-D)d_D-70 \\
+　　　　　= 6·([\frac{1}{2}D^2]^{7}_{5}+7[D]^{10}_{7})+[7D-\frac{1}{2}D^2]^{7}_{5}-70 \\
+　　　　　= 130 
+\end{align}
+
+\vspace{15pt}
+$\therefore$ Expected weekly profit for preparing 7 pounds of banana is $13.
+
+\newpage
+*(c)*
+
+$D$~$exp(\frac{1}{7})$
+
+\begin{align}
+E[Profit] = 30·\int_{0}^{\infty}(D∧7)·f(D)dD+5·\int_{0}^{\infty}(7-D)^{+}·f(D)dD-10·7 \\
+         =30·\int_{0}^{7}D·f(D)dD+30·\int_{7}^{\infty}7·f(D)dD+5·\int_{0}^{7}(7-D)·f(D)dD+5·\int_{7}^{\infty}0·f(D)dD-10·7 \\
+         =$\frac{1}{7}·(25·\int_{0}^{7}D·e^{-\frac{1}{7}D}+30·\int_{7}^{\infty}7·e^{-\frac{1}{7}D}dD+5·\int_{0}^{7}7·e^{-\frac{1}{7}D}dD) \\
+         =\frac{1}{7}·(25·(49-98e^{-1})+1470e^{-1}+245-245·e^{-1}) \\
+         =\frac{1}{7}·(1470-1225e^{-1}) \\
+         =145.62...
+\end{align}
+   
+$\therefore$ Expected weekly profit for preparing 7 pounds of banana is about $14.56.
+
+

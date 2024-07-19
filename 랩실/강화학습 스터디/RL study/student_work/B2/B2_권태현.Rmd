@@ -1,0 +1,46 @@
+---
+title: "B2"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#B2
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+try_X=np.arange(20,40.01,step=0.01)
+exp_profits = list()
+
+for X in try_X:
+    MC_N=10000
+    D = np.random.uniform(20,40,size=MC_N)
+
+    sales_rev=2*np.minimum(D,X)
+    salvage_rev=0.5*np.maximum(X-D,0)
+    material_cost=1*X
+
+    exp_profit=np.mean(sales_rev + salvage_rev - material_cost)
+    exp_profits.append(exp_profit)
+
+try_X = try_X.reshape(-1,1)
+exp_profits = np.asarray(exp_profits).reshape(-1,1)
+result = pd.DataFrame(np.concatenate((try_X,exp_profits),axis=1), columns=['try_X','exp_profit'])
+
+result.head()
+
+plt.plot(try_X,exp_profits,color='blue')
+plt.title('Plot for Expected Profit')
+plt.xlabel('try_X')
+plt.ylabel('exp_profit')
+plt.show()
+
+idx=np.argmax(exp_profits)
+print(try_X[idx])
+print(exp_profits[idx])
+```

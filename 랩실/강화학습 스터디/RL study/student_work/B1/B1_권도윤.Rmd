@@ -1,0 +1,277 @@
+---
+title: "B1_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+## Exercise 1
+
+### Assume that D foloows the follwing discrete distribution.
+
+|$d$     |20 |25 |30 |35 |
+|:--------:|:---:|:---:|:---:|:---:|
+|$P[D=d]$|0.1|0.2|0.4|0.3|
+|$30\wedge d$|20|25|30|30|
+|$(30-d)^{+}$|10|5|0|0|
+|$24\wedge d$|20|24|24|24|
+|$(24-d)^{+}$|4|0|0|0|
+
+### Answer the followings.
+
+
+* $E[30 \wedge D] = 0.1*20+0.2*25+0.4*30+0.3*30 = 28$
+* $E[(30 - D)^+] = 0.1*10+0.2*5+0.4*0+0.3*0 = 2$
+* $E[24 \wedge D] = 0.1*20+0.2*45+0.4*24+0.3*24 = 23.6$
+* $E[(24-D)^+] = 0.1*4+0.2*0+0.4*0+0.3*0 = 0.4$
+
+
+## Exercise 2
+
+### Find your brother's optimal stock level by the above Theorem 2. Then, find his expected profit using the Remark 1.
+
+\vspace{10pt}
+
+$c_o=0.5$
+
+$c_u=1$
+
+$x^* = smallest (y)$
+
+$f(y)\geq \frac{c_u}{c_o+c_u} = \frac{1}{0.5+1}=\frac{2}{3}$
+
+|$d$|11|12|13|14|15|
+|:---:|--|--|--|--|--|
+|$P(D=d)$|0.2|0.2|0.2|0.2|0.2|
+|$P(D\leq d)$|0.2|0.4|0.6|0.8|1.0|
+
+\vspace{10pt}
+
+$F_D(11)=\frac{1}{5}$                                        $<\frac{2}{3}$
+
+$F_D(12)=\frac{1}{5}+\frac{1}{5}$                            $<\frac{2}{3}$
+
+$F_D(13)=\frac{1}{5}+\frac{1}{5}+\frac{1}{5}$                $<\frac{2}{3}$
+
+$F_D(14)=\frac{1}{5}+\frac{1}{5}+\frac{1}{5}+\frac{1}{5}$    $\geq \frac{2}{3}$
+
+
+thus, Optimal stock : $x^* = 14$
+
+\vspace{15pt}
+
+$E[Profit]$=$E$(Sale Rev.)+$E$(salvage Rev.)-$E$(material Cost)
+
+\vspace{10pt}
+
+$E$(Sale Rev.)$=2*P(11)*(11\wedge 14)+2*P(12)*(12\wedge 14)+2*P(13)*(13\wedge 14)+2*P(14)*(14\wedge 14)+2*P(15)*(15\wedge 14) = 25.6$
+
+$E$(salvage Rev.)$=0.5*P(11)*(14-11)^+ +0.5*P(12)*(14-12)^+ +0.5*P(13)*(14-13)^+ +0.5*P(14)*(14-14)^+ +0.5*P(15)*(14-15)^+ = 0.6$
+
+$E$(matarial Cost.)$=1*14 = 14$
+
+so, $E[Profit] = 25.6+0.6-14 = 12.2$
+
+
+
+## Exercise 3
+
+### Your brother is now selling milk. The customer demands follow $U(20,40)$ gallons. Retail price is $2 gallon, meterial cost is $1 per gallon, and salvage cost is $0.5 per gallon. Find optimal stock level and expected profit
+
+\vspace{10pt}
+
+$c_o = 1-0.5=0.5$
+
+$c_u = 2-1= 1$
+
+$x^* = smallest (y)$
+
+$U(20,40)$
+
+$f(x) = \begin{cases}\frac{1}{20} &20\le x \le 40\\0 &otherwise \end{cases}$
+
+$F(x) = \begin{cases}0 &x\le 20\\ \frac{x-20}{20} &20\le x \le 40 \\ 1 &x>40 \end{cases}$
+
+\vspace{10pt}
+
+$F(y) = \frac{c_u}{c_o+c_u} = \frac{2}{3}$
+
+$F(y)= \frac{y-20}{20}$
+
+$\frac{y-20}{20}=\frac{2}{3}$
+
+$y=\frac{100}{3}$
+
+$x^* = \frac{100}{3}$
+
+\vspace{10pt}
+
+$E[Profit] =$ $E$(sale Rev.)+$E$(salvage Rev.)-$E$(matarial Cost.)
+
+\vspace{10pt}
+
+
+$E$(sale Rev.) $= \int_{20}^{40}2\cdot(D\wedge \frac{100}{3})\cdot\frac{1}{20}dD$
+
+  $=\frac{1}{10}\cdot(\int_{20}^{\frac{100}{3}}(D)dD + \int_{\frac{100}{3}}^{40}(\frac{100}{3})dD)$
+                
+  $=\frac{520}{9}$
+
+\vspace{10pt}
+
+$E$(salvage Rev.) $=\int_{20}^{40} 0.5\cdot(\frac{100}{3}-D)^+\cdot \frac{1}{20}dD$
+
+  $=\frac{1}{40}\cdot(\int_{20}^{\frac{100}{3}} (\frac{100}{3}-D) dD)$
+  
+  $=\frac{100}{9}$
+  
+\vspace{10pt}
+
+$E$(matarial Cost.) $=1 \cdot \frac{100}{3}$
+
+\vspace{10pt}
+
+$E[Profit] =\frac{520}{9}+\frac{100}{9}-\frac{100}{3}=\frac{320}{9}$
+
+## Exercise 4
+
+### Lemonade sells for $18 per gallon but only costs $3 per gallon to make. If we run out of lemonade, it will be impossible to get more. On the other hand, leftover lemonade has a value of $1. Express the following quantity using sale as $X$ and demand as $D$.
+
+\vspace{10pt}
+
+* $c_u$ $= (18-3)\cdot(D-X)^+$
+* $c_o$ $= (3-1)\cdot(X-D)^+$
+* Expected economic cost $= 15\cdot(D-X)^+ + 2\cdot(X-D)^+$
+* Expected profit $=15(D \wedge X) + 2(X-D)^+ - 3\cdot X$
+
+## Exercise 5
+ 
+### Prove Theorem 1. (Hint: you may use formulation from Exercise 4)
+
+\vspace{10pt}
+
+* retail price $= p$
+* material cost $= c$
+* salvage price $= s$
+* demand $= D$
+* stock $= X$
+* understock cost $= (p-c)(D-X)^+ = c_u$
+* overstock cost $= (c-s)(X-D)^+ = c_o$
+
+Expected economic cost$ = c_u + c_o$
+
+$= (p-c)(D-X)^+ + (c-s)(X-D)^+$
+
+\vspace{10pt}
+
+if $D$ is $X$, Expected economic cost is minimum.
+
+Expectd profit $= p(D \wedge X) + s(X-D)^+ - c\cdot X$
+
+Expected profit is maximum value when $D$ is $X$.
+
+\vspace{10pt}
+
+Therefore, when Expected economic cost is minimal, Expectd profit is maximum.
+
+
+## DaiPark Exercise 8 (p.20)
+
+### Suppose that a bakery specializes in chocolate cakes. Assume the cakes retail at $20 per cake, but it takes $10 to prepare each cake. Cakes cannot be sold after one week, and they have a negligible salvage value. It is estimated that the weekly demand for cakes is: 15 cakes in 5% of the weeks, 16 cakes in 20% of the weeks, 17 cakes in 30% of the weeks, 18 cakes in 25% of the weeks, 19 cakes in 10% of the weeks, and 20 cakes in 10% of the weeks. How many cakes should the bakery prepare each week? What is the bakery's expected optimal weekly profit?
+
+\vspace{10pt}
+
+optimal weekly profit $= 20\cdot(\sum_{D=15}^{20}(D \wedge X)\cdot P(D))-10\cdot X$
+
+$=20\cdot ((15\wedge X)\cdot \frac{5}{100} + (16\wedge X)\cdot \frac{20}{100} + (17\wedge X)\cdot \frac{30}{100} + (18\wedge X)\cdot \frac{25}{100} + (19\wedge X)\cdot \frac{10}{100} + (20\wedge X)\cdot \frac{10}{100}) - 10 \cdot X$
+
+$= (15\wedge X) + 4(16\wedge X) + 6(17\wedge X) + 5(18\wedge X) + 2(19\wedge X)+ 2(20\wedge X) - 10\cdot X$
+
+\vspace{10pt}
+
+$X = 15,$  $15+ 4\cdot15+6\cdot15+5\cdot15+2\cdot15+2\cdot15-10\cdot15 = 150$
+
+$X = 16,$  $15+ 4\cdot16+6\cdot16+5\cdot16+2\cdot16+2\cdot16-10\cdot16 = 159$
+
+$X = 17,$  $15+ 4\cdot16+6\cdot17+5\cdot17+2\cdot17+2\cdot17-10\cdot17 = 164$
+
+$X = 18,$  $15+ 4\cdot16+6\cdot17+5\cdot18+2\cdot18+2\cdot18-10\cdot18 = 163$
+
+$X = 19,$  $15+ 4\cdot16+6\cdot17+5\cdot18+2\cdot19+2\cdot19-10\cdot19 = 157$
+
+$X = 20,$  $15+ 4\cdot16+6\cdot17+5\cdot18+2\cdot19+2\cdot20-10\cdot20 = 149$
+
+therefore, the bakery should prepare 17 cakes each week. and the bakery's expected optimal weekly profit is 163$
+
+
+## DaiPark Exercise 14 (p.23)
+
+### A store sells a particular brand of fresh juice. By the end of the day, any unsold juice is sold at a discounted price of $2 per gallon. The store gets the juice daily from a local producer at the cost of $5 per gallon, and it sells the juice at $10 per gallon. Assume that the daily demand for the juice is uniformly distributed between 50 gallons to 150 gallons.
+
+### (a) What is the optimal number of gallons that the store should order from the distribution each day in order to maximize the expected profit each day?
+
+### (b) If 100 gallons are ordered, what is the expected profit per day?
+
+\vspace{10pt}
+(a)
+
+$c_u = 5$
+
+$c_o = 3$
+
+$F(y) = \frac{c_u}{c_u+c_o} = \frac{5}{8}$
+\vspace{10pt}
+
+$U(50,150)$
+
+$f(y) = \begin{cases}\frac{1}{100} &50\le x \le 150\\0 &otherwise \end{cases}$
+
+$F(y) = \begin{cases} 0 &y\le50\\\frac{y-50}{150-50}&50\le y \le 150\\ 1&y>150 \end{cases}$
+
+$\frac{y-50}{100} = \frac{5}{8}$
+
+$y=\frac{225}{2}$
+\vspace{10pt}
+
+therefore, the optimal number of gallons is 112.5 gallons.
+\vspace{10pt}
+
+(b)
+
+Expectd profit X:100 $= 10(D \wedge 100)\cdot f(y) + 2(100-D)^+ \cdot f(y) - 5\cdot 100$
+
+$=\int_{50}^{100} 10\cdot(D\wedge 100) \cdot \frac{1}{100} dD + \int_{100}^{150} 10\cdot100 \cdot \frac{1}{100}dD + \int_{50}^{100} 2\cdot(100-D) \cdot \frac{1}{100}dD -5\cdot100$
+
+$=900-500 = 400$
+\vspace{10pt}
+If 100 gallons are ordered, the expected profit per day is 400$
+
+\vspace{10pt}
+
+```{r, results='hide'}
+"Man can learn nothing unless he proceeds from the known to the unknown. - Claude Bernard"
+```
+
+
+
+

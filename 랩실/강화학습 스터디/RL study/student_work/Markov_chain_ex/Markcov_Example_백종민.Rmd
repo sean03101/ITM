@@ -1,0 +1,79 @@
+---
+title: "Markov_Example"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+
+## Predict Consumer
+
+There is an Internet shopping mall site. Among the members, 30,000(3) consumers purchased in January and 10,000(1) non-purchasing consumers. Consumers who purchased products in January are 0.8. Those who did not purchase products in February are 0.1, and those who did not purchase products in January are 0.1, and those who did not buy products in January are 0.9.  
+
+\vspace{30pt}
+
+![screenshot](C:/Users/guentc1/Desktop/pdf1/fig/consumer.png)
+
+\vspace{30pt}
+
+1. what is the state space, transition matrix p, initial distribution.
+
+\vspace{10pt}
+
+2. Is the Markov chain periodic or aperiodic?
+
+\vspace{10pt}
+
+3. Forecasts of consumers' purchases and non-purchases in March.
+
+\vspace{10pt}
+
+4. Forecasts of consumers' purchases and non-purchases in April.
+
+\vspace{10pt}
+
+5. What is the probability of consumers purchasing and non-purchasing after n months(limiting probabilities)
+
+\vspace{10pt}
+
+6. Use eigenvector and eigenvalue to get a fixed distribution.  
+
+\newpage
+
+Markov_Example.Rmd
+```{r}
+"Hello"
+```
+

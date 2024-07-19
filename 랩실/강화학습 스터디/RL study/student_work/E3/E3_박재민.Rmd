@@ -1,0 +1,168 @@
+---
+title: "E3_MDP Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+\newpage
+
+## p.7 Preparation
+
+```{python,echo=T}
+gamma = 1
+states = np.arange(0,80,10)
+P_normal = np.matrix([[0,1,0,0,0,0,0,0],[0,0,1,0,0,0,0,0],
+[0,0,0,1,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],
+[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,1]])
+P_speed = np.matrix([[0.1,0,0.9,0,0,0,0,0],[0.1,0,0,0.9,0,0,0,0],
+[0,0.1,0,0,0.9,0,0,0],[0,0,0.1,0,0,0.9,0,0],[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],[0,0,0,0,0,0.1,0,0.9],[0,0,0,0,0,0,0,1]])
+
+R_s_a = np.matrix([[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,states,["normal","speed"])
+```
+
+\newpage
+
+## p.8 Implementation
+
+1.  Initialize V
+
+```{python,echo=T}
+V_old = np.zeros(len(states)).T
+V_old = pd.DataFrame(V_old,states)
+print(V_old.T)
+```
+
+2.  Evaluate the Q-function
+
+```{python,ecHo=T}
+q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old))) 
+print(q_s_a)
+```
+
+3.  Find the best action for each state
+
+```{python,echo=T}
+V_new = np.matrix(q_s_a.apply(max,axis=1)).T
+V_new = pd.DataFrame(V_new,states)
+print(V_new.T)
+```
+
+\newpage
+
+## p.11 Implementation
+
+```{python,echo=T}
+cnt = 0
+epsilon = 10**(-8)
+V_old = np.zeros(len(states)).T
+V_old = pd.DataFrame(V_old,states)
+results = V_old.T
+while True:
+    q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old))) 
+    V_new = np.matrix(q_s_a.apply(max,axis=1)).T
+    V_new = pd.DataFrame(V_new,states)
+    if(np.linalg.norm(V_new-V_old)<epsilon):
+        break
+    results = np.vstack((results,V_new.T))
+    V_old = V_new
+    cnt+=1
+results = pd.DataFrame(results,None,states)
+print(results.head())
+print(results.tail())
+```
+
+\newpage
+
+## p. 13 Visualization
+
+1.  Iteration from 6 to 12
+
+```{python,echo=T}
+for i in range(0,6):
+    plt.plot(states,results.iloc[i],marker='o',label=i+1)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6',fontweight='bold')
+plt.show()
+```
+
+2.  Iteration from 7 to 12
+
+```{python,echo=T}
+for i in range(6,12):
+    plt.plot(states,results.iloc[i],marker='o',label=i+1)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 7 to 12',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+3.  Iteration from 13 to 18
+
+```{python,echo=T}
+for i in range(12,18):
+    plt.plot(states,results.iloc[i],marker='o',label=i+1)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 13 to 18',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## p.18 Optimal Value function -> Optimal policy
+
+```{python,echo=T}
+V_opt = results.tail(1).T
+print(V_opt.T)
+
+q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_opt), np.dot(gamma*P_speed, V_opt)))
+print(q_s_a)
+
+pi_opt_vec=q_s_a.idxmax(axis=1)
+pi_opt=pd.DataFrame(np.zeros((len(states),2)), states, ['normal','speed'])
+
+for i in range(len(pi_opt_vec)):
+    pi_opt.iloc[i][pi_opt_vec.iloc[i]]=1
+
+print(pi_opt.T)
+```

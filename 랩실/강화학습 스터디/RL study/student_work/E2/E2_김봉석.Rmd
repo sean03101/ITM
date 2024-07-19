@@ -1,0 +1,285 @@
+---
+title: "Lecture E1.MDP with Model1"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## ReCap
+
+```{python, echo=TRUE}
+
+import numpy as np
+import pandas as pd
+
+states = np.array(range(0,80,10)).astype(str)
+
+gamma = 1
+
+P_normal = np.array([
+                   [0,1,0,0,0,0,0,0],
+                   [0,0,1,0,0,0,0,0],
+                   [0,0,0,1,0,0,0,0],
+                   [0,0,0,0,1,0,0,0],
+                   [0,0,0,0,0,1,0,0],
+                   [0,0,0,0,0,0,1,0],
+                   [0,0,0,0,0,0,0,1],
+                   [0,0,0,0,0,0,0,1]])
+
+P_speed = np.array([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]])
+                   
+def transition(given_pi,states,P_normal,P_speed):
+    P_out = np.zeros(shape=(8,8))
+    
+    for i in range(len(states)):
+        action_dist=given_pi.iloc[i,:]
+        
+        P = action_dist['normal']*P_normal + action_dist['speed']*P_speed
+        
+        P_out[i,]=P[i,]
+        
+    return P_out
+    
+R_s_a=np.array([[-1, -1, -1, -1,0, -1, -1, 0],
+          [-1.5, -1.5, -1.5,-1.5, -0.5, -1.5, -1.5, 0]]).T
+R_s_a=pd.DataFrame(R_s_a,columns=['normal','speed'],index=states)
+
+    
+def reward_fn(given_pi):
+    
+    R_s_a=pd.DataFrame(
+        np.array([[-1, -1, -1, -1,0, -1, -1, 0],
+          [-1.5, -1.5, -1.5,-1.5, -0.5, -1.5, -1.5, 0]]).T,columns=['normal','speed'],index=states)
+    
+    R_pi=np.sum(R_s_a*given_pi,axis=1)
+    
+    return R_pi
+
+
+def policy_eval(given_pi):
+    R = reward_fn(given_pi).values.reshape(8,1)
+    P = transition(given_pi,states, P_normal = P_normal, P_speed = P_speed)
+    
+    gamma = 1.0
+    epsilon = 10**(-8)
+    v_old = np.array(np.repeat(0, 8)).reshape(8,1)
+    
+    while True:
+        v_new = R+gamma*np.dot(P, v_old)
+        if np.max(np.abs(v_new-v_old)) > epsilon:
+            v_old = v_new
+            continue
+        break
+    
+    return v_new
+```
+
+
+```{python, echo=TRUE}
+pi_speed=np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))]
+pi_speed=pd.DataFrame(pi_speed, columns=['normal','speed'],index=states)
+
+policy_eval(pi_speed).T
+
+```
+
+```{python, echo=TRUE}
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)),np.repeat(0.5,len(states))], index=states, columns=['normal','speed'])
+
+policy_eval(pi_50).T
+```
+
+\newpage
+
+## Policy imporvement
+
+### Implementation
+```{python, echo=TRUE}
+V_old= policy_eval(pi_speed)
+pi_old = pi_speed
+q_s_a=R_s_a + np.c_[np.dot(P_normal,V_old),np.dot(P_speed,V_old)]
+q_s_a
+
+```
+
+```{python, echo=TRUE}
+pi_new_vec=q_s_a.idxmax(axis=1)
+
+pi_new = pd.DataFrame(np.zeros(shape=(pi_old.shape)),columns=['normal','speed'])
+
+for i in range(len(pi_new_vec)):
+    pi_new.iloc[i][pi_new_vec[i]]=1 
+    
+pi_new.astype(int)
+```
+
+
+### Policy improvemnet
+
+```{python, echo=TRUE}
+
+def policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed):
+    
+    q_s_a=R_s_a + np.c_[np.dot(P_normal,V_old),np.dot(P_speed,V_old)]
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new = pd.DataFrame(np.zeros(shape=(pi_old.shape)),columns=['normal','speed'],index=states)
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec[i]]=1 
+    
+    return pi_new
+
+```
+
+### One Step Imporvemnet From Pi^Speed
+```{python, echo=TRUE}
+
+pi_old = pi_speed
+
+V_old = policy_eval(pi_old)
+
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+
+pi_new
+```
+
+### Try do it over and over until no change from pi^speed
+
+### Step 0
+
+```{python, echo=TRUE}
+pi_old = pi_speed
+
+pi_old
+
+```
+
+### Step1
+```{python, echo=TRUE}
+pi_old = pi_speed
+
+V_old = policy_eval(pi_old)
+
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+
+pi_old=pi_new
+
+pi_old
+```
+
+### Step2
+```{python, echo=TRUE}
+pi_old = pi_speed
+
+V_old = policy_eval(pi_old)
+
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+
+pi_old=pi_new
+
+pi_old
+```
+
+### Step3
+```{python, echo=TRUE}
+pi_old = pi_speed
+
+V_old = policy_eval(pi_old)
+
+pi_new = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+
+pi_old=pi_new
+
+pi_old
+```
+
+### Policy iteration process from pi^Speed
+
+```{python, echo=TRUE}
+pi_old = pi_speed
+
+cnt = 0 
+
+while True :
+    print("-------------------")
+    print(cnt,"-th iteration")
+    print(pi_old)
+    V_old = policy_eval(pi_old)
+    pi_new  = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+    
+    if(np.sum((pi_old==pi_new).values) != pi_new.shape[0]*pi_new.shape[1]):
+        cnt+=1
+        pi_old=pi_new
+        continue
+    break
+
+print("-------------------")
+print(policy_eval(pi_new))   
+
+```
+
+
+### Policy iteration process Pi^50
+
+```{python, echo=TRUE}
+
+pi_old = pi_50
+
+cnt = 0 
+
+while True :
+    print("-------------------")
+    print(cnt,"-th iteration")
+    print(pi_old)
+    V_old = policy_eval(pi_old)
+    pi_new  = policy_imporve(V_old, pi_old, R_s_a=R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+    
+    if(np.sum((pi_old==pi_new).values) != pi_new.shape[0]*pi_new.shape[1]):
+        cnt+=1
+        pi_old=pi_new
+        continue
+    break
+
+print("-------------------")
+print(policy_eval(pi_new))   
+    
+
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture E1.MDP with Model1 "
+```

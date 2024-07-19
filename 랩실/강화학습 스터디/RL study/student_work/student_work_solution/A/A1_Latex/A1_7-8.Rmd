@@ -1,0 +1,109 @@
+---
+title: "A1 7-8"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    #includes:
+    #  in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+
+\vspace{50pt}
+
+## *Exercise 7*
+
+#### Solve the followings.  
+
+
+\vspace{15pt}
+$$\left(
+\begin{array}{cc}
+\pi_{1}&\pi_{2}
+\end{array}\right)
+\left(\begin{array}{cc}
+.7&.3 \\
+.5&.5
+\end{array}\right)
+\left(
+\begin{array}{cc}
+\pi_{1}&\pi_{2}
+\end{array}
+\right)$$
+
+\begin{center}
+$\pi_{1}+\pi_{2}=1$
+\end{center}
+
+\vspace{15pt}
+
+(1)
+\begin{eqnarray*}
+0.7\pi_{1}+0.5\pi_{2}&=&\pi_{1}\\
+ \\
+0.5\pi_{2}&=&0.3\pi_{1} \\
+ \\
+\pi_{2}&=&0.6\pi_{1}
+\end{eqnarray*}
+
+(2)
+\begin{eqnarray*}
+\pi_{1}+\pi_{2}=1
+\end{eqnarray*}
+
+**From(1) & (2),**
+  
+  
+$\pi_{1}+0.6\pi_{1}=1$  
+
+
+Thus,  $\pi_{1}=\frac{5}{8}$, $\pi_{2}=\frac{3}{8}$.
+
+\newpage
+
+## *Exercise 8*
+
+#### Solve the following system of equations.
+
+\begin{eqnarray*}
+(1)　　x&=&y \\
+ \\
+(2)　　y&=&0.5z \\
+ \\
+(3)　　z&=&0.6-0.4x \\
+ \\
+(4)　　x+y+z&=&1
+\end{eqnarray*}
+
+**From (1) & (2) & (4),**
+  
+\begin{eqnarray*}
+y+y+z&=&1 \\
+ \\
+2y+z&=&1 \\
+ \\
+z+z&=&1 \\
+ \\
+z&=&\frac{1}{2}
+\end{eqnarray*}
+
+Thus, $x=\frac{1}{4}, y=\frac{1}{4}, z=\frac{1}{2}$
+

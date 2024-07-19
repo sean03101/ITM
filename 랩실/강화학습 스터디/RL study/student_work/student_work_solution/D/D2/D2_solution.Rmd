@@ -1,0 +1,157 @@
+---
+title: "Lecture D2. Markov Reword Process2"  
+author: "Reinforcement learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+\newpage
+
+## Method 3- Analytic Solution p.17
+
+```{python, echo=TRUE}
+import numpy as np
+P = np.array([[0.7,0.3],[0.5,0.5]])
+R = np.array([1.5,1])[:, None] # return Column vector in 1D
+gamma =0.9
+v = np.dot(np.linalg.inv(np.identity(2)-gamma*P),R) # v =(I-gamma P)^(-1) R 
+print(v)
+```
+
+\newpage
+## Method4 - iterative solution - by fixed point
+
+### Implementation
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+R = np.array([1.5,1])[:, None] # return Column vector in 1D
+P = np.array([[0.7,0.3],[0.5,0.5]])
+gamma =0.9
+epsilion = 10**(-8)
+v_old = np.repeat(0,2)[:,None]
+
+while True: 
+    v_new =R+gamma*np.dot(P,v_old)
+    if np.max(np.abs(v_new-v_old))> epsilion: 
+        v_old = v_new
+        continue 
+    break
+
+print(v_new)
+
+```
+\newpage
+### The full iteration process
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+R = np.array([1.5,1])[:, None] # return Column vector in 1D
+P = np.array([[0.7,0.3],[0.5,0.5]])
+gamma =0.9
+epsilion = 10**(-8)
+v_old = np.repeat(0,2)[:,None]
+
+result=[]
+while True: 
+    result.append(v_old.T)
+    v_new =R+gamma*np.dot(P,v_old)
+    if np.max(np.abs(v_new-v_old))> epsilion: 
+        v_old = v_new
+        continue 
+    break
+
+
+
+result=pd.DataFrame(np.array(result).reshape(len(result),2), columns = ['coke', 'pepsi'])
+
+print(result)
+
+```
+
+\newpage
+
+## result plot 
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+plt.scatter(result.index, result['coke'],label='coke')
+plt.scatter(result.index, result['pepsi'],label='pepsi')
+plt.grid(True)
+plt.title("State Value for 'Coke & Pepsi'")
+plt.ylabel('value_fn')
+plt.xlabel('idx (=time)')
+plt.legend()
+plt.show()
+
+```
+
+\newpage
+
+## After 50 steps (coke only)
+
+```{python, echo=TRUE}
+
+plt.scatter(result.index[49:], result['coke'][49:],label='coke')
+plt.grid(True)
+plt.title("State Value for 'Coke' after 50steps")
+plt.ylabel('value_fn')
+plt.xlabel('idx (=time)')
+plt.legend()
+plt.show()
+
+```
+
+
+\newpage
+## After 100 steps (coke only)
+
+```{python, echo=TRUE}
+
+plt.scatter(result.index[99:], result['coke'][99:],label='coke')
+plt.grid(True)
+plt.title("State Value for 'Coke' after 100steps")
+ax=plt.gca()
+ax.get_yaxis().get_major_formatter().set_useOffset(False)
+plt.ylabel('value_fn')
+plt.xlabel('idx (=time)')
+plt.legend()
+plt.show()
+
+```
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture D2. Markov Reword Process2 "
+```

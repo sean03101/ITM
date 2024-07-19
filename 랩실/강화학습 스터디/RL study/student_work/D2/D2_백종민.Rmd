@@ -1,0 +1,138 @@
+---
+title: "Lecture Inotate2"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+
+## Iterative
+
+```{python}
+R = np.array([1.5,1.0]).reshape(2,1)
+
+P = np.array([0.7,0.3,0.5,0.5]).reshape(2,2)
+gamma = 0.9
+epsilon = 10**-8
+
+v_old = np.zeros(2).reshape(2,1)
+v_new = R+gamma*np.dot(P,v_old)
+
+while max(abs(v_new-v_old)> epsilon):
+  v_old = v_new
+  v_new = R+gamma*np.dot(P,v_old)
+
+print(v_new)
+```
+
+\newpage
+
+## Page 24
+
+```{python}
+R = np.array([1.5,1.0]).reshape(2,1)
+P = np.array([0.7,0.3,0.5,0.5]).reshape(2,2)
+gamma = 0.9
+epsilon = 10**-8
+
+v_old = np.zeros(2).reshape(2,1)
+v_new = R+gamma*np.dot(P,v_old)
+results = v_old.T
+
+results = np.vstack([results,v_new.T])
+
+
+while np.max(np.abs(v_new-v_old)> epsilon):
+  v_old = v_new
+  v_new = R+gamma*np.dot(P,v_old)
+
+  results = np.vstack([results,v_new.T])
+
+results=pd.DataFrame(results)
+results.columns=['coke','pepsi']
+results.head()
+results.tail()
+```
+
+\newpage
+
+```{python}
+import matplotlib.pyplot as plt
+results['idx'] = results.index
+
+plt.scatter(results['idx'],results['coke'])
+plt.scatter(results['idx'],results['pepsi'])
+plt.grid(True)
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+```
+
+\newpage
+
+## Page 25
+
+```{python}
+import matplotlib.pyplot as plt
+results['idx'] = results.index
+
+results=results[results['idx']>=50]
+
+plt.scatter(results['idx'],results['coke'])
+plt.grid(True)
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+```
+
+\newpage
+
+## Page 28
+
+```{python}
+import matplotlib.pyplot as plt
+results['idx'] = results.index
+
+results=results[results['idx']>=100]
+
+plt.scatter(results['idx'],results['coke'])
+plt.grid(True)
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+```
+
+Inotate2.Rmd
+```{r}
+"Hello"
+```
+

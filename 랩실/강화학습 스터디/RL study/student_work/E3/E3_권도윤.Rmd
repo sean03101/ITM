@@ -1,0 +1,178 @@
+---
+title: "E3_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## Preparation (P. 7)
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+gamma = 1
+states = np.arange(0,80,10).astype(str)
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+R_s_a=np.matrix([[-1,-1,-1,-1,0,-1,-1,0],
+                 [-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a=pd.DataFrame(R_s_a,columns=["normal","speed"],index=states)
+```
+
+## Implementation (P. 8)
+
+```{python, echo,TRUE}
+# 1 Intialize V
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+V_old.T
+```
+
+```{python, echo=TRUE}
+# 2. Evaluate the Q-function
+q_s_a = R_s_a+np.c_[gamma*np.dot(P_normal,V_old), gamma*np.dot(P_speed,V_old)]
+q_s_a
+```
+
+```{python, echo=TRUE}
+# 3. Find the best action for each state
+V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+V_new.T
+```
+
+## Implementation (P. 11)
+
+```{python, echo=TRUE}
+cnt=0
+epsilon=10**(-8)
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+results=V_old.T
+while 1:
+    q_s_a=R_s_a+np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+    V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+    
+    if np.max(np.abs(V_new-V_old)).item() < epsilon :
+        break
+    
+    results=np.r_[results, V_new.T]
+    V_old=V_new
+    
+    cnt+=1
+    
+```
+
+```{python, echo=TRUE}
+value_iter_process = results
+results = pd.DataFrame(results, columns=states)
+results.head()
+results.tail()
+```
+
+## Visualization (P. 13)
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+for i in range(6):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+```{python}
+for i in range(7,13):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 7 to 12', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+
+```{python,echo=TRUE}
+for i in range(13,19):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 13 to 18', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+## Optimal value function (P. 18)
+
+```{python,echo=TRUE}
+V_opt = pd.DataFrame(value_iter_process).tail(1).T
+V_opt.T
+```
+
+```{python}
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_normal,V_opt),np.dot(gamma*P_speed,V_opt)]
+q_s_a
+```
+
+```{python}
+pi_opt_vec=pd.DataFrame(np.matrix(q_s_a.idxmax(axis=1)).reshape(len(states),1).T,columns=states)
+pi_opt_vec
+```
+
+```{python}
+pi_opt=pd.DataFrame(np.repeat(0,len(states)*2).reshape(len(states),2),index=states, columns=["normal","speed"])
+
+for i in states :
+  pi_opt.loc[i][pi_opt_vec.loc[0][i]] = 1
+  
+pi_opt.T
+```
+
+```{r, results='hide'}
+"E3_Exercises"
+```

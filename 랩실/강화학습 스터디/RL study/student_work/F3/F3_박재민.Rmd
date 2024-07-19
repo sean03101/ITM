@@ -1,0 +1,193 @@
+---
+title: "F3 Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+```{python import, echo=FALSE,message=F}
+import time
+import numpy as np
+import pandas as pd
+
+#R1
+states = np.arange(0,80,10)
+P_normal = np.matrix([[0,1,0,0,0,0,0,0],[0,0,1,0,0,0,0,0],
+[0,0,0,1,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],
+[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,1]])
+P_speed = np.matrix([[0.1,0,0.9,0,0,0,0,0],[0.1,0,0,0.9,0,0,0,0],
+[0,0.1,0,0,0.9,0,0,0],[0,0,0.1,0,0,0.9,0,0],[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],[0,0,0,0,0,0.1,0,0.9],[0,0,0,0,0,0,0,1]])
+
+P_normal = pd.DataFrame(P_normal,states,states)
+P_speed = pd.DataFrame(P_speed,states,states)
+
+R_s_a = np.matrix([[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,states,["n","s"])
+
+q_s_a_init = np.hstack((np.zeros(len(states)).reshape(8,1),np.zeros(len(states)).reshape(8,1)))
+q_s_a_init = pd.DataFrame(q_s_a_init,states,["n","s"])
+
+#R2
+pi_speed = np.hstack((np.zeros(len(states)).reshape(8,1),np.repeat(1,len(states)).reshape(8,1)))
+pi_speed = pd.DataFrame(pi_speed,states,["n","s"])
+#print(pi_speed.T)
+pi_50 = np.hstack((np.repeat(0.5,len(states)).reshape(8,1),np.repeat(0.5,len(states)).reshape(8,1)))
+pi_50 = pd.DataFrame(pi_50,states,["n","s"])
+#print(pi_50.T)
+
+#R3
+
+def simul_path(pi,P_normal,P_speed,R_s_a,flag):
+    s_now = 0
+    history_i = []
+    while(s_now!=70):
+        if(np.random.uniform(0,1)<pi.loc[s_now]["n"]):
+            a_now="n"
+            P=P_normal
+        else:
+            a_now="s"
+            P=P_speed
+        if(flag):
+            r_now = 10
+        r_now = R_s_a.loc[s_now][a_now]
+        s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(0,1))].item()
+        history_i.extend([s_now,a_now,r_now])
+        s_now = s_next
+    return(history_i)
+
+#sample_path = simul_path(pi_speed, P_normal, P_speed, R_s_a)
+#print(sample_path)
+
+#R4
+def simul_step(pi,s_now,P_normal,P_speed,R_s_a):
+
+    if(np.random.uniform(0,1)<pi.loc[s_now]["n"]):
+        a_now="n"
+        P=P_normal
+    else:
+        a_now="s"
+        P=P_speed
+    r_now = R_s_a.loc[s_now][a_now]
+    s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(0,1))].item()
+
+    if(np.random.uniform(0,1)<pi.loc[s_next]["n"]):
+        a_next="n"
+    else:
+        a_next="s"
+    sarsa = [s_now,a_now,r_now,s_next,a_next]
+    return(sarsa)
+
+#sample_step = simul_step(pi_speed, 0, P_normal, P_speed, R_s_a) # a.k.a. sarsa
+#print(sample_step)
+
+#R5
+def pol_eval_MC(sample_path, q_s_a, alpha):
+    for j in range(0,len(sample_path),3):
+        s = sample_path[j]
+        a = sample_path[j+1]
+        G = pd.Series(sample_path)[range(j+2,len(sample_path)-1,3)].astype('float').sum()
+        q_s_a.loc[s][a] = q_s_a.loc[s][a] + alpha*(G-q_s_a.loc[s][a])
+    return q_s_a
+#q_s_a = pol_eval_MC(sample_path,q_s_a_init,0.1)
+#print(q_s_a)
+
+
+#R6
+def pol_eval_TD(sample_path, q_s_a, alpha):
+    s = sample_path[0]
+    a = sample_path[1]
+    r = float(sample_path[2])
+    s_next = sample_path[3]
+    a_next = sample_path[4]
+    q_s_a.loc[s][a] = q_s_a.loc[s][a] + alpha*(r+q_s_a.loc[s_next][a_next]-q_s_a.loc[s][a])
+    return q_s_a
+#q_s_a = pol_eval_TD(sample_path,q_s_a_init,0.1)
+#print(q_s_a)
+
+
+#R7
+def pol_imp(pi,q_s_a,epsilon):
+    for i in range(pi.shape[0]):
+        if(np.random.uniform(0,1)>epsilon):
+            pi.iloc[i] = 0
+            pi.iloc[i][q_s_a.iloc[i].idxmax()]=1
+        else:
+            pi.iloc[i] = 1/q_s_a.shape[1]
+    return(pi)
+#pi = pol_imp(pi_speed, q_s_a, 0)
+#print(pi)
+```
+
+## MC control
+```{python}
+#F3 MC
+num_ep = 1000
+beg_time = time.time()
+q_s_a = q_s_a_init
+pi = pi_50
+exp_rate = 1
+for i in range(1000):
+    sample_path_i = simul_path(pi,P_normal,P_speed, R_s_a,True)
+    q_s_a = pol_eval_MC(sample_path_i,q_s_a,alpha = 1/(i+1))
+print(q_s_a.T)
+
+for i in range(num_ep):
+    if i%1000 == 0:
+        print(i)
+    sample_path_i = simul_path(pi,P_normal,P_speed, R_s_a,False)
+    q_s_a = pol_eval_MC(sample_path_i,q_s_a,alpha = max(1/(i+1),0.1))
+    pi = pol_imp(pi,q_s_a, exp_rate)
+    exp_rate = exp_rate * 0.9997
+end_time = time.time()
+print(end_time-beg_time)
+print(pi.T)
+print(q_s_a.T)
+```
+
+\newpage
+## TD control
+```{python}
+num_ep = 1000
+beg_time = time.time()
+q_s_a = q_s_a_init
+pi = pi_50
+exp_rate = 1
+for i in range(num_ep):
+    s_now = 0
+    while(s_now != 70):
+        sample_step = simul_step(pi,s_now,P_normal,P_speed,R_s_a)
+        q_s_a = pol_eval_TD(sample_step,q_s_a, alpha = max(1/(i+1),0.005))
+        pi = pol_imp(pi,q_s_a, exp_rate)
+        s_now = sample_step[3]
+        exp_rate = exp_rate*0.998
+
+end_time = time.time()
+print(end_time-beg_time)
+print(pi.T)
+print(q_s_a.T)
+```
+

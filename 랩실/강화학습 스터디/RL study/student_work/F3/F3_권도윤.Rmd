@@ -1,0 +1,186 @@
+---
+title: "F4_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+```
+
+\newpage
+
+```{python, echo=FALSE}
+import numpy as np
+import pandas as pd 
+import time
+# Model
+states = np.arange(0, 80, 10).astype( str )
+P_normal = pd.DataFrame(np.matrix([[0, 1, 0, 0, 0, 0, 0, 0],
+                                     [0, 0, 1, 0, 0, 0, 0, 0],
+                                     [0, 0, 0, 1, 0, 0, 0, 0],
+                                     [0, 0, 0, 0, 1, 0, 0, 0],
+                                     [0, 0, 0, 0, 0, 1, 0, 0],
+                                     [0, 0, 0, 0, 0, 0, 1, 0],
+                                     [0, 0, 0, 0, 0, 0, 0, 1],
+                                     [0, 0, 0, 0, 0, 0, 0, 1]]), index = states, columns = states)
+P_speed = pd.DataFrame(np.matrix([[0.1, 0, 0.9, 0, 0, 0, 0, 0],
+                                    [0.1, 0, 0, 0.9, 0, 0, 0, 0],
+                                    [0, 0.1, 0, 0, 0.9, 0, 0, 0],
+                                    [0, 0, 0.1, 0, 0, 0.9, 0, 0],
+                                    [0, 0, 0, 0.1, 0, 0, 0.9, 0],
+                                    [0, 0, 0, 0, 0.1, 0, 0, 0.9],
+                                    [0, 0, 0, 0, 0, 0.1, 0, 0.9],
+                                    [0, 0, 0, 0, 0, 0, 0, 1]]), index = states, columns = states)
+R_s_a = pd.DataFrame(np.c_[[-1, -1, -1, -1, 0, -1, -1, 0], 
+                      [-1.5, -1.5, -1.5, -1.5, -0.5, -1.5, -1.5, 0]],
+                      index = states, columns = ['n', 's'])
+                      
+q_s_a_init = pd.DataFrame(np.c_[np.repeat(0.0, len( states )), np.repeat( 0.0, len( states ))],
+                            index = states, columns = ['n', 's'] )
+
+pi_speed = pd.DataFrame(np.c_[np.repeat(0, len(states)), np.repeat(1,len(states))],
+                        index = states,columns = ['n', 's'])
+                         
+                         
+pi_50 = pd.DataFrame(np.c_[np.repeat(0.5, len(states)), np.repeat(0.5,len(states))],
+                      index = states,columns = ['n', 's'])
+
+def simul_path(pi, P_normal, P_speed, R_s_a):
+    s_now = "0"
+    history_i = [s_now]
+    while s_now != "70":
+        if np.random.uniform() < pi.loc[s_now, "n"]:
+            a_now = "n"
+            P = P_normal
+        else:
+            a_now = "s"
+            P = P_speed
+        r_now = str( R_s_a.loc[s_now, a_now] )
+        s_next = states[np.argmin( P.loc[s_now].cumsum() < np.random.uniform() )]
+        history_i.extend( [a_now, r_now, s_next] )
+        s_now = s_next
+    return history_i
+    
+
+
+def simul_step(pi, s_now, P_normal, P_speed, R_s_a):
+    if np.random.uniform() < pi.loc[s_now, "n"]:
+        a_now = "n"
+        P = P_normal
+    else:
+        a_now = "s"
+        P = P_speed
+    r_now = R_s_a.loc[s_now, a_now]
+    s_next = states[np.argmin( P.loc[s_now].cumsum() < np.random.uniform() )]
+    if np.random.uniform() < pi.loc[s_next, "n"]:
+        a_next = "n"
+    else:
+        a_next = "s"
+    sarsa = [s_now, a_now, r_now, s_next, a_next]
+    return sarsa
+
+
+def pol_eval_MC(sample_path, q_s_a, alpha):
+    q_s_a_copy= q_s_a.copy()
+    
+    for j in range( 0,len( sample_path ) - 1, 3 ):
+        s = sample_path[j]
+        a = sample_path[j + 1]
+        G = np.sum(np.array(sample_path[j + 2:len( sample_path )-1:3]).astype( float ) )
+        q_s_a_copy.loc[s,a] += alpha * (G - q_s_a_copy.loc[s, a])
+    return q_s_a_copy
+
+
+def pol_eval_TD(sample_step, q_s_a, alpha):
+    q_s_a_copy= q_s_a.copy()
+    s = sample_step[0]
+    a = sample_step[1]
+    r = sample_step[2]
+    s_next = sample_step[3]
+    a_next = sample_step[4]
+    q_s_a_copy.loc[s,a] +=alpha*(r+q_s_a_copy.loc[s_next, a_next]-q_s_a_copy.loc[s,a])
+    return q_s_a_copy
+
+
+def pol_imp(pi, q_s_a, epsilon): # epsilon = exploration_rate
+    pi_copy =pi.copy()
+    for i in range(pi.shape[0]):
+        # exploitation
+        if np.random.uniform() > epsilon:
+            pi_copy.iloc[i] = 0
+            pi_copy.iloc[i, np.argmax(q_s_a.iloc[i,])] = 1
+            
+        else:
+            # exploration
+            pi_copy.iloc[i] = 1/q_s_a.shape[1]
+    return pi_copy
+
+```
+
+
+## Policy Iteration 1 -MC Control
+```{python, echo=TRUE}
+num_ep = 10**5
+beg_time =time.time()
+q_s_a = q_s_a_init
+pi = pi_50
+
+for epi_i in range(1,num_ep) :
+    sample_path_i = simul_path(pi, P_normal, P_speed, R_s_a)
+    q_s_a = pol_eval_MC(sample_path_i, q_s_a, alpha = 0.1)
+    pi = pol_imp(pi, q_s_a, 0.1)
+
+end_time =time.time()
+result_q = pd.DataFrame(q_s_a, columns =['n','s'], index= states)
+result_pi = pd.DataFrame(pi, columns =['n','s'], index= states)
+print("Time difference of {} sec".format(end_time- beg_time))
+print(result_pi.T)
+print(result_q.T)
+
+```
+
+## Policy Iteration 2 - TD Control (a.k.a sarsa)
+```{python, echo=TRUE}
+num_ep = 10**4
+beg_time =time.time()
+q_s_a = q_s_a_init
+pi = pi_50
+exploration_rate = 1
+for epi_i in range(1,num_ep) :
+    s_now = "0"
+    while s_now != "70":
+        sample_step = simul_step(pi,s_now, P_normal, P_speed, R_s_a)
+        q_s_a = pol_eval_TD(sample_step, q_s_a, alpha = 0.01)
+        pi = pol_imp(pi, q_s_a, epsilon=  exploration_rate)
+        s_now = sample_step[3]
+        exploration_rate *=0.995
+end_time =time.time()
+result_q = pd.DataFrame(q_s_a, columns =['n','s'], index= states)
+result_pi = pd.DataFrame(pi, columns =['n','s'], index= states)
+print("Time difference of {} sec".format(end_time- beg_time))
+print(result_pi.T)
+print(result_q.T)
+
+```
+
+```{r, results='hide'}
+"F4_Exercises"
+```

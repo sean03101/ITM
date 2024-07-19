@@ -1,0 +1,176 @@
+---
+title: "MDP Case (D case)"  
+author: "Kang, Eui Hyeon"  
+date: "2021-02-15"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+```
+
+\newpage
+
+## Fat Samuel
+
+![](samuel.jpg){width="361"}
+
+#### Samuel is 99 kilograms. He loves eating, but he knows gaining more weight is not good for his health. Now, He decided to lose weight for his lovely family. The goal is to lose up to 90 kilograms. There are two ways for losing weight.
+
+#### 1. Controlling Diet : It helps lose 1kg a week.
+#### 2. Doing Sports : It helps lose 2kg a week.
+
+#### Of course, method 2 looks good. However, There is a hazard gaining 3kg due to the yo-yo phenomenon with probability of 0.2 Controlling diet costs 30,000 won a week and doing sports will incur a cost of 40,000 won a week. What kind of policy should I choose to lose weight? (Fortunately, when he decided to lose weight, his weight doesn't over 99kg.)
+
+\newpage
+
+## Preparation
+
+```{python}
+
+gamma=1
+states=np.arange(99,89,-1).astype('str')
+
+P_diet=pd.DataFrame(np.array([[0,1,0,0,0,0,0,0,0,0], # 99kg
+                [0,0,1,0,0,0,0,0,0,0], # 98kg
+                [0,0,0,1,0,0,0,0,0,0], # 97kg
+                [0,0,0,0,1,0,0,0,0,0], # 96kg
+                [0,0,0,0,0,1,0,0,0,0], # 95kg
+                [0,0,0,0,0,0,1,0,0,0], # 94kg
+                [0,0,0,0,0,0,0,1,0,0], # 93kg
+                [0,0,0,0,0,0,0,0,1,0], # 92kg
+                [0,0,0,0,0,0,0,0,0,1], # 91kg
+                [0,0,0,0,0,0,0,0,0,1]]), index=states, columns=states) # 90kg
+
+P_diet
+
+
+P_sport=pd.DataFrame(np.array([[0.2,0,0.8,0,0,0,0,0,0,0], # 99kg
+                [0.2,0,0,0.8,0,0,0,0,0,0], # 98kg
+                [0.2,0,0,0,0.8,0,0,0,0,0], # 97kg
+                [0.2,0,0,0,0,0.8,0,0,0,0], # 96kg
+                [0,0.2,0,0,0,0,0.8,0,0,0], # 95kg
+                [0,0,0.2,0,0,0,0,0.8,0,0], # 94kg
+                [0,0,0,0.2,0,0,0,0,0.8,0], # 93kg
+                [0,0,0,0,0.2,0,0,0,0,0.8], # 92kg
+                [0,0,0,0,0,0.2,0,0,0,0.8], # 91kg
+                [0,0,0,0,0,0,0,0,0,1]]), index=states, columns=states) # 90kg
+
+P_sport
+
+
+R_s_a=pd.DataFrame(np.c_[np.repeat(-3,len(states)), np.repeat(-4,len(states))], index=states, columns=['diet','sport'])
+
+R_s_a.loc['90']=0
+
+R_s_a
+```
+
+\newpage
+
+## Functions
+
+```{python}
+
+def transition(given_pi, states, P_diet, P_sport):
+    P_out=pd.DataFrame(np.zeros((len(states),len(states))),index=states, columns=states)
+    
+    for s in states:
+        action_dist=given_pi.loc[s]
+        P=action_dist['diet']*P_diet+action_dist['sport']*P_sport
+        P_out.loc[s]=P.loc[s]
+        
+    return P_out
+
+def reward_fn(given_pi):
+    R_s_a=pd.DataFrame(np.c_[np.repeat(-3,len(states)), np.repeat(-4,len(states))], index=states, columns=['diet','sport'])
+
+    R_s_a.loc['90']=0
+    
+    R_pi=np.asarray((given_pi*R_s_a).sum(axis=1)).reshape(-1,1)
+    
+    return R_pi
+
+
+def policy_eval(given_pi):
+    R=reward_fn(given_pi)
+    P=transition(given_pi, states=states, P_diet=P_diet, P_sport=P_sport)
+    
+    gamma=1.0
+    epsilon=10**(-8)
+    
+    v_old=np.repeat(0,10).reshape(10,1)
+    v_new=R+np.dot(gamma*P, v_old)
+    
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)
+        
+    return v_new
+```
+
+\newpage
+
+## Policy Evaluation
+
+```{python}
+
+# Policy Evaluation
+    
+
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],index=states, columns=['diet','sport'])
+
+policy_eval(pi_50).T
+```
+
+\newpage
+
+## Policy Improvement
+
+```{python}
+
+# Policy Improvement 
+
+def policy_improve(V_old, pi_old, R_s_a, gamma, P_diet, P_sport):
+    q_s_a=R_s_a+np.c_[np.dot(gamma*P_diet,V_old), np.dot(gamma*P_sport, V_old)]
+    
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+    
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec[i]]=1
+        
+    return pi_new
+
+
+pi_old=pi_50
+V_old=policy_eval(pi_old)
+pi_new=policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_diet=P_diet, P_sport=P_sport)
+
+pi_new
+```

@@ -1,0 +1,350 @@
+---
+title: "F1_Jeong,wonryeol"
+author: "Jeong, wonryeol"
+date: "1/25/2021"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: yes
+    toc : true
+    toc_depth: 2 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+\newpage
+
+
+# Preparation
+
+```{python}
+import numpy as np 
+import pandas as pd 
+gamma = 1
+states = np.arange(0,80,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                                [0,0,1,0,0,0,0,0],
+                                [0,0,0,1,0,0,0,0],
+                                [0,0,0,0,1,0,0,0],
+                                [0,0,0,0,0,1,0,0],
+                                [0,0,0,0,0,0,1,0],
+                                [0,0,0,0,0,0,0,1],
+                                [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                               [.1,0,0,.9,0,0,0,0],
+                               [0,.1,0,0,.9,0,0,0],
+                               [0,0,.1,0,0,.9,0,0],
+                               [0,0,0,.1,0,0,.9,0],
+                               [0,0,0,0,.1,0,0,.9],
+                               [0,0,0,0,0,.1,0,.9],
+                               [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+
+
+def transition(given_pi, states, P_normal, P_speed):
+    P_out=pd.DataFrame(np.zeros((len(states),len(states))),index=states, columns=states)
+    
+    for s in states:
+        action_dist=given_pi.loc[s]
+        P=action_dist['normal']*P_normal+action_dist['speed']*P_speed
+        P_out.loc[s]=P.loc[s]
+        
+    return P_out
+```
+
+
+
+```{python}
+
+# reword
+R_s_a=pd.DataFrame(np.array([-1,-1,-1,-1,0.0,-1,-1,0,
+                              -1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['n','s'],index=states)
+R_s_a.T
+
+```
+
+
+```{python}
+# pi_speed
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))],index=states, columns=['n','s'])
+pi_speed.T
+```
+
+
+```{python}
+pi_50=pd.DataFrame(np.repeat(0.5,len(states)*2).reshape(8,2),index=states, columns=['n','s'])
+pi_50
+```
+
+\newpage
+
+# 11_page Simulator -$\pi^{speed}$
+
+```{python}
+# simulator pi_speed
+
+pi = pi_speed
+np.random.seed(1234)
+history = list()
+MC_N = 10000
+for MC_i in range(1,MC_N+1):
+    s_now = '0'
+    history_i = [s_now]
+    while s_now != '70':
+        if np.random.uniform(0,1,1) < pi.loc[s_now,"n"] :
+            a_now = "n"
+            P = P_normal
+        else:
+            a_now = "s"
+            P = P_speed
+        
+        r_now = R_s_a.loc[s_now,a_now]
+        s_next = states[np.argmin(np.cumsum(P.loc[s_now,])<np.random.uniform(0,1))]
+        history_i.extend([a_now,r_now,s_next])
+        s_now = s_next
+        
+        
+    history.append(history_i)
+    
+history_speed = history
+
+
+def paste0 (x):
+    x = np.array(x).astype('str')
+    return ','.join(x)
+
+result =list(map(paste0,history_speed[:20]))
+pd.DataFrame(result)
+```
+
+
+\newpage
+
+# 13_page Simulator -$\pi^{50}$
+
+```{python}
+# simulator pi_50
+
+
+pi = pi_50
+np.random.seed(1234)
+history = list()
+MC_N = 10000
+for MC_i in range(1,MC_N+1):
+    s_now = '0'
+    history_i = [s_now]
+    while s_now != '70':
+        if np.random.uniform(0,1,1) < pi.loc[s_now,"n"] :
+            a_now = "n"
+            P = P_normal
+        else:
+            a_now = "s"
+            P = P_speed
+        
+        r_now = R_s_a.loc[s_now,a_now]
+        s_next = states[np.argmin(np.cumsum(P.loc[s_now,])<np.random.uniform(0,1))]
+        history_i.extend([a_now,r_now,s_next])
+        s_now = s_next
+        
+        
+    history.append(history_i)
+    
+history_50 = history
+
+def paste0 (x):
+    x = np.array(x).astype('str')
+    return ','.join(x)
+
+result =list(map(paste0,history_speed[:20]))
+pd.DataFrame(result)
+```
+
+\newpage
+
+# 17_page Implementation1 - $\pi^{speed}(vectorized)$
+
+
+```{python}
+# 17_page Implementation1 - $\pi^{speed}(vectorized)$
+
+pol_eval = pd.DataFrame(np.zeros(16).reshape(states.shape[0],2),index =states,columns = ['count','sum'])
+
+
+def paste0 (x):
+    x = np.array(x).astype('str')
+    return ','.join(x)
+
+
+
+for MC_i in range(len(history_speed)):
+    history_i = history_speed[MC_i]
+    for j in range(0,len(history_i),3):
+        
+        pol_eval.loc[history_i[j],'count']+=1
+        if j < len(history_i):
+            pol_eval.loc[history_i[j],'sum']+=pd.Series(history_i)[list(range(j+2,len(history_i)-1,3))].astype('float').sum()
+        else:
+            pol_eval.loc[history_i[j],'sum'] =pol_eval.loc[history_i[j],'sum'] +0
+            
+
+pol_eval.T
+    
+```
+
+
+```{python}
+pol_eval["sum"]/pol_eval["count"]
+```
+
+\newpage
+
+# 18_page Implementation2 $\pi^{speed}$ (running estimate)
+```{python}
+
+pol_eval = pd.DataFrame(np.zeros(16).reshape(states.shape[0],2),index =states,columns = ['count','est'])
+
+
+for MC_i in range(len(history_speed)):
+    history_i = history_speed[MC_i]
+     
+    for j in range(0,len(history_i),3):
+        #update count
+        pol_eval.loc[history_i[j],'count']+=1
+        current_cnt = pol_eval.loc[history_i[j],'count']
+        #return is the new info
+        if j < len(history_i):
+            new_info =pd.Series(history_i)[list(range(j+2,len(history_i)-1,3))].astype('float').sum()
+        else:
+            new_info = 0 
+        alpha = 1/current_cnt
+        pol_eval.loc[history_i[j],'est'] = pol_eval.loc[history_i[j],'est']+ alpha * (new_info - pol_eval.loc[history_i[j],'est'])
+
+
+pol_eval.T
+
+
+```
+
+\newpage
+
+
+# 21_page  Implementation3 - $\pi^{50}$(vectorized)
+
+```{python}
+pol_eval = pd.DataFrame(np.zeros(16).reshape(states.shape[0],2),index =states,columns = ['count','sum'])
+
+
+for MC_i in range(len(history_50)):
+    history_i = history_50[MC_i]
+    for j in range(0,len(history_i),3):
+        
+        pol_eval.loc[history_i[j],'count']+=1
+        if j < len(history_i):
+            pol_eval.loc[history_i[j],'sum']+=pd.Series(history_i)[list(range(j+2,len(history_i)-1,3))].astype('float').sum()
+        else:
+            pol_eval.loc[history_i[j],'sum'] =pol_eval.loc[history_i[j],'sum'] +0
+            
+
+pol_eval.T
+
+
+```
+
+
+```{python}
+pol_eval["sum"]/pol_eval["count"]
+```
+
+\newpage
+
+
+# 23_page  Implementation4 - $\pi^{50}$(Running Estimate)
+
+```{python}
+
+pol_eval = pd.DataFrame(np.zeros(16).reshape(states.shape[0],2),index =states,columns = ['count','est'])
+
+
+for MC_i in range(len(history_50)):
+    history_i = history_50[MC_i]
+     
+    for j in range(0,len(history_i),3):
+        #update count
+        pol_eval.loc[history_i[j],'count']+=1
+        current_cnt = pol_eval.loc[history_i[j],'count']
+        #return is the new info
+        if j < len(history_i):
+            new_info =pd.Series(history_i)[list(range(j+2,len(history_i)-1,3))].astype('float').sum()
+        else:
+            new_info = 0 
+        alpha = 1/current_cnt
+        pol_eval.loc[history_i[j],'est'] = pol_eval.loc[history_i[j],'est']+ alpha * (new_info - pol_eval.loc[history_i[j],'est'])
+
+
+pol_eval.T
+```
+
+
+
+
+\newpage
+
+# 35_page  Implementation5_TD - $\pi^{speed}$(Running Estimate)
+
+
+```{python}
+pol_eval = pd.DataFrame(np.zeros(16).reshape(states.shape[0],2),index =states,columns = ['count','est'])
+
+
+for MC_i in range(len(history_speed)):
+    history_i = history_speed[MC_i]
+     
+    for j in range(0,len(history_i),3):
+        #update count
+        pol_eval.loc[history_i[j],'count']+=1
+        current_cnt = pol_eval.loc[history_i[j],'count']
+        #return is the new info
+        if j+3 < len(history_i):
+            TD_tgt = history_i[j+2]+pol_eval.loc[history_i[j+3]]['est']
+            
+            
+        else:
+            TD_tgt = 0
+        alpha = 1/current_cnt
+        pol_eval.loc[history_i[j],'est'] = pol_eval.loc[history_i[j],'est']+ alpha * (TD_tgt - pol_eval.loc[history_i[j],'est'])
+
+
+pol_eval.T
+```
+
+
+\newpage
+
+# 38_page  Implementation6_TD - $\pi^{50}$(Running Estimate)
+
+```{python}
+pol_eval = pd.DataFrame(np.zeros(16).reshape(states.shape[0],2),index =states,columns = ['count','est'])
+
+
+for MC_i in range(len(history_50)):
+    history_i = history_50[MC_i]
+     
+    for j in range(0,len(history_i),3):
+        #update count
+        pol_eval.loc[history_i[j],'count']+=1
+        current_cnt = pol_eval.loc[history_i[j],'count']
+        #return is the new info
+        if j+3 < len(history_i):
+            TD_tgt = history_i[j+2]+pol_eval.loc[history_i[j+3]]['est']
+            
+            
+        else:
+            TD_tgt = 0
+        alpha = 1/current_cnt
+        pol_eval.loc[history_i[j],'est'] = pol_eval.loc[history_i[j],'est']+ alpha * (TD_tgt - pol_eval.loc[history_i[j],'est'])
+
+
+pol_eval.T
+```
+

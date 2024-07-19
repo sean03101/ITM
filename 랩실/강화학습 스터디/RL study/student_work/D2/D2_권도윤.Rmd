@@ -1,0 +1,102 @@
+---
+title: "D2_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## P. 17
+
+
+```{python}
+import numpy as np
+P = np.array([0.7,0.3,0.5,0.5]).reshape(2,2)
+R = np.array([1.5,1.0]).reshape(2,1)
+gamma = 0.9
+v = np.dot(np.linalg.inv(np.identity(2)-gamma*P),R)
+print(v)
+```
+
+
+## The full iteration process (P. 23)
+
+```{python}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+P = np.array([0.7,0.3,0.5,0.5]).reshape(2,2)
+R = np.array([1.5,1.0]).reshape(2,1)
+gamma = 0.9
+epsilon = 10**(-8)
+
+v_old = np.zeros((2,1))
+v_new = R + np.dot(gamma*P,v_old)
+results = v_old.T
+results = np.append(results,v_new.T,axis=0)
+
+while np.max(abs(v_new-v_old))>epsilon:
+    v_old = v_new
+    v_new = R + np.dot(gamma*P,v_old)
+    results = np.append(results,v_new.T,axis=0)
+    
+results = pd.DataFrame(results,columns=['coke','pepsi'])
+print(results.head(n=7))
+print(results.tail(n=7))
+```
+
+## Graph (P. 25)
+
+```{python}
+plt.scatter(results.index, results['coke'], label='coke')
+plt.scatter(results.index, results['pepsi'], label='pepsi')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+
+## P.27
+```{python}
+plt.scatter(results.index[49:],results['coke'][49:], label='coke')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+
+```{python}
+plt.scatter(results.index[99:],results['coke'][99:], label='coke')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+
+```{r, results='hide'}
+"D2_Exercises"
+```

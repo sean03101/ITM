@@ -1,0 +1,211 @@
+---
+title: "F1 Python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+
+py_install("pandas")
+```
+
+\newpage
+## Environment
+```{python, echo=TRUE}
+import pandas as pd
+import numpy as np
+
+
+action = ['move_left','move_not', 'move_right']
+state = [1,2,3,4,5,6,7] # s1 ~ s7
+
+P_ML = pd.DataFrame(np.matrix([[0,0,0,0,0,0,0],
+                             [1,0,0,0,0,0,0],
+                             [0,1,0,0,0,0,0],
+                             [0,0,1,0,0,0,0],
+                             [0,0,0,1,0,0,0],
+                             [0,0,0,0,1,0,0],
+                              [0,0,0,0,0,1,0]
+                              ]),index = state , columns = state)
+                              
+P_MR = pd.DataFrame(np.matrix([[0,1,0,0,0,0,0],
+                             [0,0,1,0,0,0,0],
+                             [0,0,0,1,0,0,0],
+                             [0,0,0,0,1,0,0],
+                            [0,0,0,0,0,1,0],
+                              [0,0,0,0,0,0,1],
+                             [0,0,0,0,0,0,0]
+                              ]),index = state , columns = state)    
+                              
+P_MN = pd.DataFrame(np.matrix([[1,0,0,0,0,0,0],
+                             [0,1,0,0,0,0,0],
+                             [0,0,1,0,0,0,0],
+                             [0,0,0,1,0,0,0],
+                            [0,0,0,0,1,0,0],
+                              [0,0,0,0,0,1,0],
+                             [0,0,0,0,0,0,1]
+                              ]),index = state , columns = state)                                
+                            
+
+
+pi_mars =pd.DataFrame(np.matrix([np.repeat(0.4,len(state)),np.repeat(0.2,len(state)),np.repeat(0.4,len(state))]),index = action,columns = state).T
+ 
+pi_mars['move_left'][1] = 0
+pi_mars['move_not'][1] = 0.6
+
+pi_mars['move_right'][7] = 0
+pi_mars['move_not'][7] = 0.6
+
+print(pi_mars.T)
+
+reward = np.array([1,0,0,0,0,0,10])
+print(reward)
+```
+\newpage
+## Simulator 
+
+```{python, echo=TRUE}
+
+pi = pi_mars
+np.random.seed(1234)
+history = []
+MC_N = 10000
+
+for MC_i in range(MC_N):
+  s_now = 4 # Start s4
+  history_i = [4]
+  count = 0
+  
+  while count < 10 :
+    
+    probability = np.random.uniform(0,1)
+    
+    if probability < pi.loc[s_now]['move_left']:
+      a_now = 'move_left'
+      P = P_ML
+      s_next = s_now - 1 
+  
+    elif probability >= pi.loc[s_now]['move_left'] and probability < (pi.loc[s_now]['move_left'] + pi.loc[s_now]['move_not']):
+    
+      a_now = 'move_not'
+      P = P_MN
+      s_next = s_now
+      
+    else:
+      a_now = 'move_right'
+      P = P_MR
+      s_next = s_now + 1 
+    
+    
+    r_now = reward[s_now-1]
+    history_i.extend([a_now,r_now,s_next])
+    s_now = s_next
+    count+=1
+    
+  history.append(history_i)  
+
+
+history[-5:]
+```
+\newpage
+## Implementation 1 (vectorized)
+
+```{python, echo=TRUE}
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(state)*2))).reshape(len(state),2), index=state, columns=['count','sum'])
+print(pol_eval.T)
+
+
+for MC_i in range(MC_N):
+  history_i = history[MC_i]
+  
+  for j in range(0,len(history_i),3):
+    pol_eval.loc[history_i[j]]['count']+=1
+    
+    if j < len(history_i) :
+      pol_eval.loc[history_i[j]]['sum']+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].sum()
+            
+    else:
+      pol_eval.loc[history_i[j]]['sum']+=0
+            
+print(pol_eval.T)
+
+pol_cal=pd.DataFrame(pol_eval['sum']/pol_eval['count'])
+print(pol_cal.T)
+  
+```
+
+\newpage
+## Implementation 2 (vectorized)
+
+```{python, echo=TRUE}
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(state)*2))).reshape(len(state),2), index=state, columns=['count','est'])
+print(pol_eval.T)
+
+for MC_i in range(MC_N):
+    history_i=history[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].sum()
+            
+        else:
+            new_info = 0
+        
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+print(pol_eval)
+  
+```
+
+
+\newpage
+## page 36 Implementation 3 
+```{python,echo=T}
+
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(state)*2))).reshape(len(state),2), index=state, columns=['count','est'])
+print(pol_eval.T)
+
+for episode_i in range(len(history)):
+  history_i = history[episode_i]
+  
+  # update count
+  for j in range(0,len(history_i),3):
+    pol_eval.loc[history_i[j]]['count'] +=1
+    current_cnt =pol_eval.loc[history_i[j]]['count']
+    
+    #build TD target
+    if(j < len(history_i)-3):
+      TD_tgt = float(history_i[j+2])+pol_eval.loc[history_i[j+3]]['est']
+      
+    else:
+      TD_tgt = 0
+      
+    # TD-updating  
+    alpha = 1/current_cnt
+    
+    pol_eval.loc[history_i[j]]['est'] += alpha*(TD_tgt - pol_eval.loc[history_i[j]]['est'])
+  
+pol_eval
+```

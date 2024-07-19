@@ -1,0 +1,352 @@
+---
+title: "F4"
+author: "Jeong, wonryeol"
+date: "`r Sys.Date()`"
+output: 
+  pdf_document:  
+      latex_engine: xelatex
+      highlight: haddock  
+      keep_tex: true  
+      includes:
+      # in_header: rmd-pdf-support/latex-topmatter.tex
+      # pandoc_args: [
+      #  "-V", "classoption=twocolumn"
+      # ]
+      toc: true   
+      toc_depth: 2  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+```{python, echo = False}
+import numpy as np 
+import pandas as pd 
+gamma = 1
+states = np.arange(0,80,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                                [0,0,1,0,0,0,0,0],
+                                [0,0,0,1,0,0,0,0],
+                                [0,0,0,0,1,0,0,0],
+                                [0,0,0,0,0,1,0,0],
+                                [0,0,0,0,0,0,1,0],
+                                [0,0,0,0,0,0,0,1],
+                                [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                               [.1,0,0,.9,0,0,0,0],
+                               [0,.1,0,0,.9,0,0,0],
+                               [0,0,.1,0,0,.9,0,0],
+                               [0,0,0,.1,0,0,.9,0],
+                               [0,0,0,0,.1,0,0,.9],
+                               [0,0,0,0,0,.1,0,.9],
+                               [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+q_s_a_init = pd.DataFrame(np.zeros((len(states),2)),states,["n","s"])
+
+def transition(given_pi, states, P_normal, P_speed):
+    P_out=pd.DataFrame(np.zeros((len(states),len(states))),index=states, columns=states)
+    
+    for s in states:
+        action_dist=given_pi.loc[s]
+        P=action_dist['normal']*P_normal+action_dist['speed']*P_speed
+        P_out.loc[s]=P.loc[s]
+        
+    return P_out
+
+
+```
+
+
+```{python, echo = False}
+
+# reword
+R_s_a=pd.DataFrame(np.array([-1,-1,-1,-1,0.0,-1,-1,0,
+                              -1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['n','s'],index=states)
+R_s_a.T
+
+```
+
+
+```{python, echo = False}
+# pi_speed
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))],index=states, columns=['n','s'])
+pi_speed.T
+```
+
+```{python, echo = False}
+# pi_50
+pi_50=pd.DataFrame(np.repeat(0.5,len(states)*2).reshape(8,2),index=states, columns=['n','s'])
+
+np.cumsum(pi_50.loc['10',])
+
+np.where(pi_50 == .5)
+
+pi_50.T
+
+```
+
+```{python}
+
+def simul_path(pi,P_normal,P_speed,R_s_a):
+    s_now = "0"
+    history_i = [s_now]
+    while s_now != '200':
+        if np.random.uniform(0,1,1) < pi.loc[s_now,"n"] :
+        
+        
+            a_now = "n"
+            P = P_normal
+        else:
+            a_now = "s"
+            P = P_speed
+        
+        r_now = R_s_a.loc[s_now,a_now]
+        
+        s_next = pd.Series(np.cumsum(P.loc[s_now,])<np.random.uniform(0,1)).idxmin()
+        history_i.extend([a_now,r_now,s_next])
+        s_now = s_next
+        
+    return history_i
+
+sample_path = simul_path(pi_speed,P_normal,P_speed,R_s_a)
+sample_path
+```
+
+
+```{python, echo = False}
+# Skiier.R(4)
+def simul_step(pi,s_now,P_normal,P_speed,R_s_a):
+    if np.random.uniform(0,1,1) < pi.loc[s_now,"n"] :
+        a_now = "n"
+        P = P_normal
+    else:
+        a_now = "s"
+        P = P_speed
+
+    r_now = R_s_a.loc[s_now,a_now]
+        
+    s_next = np.argmin(np.cumsum(P.loc[s_now,])<np.random.uniform(0,1))
+    
+    if np.random.uniform(0,1,1) < pi.loc[s_now,"n"] :
+        a_next = "n"
+        
+    else:
+        a_next = "s"
+        
+    sarsa =[s_now,a_now,r_now,s_next,a_next]
+    return sarsa
+
+    
+
+sample_path_td = simul_step(pi_speed,'0',P_normal,P_speed,R_s_a)
+sample_path_td
+```
+
+
+```{python, echo = False}
+# Skiier.R(5)
+## pol_eval_MC()
+def pol_eval_MC(sample_path, q_s_a, alpha ):
+    Q_s_a = q_s_a.copy()
+    for j in range(0,len(sample_path)-1,3):
+        
+        s = sample_path[j]
+ 
+        a = sample_path[j+1]
+        
+        G = pd.Series(sample_path)[list(range(j+2,len(sample_path),3))].astype('float').sum()
+        
+        Q_s_a.loc[s,a] = Q_s_a.loc[s,a] +alpha*(G- Q_s_a.loc[s,a])
+        
+    return Q_s_a
+
+q_s_a = pol_eval_MC(sample_path,q_s_a_init,alpha = 0.1)
+q_s_a
+```
+
+
+```{python , echo = False}
+# Skiier.R(6)
+## pol_eval_TD()
+def pol_eval_TD(sample_path, q_s_a, alpha ):
+    Q_s_a = q_s_a.copy()
+    s = sample_path[0]
+
+    a = sample_path[1]
+    
+    r = float(sample_path[2])
+    
+    s_next = sample_path[3]
+    a_next = sample_path[4]
+    
+    Q_s_a.loc[s,a] = Q_s_a.loc[s,a] +alpha*(r+Q_s_a.loc[s_next,a_next]- Q_s_a.loc[s,a])
+
+    return Q_s_a
+
+q_s_a = pol_eval_TD(sample_path_td,q_s_a_init,alpha = 0.1)
+q_s_a
+```
+
+
+```{python, echo = False}
+# Skiier.R(7)
+def pol_imp(pi,q_s_a,epsilon):
+    Pi = pi.copy()
+    for i in list(pi.index):
+        if np.random.uniform(0,1,1) > epsilon:
+            
+            Pi.loc[i] = 0
+            Pi.loc[i,np.argmax(q_s_a.loc[i])]=1
+            if i == '70':
+                print(Pi.loc[i,np.argmax(q_s_a.loc[i])])
+            
+        else:
+            Pi.loc[i,:] = 1/q_s_a.shape[1]
+    return Pi
+
+pi = pol_imp(pi_speed,q_s_a, 0)
+pi
+```
+
+\newpage
+
+
+
+
+
+\newpage
+
+```{python}
+
+## pol_eval_TD()
+def pol_eval_TD(sample_path, q_s_a, alpha ):
+    Q_s_a = q_s_a.copy()
+    s = sample_path[0]
+
+    a = sample_path[1]
+    
+    r = float(sample_path[2])
+    
+    s_next = sample_path[3]
+    a_next = sample_path[4]
+    
+    Q_s_a.loc[s,a] = Q_s_a.loc[s,a] +alpha*(r+Q_s_a.loc[s_next,a_next]- Q_s_a.loc[s,a])
+
+    return Q_s_a
+
+q_s_a = pol_eval_TD(sample_path_td,q_s_a_init,alpha = 0.1)
+q_s_a
+```
+
+
+```{python}
+## pol_eval_Q()
+def pol_eval_Q(sample_path, q_s_a, alpha ):
+    Q_s_a = q_s_a.copy()
+    s = sample_path[0]
+
+    a = sample_path[1]
+    
+    r = float(sample_path[2])
+    
+    s_next = sample_path[3]
+    a_next = sample_path[4]
+    
+    Q_s_a.loc[s,a] = Q_s_a.loc[s,a] +alpha*(r+Q_s_a.T[s_next].max()- Q_s_a.loc[s,a])
+
+    return Q_s_a
+
+q_s_a = pol_eval_Q(sample_path_td,q_s_a_init,alpha = 0.1)
+q_s_a
+```
+
+\newpage
+
+```{python}
+num_ep = 10**5
+beg_time  = time.time()
+q_s_a = q_s_a_init
+pi = pi_50.copy()
+exploration_rate = 1
+for epi_i in range(1,num_ep+1):
+    
+    s_now = "0"
+    while s_now != "70":
+        
+        sample_step = simul_step(pi,s_now,P_normal,P_speed,R_s_a)
+        q_s_a = pol_eval_Q(sample_path_i,q_s_a,alpha = max([1/epi_i,0.01]))
+        
+        if epi_i % 100 == 0 :                   
+            pi = pol_imp(pi,q_s_a , epsilon = 1/epi_i)
+        
+        
+        s_now = sample_step[3]
+        exploration_rate = exploration_rate*0.9995
+
+end_time = time.time()
+print((end_time-beg_time),"_sec")
+q_s_a
+```
+
+\newpage
+
+```{python}
+## pol_eval_Q()
+def pol_eval_dbl_Q(sample_path, q_s_a_1 ,q_s_a_2, alpha ):
+    Q_s_a_1 = q_s_a_1.copy()
+    Q_s_a_2 = q_s_a_2.copy()
+    
+    s = sample_path[0]
+    a = sample_path[1]
+    r = float(sample_path[2])
+    s_next = sample_path[3]
+    
+    if np.random.uniform() < 0.5:
+        q_s_a_1.loc[s,a] += alpha*(r+Q_s_a_2.loc[s_next,Q_s_a_1.T[s_next].idxmax()]- Q_s_a_1.loc[s,a])
+    else:
+        q_s_a_2.loc[s,a] += alpha*(r+Q_s_a_1.loc[s_next,Q_s_a_2.T[s_next].idxmax()]- Q_s_a_1.loc[s,a])
+    
+    return [q_s_a_1,q_s_a_2]
+    
+    
+
+q_s_a = pol_eval_dbl_Q(sample_path_td,q_s_a_init,q_s_a_init,alpha = 0.1)
+q_s_a
+```
+\vspace{20pt}
+
+```{python}
+num_ep = 1000
+beg_time  = time.time()
+q_s_a_1 = q_s_a_init
+q_s_a_2 = q_s_a_init
+
+pi = pi_50.copy()
+exploration_rate = 1
+for epi_i in range(1,num_ep+1):
+    
+    s_now = "0"
+    while s_now != "70":
+        
+        sample_step = simul_step(pi,s_now,P_normal,P_speed,R_s_a)
+        
+        q_s_a = pol_eval_dbl_Q(sample_step,q_s_a_1,q_s_a_2,alpha = max([1/epi_i,0.05]))
+        q_s_a_1 = q_s_a[0]
+        q_s_a_2 = q_s_a[1]
+       
+        if epi_i % 100 == 0 :     
+            q_s_a = q_s_a_1.add(q_s_a_2)
+            pi = pol_imp(pi,q_s_a , epsilon = exploration_rate)
+            
+        s_now = sample_step[3]
+        exploration_rate = max([exploration_rate*0.9995,0.001])
+
+end_time = time.time()
+print((end_time-beg_time),"_sec")
+q_s_a
+```
+

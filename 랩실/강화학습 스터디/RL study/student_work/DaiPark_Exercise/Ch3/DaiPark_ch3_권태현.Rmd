@@ -1,0 +1,190 @@
+---
+title: "DaiPark Exercise"  
+author: "Tae Hyeon Kwon, undergrad(ITM)"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      #in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+
+
+#Exercise 5
+
+Suppose each morning a factory posts the number of days worked in a row
+without any injuries. Assume that each day is injury free with probability
+98/100. Furthermore, assume that whether tomorrow is injury free or not
+is independent of which of the preceding days were injury free. Let $X_o$ = 0
+be the morning the factory first opened. Let $X_n$ be the number posted on
+the morning after n full days of work.
+\vspace{20pt}
+
+(a) Is $\{X_n,n\geq 0\}$  a Markov chain? If so, give its state space, initial
+distribution, and transition matrix P. If not, show that it is not a
+Markov chain.
+
+yes, this is markov chain.
+
+state space=$\{X_0,X_1,X_2,....X_n\}$
+
+initial distribution = $(0.98 ,\,\,0.02)$
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    .02&.98&0&0&.&.&.\\.02&0&.98&0&.&.&.
+    \\.02&0&0&.98&.&.&.
+    \\.&.&.&.&.&.&.
+  \end{pmatrix}
+\end{align*}
+
+(b) Is the Markov chain irreducible? Explain.
+
+  =This markov chain irreducible. Because, the class only one.
+
+\vspace{10pt}
+(c) Is the Markov chain periodic or aperiodic? Explain and if it is peri-
+odic, also give the period.
+
+  =aperiodic
+
+
+
+(d) Find the stationary distribution.
+
+v = (a,d,c,d,e,.....)
+
+vP = v 
+
+$\therefore 0.02a+0.98b=a,0.02a+0.98c=b....$
+
+$a=b=c=.....$
+
+So,v=$\{\frac{1}{n}\,\frac{1}{n}\,\frac{1}{n}\,\frac{1}{n}\,\frac{1}{n}.....\}$
+the number of element is n
+
+\vspace{10pt}
+
+(e) Is the Markov chain positive recurrent? If so, why? If not, why not?
+
+No, because the probability of getting back to $X_0$ is not 1.
+
+\newpage
+
+#Exercise 6
+
+Consider the following transition matrix:
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    0&0.5&0&0.5
+    \\0.6&0&0.4&0
+    \\0&0.7&0&0.3
+    \\0.8&0&0.2&0
+  \end{pmatrix}
+\end{align*}
+
+(a) Is the Markov chain periodic? Give the period of each state.
+
+  =periodic
+
+(b) Is ($\pi_1,\pi_2,\pi_3,\pi_4$) = (33/96, 27/96, 15/96, 21/96) the stationary dis-tribution of the Markov Chain?
+
+  =yes that's a stationary distribution
+
+(c)Is $P_{11}^{100}=\pi_1?$, Is $P_{11}^{101}=\pi_1?$ Give an expression for $\pi_1$ in terms of $P_{11}^{100}$ and $P_{11}^{101}.$
+  
+  = In $\pi_1=0.34375$, but $P_{11}^{100}=0.6875$ and $P_{11}^{101}=0$ 
+  
+  = So,$\pi_1$ isn't same with $P_{11}^{100},P_{11}^{101}$ 
+  
+  
+
+\newpage
+
+#Exercise 14
+
+Suppose you are working as an independent consultant for a company.
+Your performance is evaluated at the end of each month and the evaluation
+falls into one of three categories: 1, 2, and 3. Your evaluation can be
+modeled as a discrete-time Markov chain and its transition diagram is as
+follows.
+
+Denote your evaluation at the end of nth month by $X_n$ and assume that
+$X_0$ = 2.
+(a) What are state space, transition probability matrix and initial dis-tribution of $X_n?$
+
+state space = [1,2,3]
+
+transition probability matrix
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    0.25&0.75&0
+    \\0.5&0&0.5
+    \\0&0.25&0.75
+  \end{pmatrix}
+\end{align*}
+
+initial distribution (0,1,0)
+
+
+(b) What is the stationary distribution?
+
+stationary distribution(v)= $(\frac{2}{11}\,\,\frac{3}{11}\,\,\frac{6}{11})$
+
+
+(c) What is the long-run fraction of time when your evaluation is either
+2 or 3?
+
+transition probability matrix (infinite)
+\begin{align*}
+  P =
+  \begin{pmatrix}
+    0.1818&0.2727&0.5454\\
+    0.1818&0.2727&0.5454
+    \\0.1818&0.2727&0.5454
+  \end{pmatrix}
+\end{align*}
+
+
+
+evaluation 2 : 0.2727
+
+evaluation 3 : 0.5454
+
+
+
+\vspace{15pt}
+
+Your monthly salary is determined by the evaluation of each month in the
+following way.
+Salary when your evaluation is n = $5000 + n^2\times5000$; n = 1, 2, 3
+
+(d) What is the long-run average monthly salary?
+
+salary = $(5000+1^2\times5000,5000+2^2\times5000,5000+3^2\times5000)$
+$\,\,\,\,\,\,\,\,\,\,\,=(10000,25000,50000)$
+
+salary $\times$ long Rung Prob = $(10000\,\,25000\,\, 50000)\times(0.1818\,\,0.2727\,\,0.5454)^T=35905$
+
+answer is $35905

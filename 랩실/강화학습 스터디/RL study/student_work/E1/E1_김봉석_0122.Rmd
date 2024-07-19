@@ -1,0 +1,278 @@
+---
+title: "Lecture E1.MDP with Model1"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## Iterative estimation of state-value function for given policy pi^speed
+```{python, echo=TRUE}
+
+import numpy as np
+
+R = np.hstack((np.repeat(-1.5, 4), -0.5, np.repeat(-1.5, 2), 0)).reshape(8, 1)
+
+states = np.array(range(0, 80, 10))
+P = np.array ([[.1, 0, .9, 0, 0, 0, 0, 0],
+               [.1, 0, 0, .9, 0, 0, 0, 0],
+               [0, .1, 0, 0, .9, 0, 0, 0],
+               [0, 0, .1, 0, 0, .9, 0, 0],
+               [0, 0, 0, .1, 0, 0, .9, 0],
+               [0, 0, 0, 0, .1, 0, 0, .9],
+               [0, 0, 0, 0, 0, .1, 0, .9],
+               [0, 0, 0, 0, 0,  0, 0, 1]])
+gamma = 1.0
+epsilon = 10**(-8)
+v_old = np.array(np.repeat(0, 8)).reshape(8,1)
+
+while True:
+    v_new = R+gamma*np.dot(P, v_old)
+    if np.max(np.abs(v_new-v_old)) > epsilon:
+        v_old = v_new
+        continue
+    break
+
+print(v_new.T)
+
+
+
+```
+\newpage
+
+## Rewritten with intermediate saving
+
+```{python, echo=TRUE}
+
+# Rewriiten with intermediate saving
+import numpy as np
+import pandas as pd
+
+gamma = 1.0
+epsilon = 10**(-8)
+
+v_old = np.array(np.repeat(0, 8)).reshape(8,1)
+
+result = [ ]
+while True:
+    result.append(v_old.T)
+    v_new = R+gamma*np.dot(P, v_old)
+    if np.max(np.abs(v_new-v_old)) > epsilon:
+        v_old = v_new
+        continue
+    break
+
+result = pd.DataFrame(np.array(result).reshape(len(result),8), columns=states)
+
+result.head()
+
+result.tail()
+```
+\newpage
+## Plot
+
+### Iteration from 1 to 6
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+for i in range(0,6):
+    plt.plot(states, result.iloc[i], marker='o', label=str(i+1))
+    plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 1 to 6',fontweight='bold')
+plt.show()
+```
+
+\newpage
+### Iteration from 7 to 12
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+for i in range(6,12):
+    plt.plot(states, result.iloc[i], marker='o', label=str(i+1))
+    plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 7 to 12',fontweight='bold')
+plt.show()
+```
+
+
+### Iteration from 13 to 18
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+for i in range(12,18):
+    plt.plot(states, result.iloc[i], marker='o', label=str(i+1))
+    plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 13 to 18',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## Policy evaluation 2 
+
+### Pi : S -----> A
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+states = np.array(range(0,80,10)).astype(str)
+pi_speed=np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))]
+pi_speed=pd.DataFrame(pi_speed, columns=['normal','speed'],index=states)
+
+pi_speed
+```
+
+
+### R^pi = S ----> R 
+
+```{python, echo=TRUE}
+R_s_a=np.array([[-1, -1, -1, -1,0, -1, -1, 0],
+          [-1.5, -1.5, -1.5,-1.5, -0.5, -1.5, -1.5, 0]]).T
+R_s_a=pd.DataFrame(R_s_a,columns=['normal','speed'],index=states)
+
+R_s_a
+
+```
+
+```{python, echo=TRUE}
+def reward_fn(given_pi):
+    
+    R_s_a=pd.DataFrame(
+        np.array([[-1, -1, -1, -1,0, -1, -1, 0],
+          [-1.5, -1.5, -1.5,-1.5, -0.5, -1.5, -1.5, 0]]).T,columns=['normal','speed'],index=states)
+    
+    R_pi=np.sum(R_s_a*given_pi,axis=1)
+    
+    return R_pi
+
+reward_fn(pi_speed).values
+```
+
+
+### P^pi : S X A ->S
+
+```{python, echo=TRUE}
+P_normal = np.array([
+                   [0,1,0,0,0,0,0,0],
+                   [0,0,1,0,0,0,0,0],
+                   [0,0,0,1,0,0,0,0],
+                   [0,0,0,0,1,0,0,0],
+                   [0,0,0,0,0,1,0,0],
+                   [0,0,0,0,0,0,1,0],
+                   [0,0,0,0,0,0,0,1],
+                   [0,0,0,0,0,0,0,1]])
+
+P_speed = np.array([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]])
+                   
+                   
+                   
+def transition(given_pi,states,P_normal,P_speed):
+    P_out = np.zeros(shape=(8,8))
+    
+    for i in range(len(states)):
+        action_dist=given_pi.iloc[i,:]
+        
+        P = action_dist['normal']*P_normal + action_dist['speed']*P_speed
+        
+        P_out[i,]=P[i,]
+        
+    return P_out
+        
+```
+
+
+### test 1 
+
+```{python, echo=TRUE}
+transition(pi_speed, states=states, P_normal=P_normal, P_speed=P_speed)
+```
+
+### test 2
+
+```{python, echo=TRUE}
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)),np.repeat(0.5,len(states))], index=states, columns=['normal','speed'])
+
+pi_50
+
+transition(pi_50,states=states, P_normal=P_normal, P_speed=P_speed)
+```
+
+### Implementation, finally
+
+```{python, echo=TRUE}
+def policy_eval(given_pi):
+    R = reward_fn(given_pi).values.reshape(8,1)
+    P = transition(given_pi,states, P_normal = P_normal, P_speed = P_speed)
+    
+    gamma = 1.0
+    epsilon = 10**(-8)
+    v_old = np.array(np.repeat(0, 8)).reshape(8,1)
+    
+    while True:
+        v_new = R+gamma*np.dot(P, v_old)
+        if np.max(np.abs(v_new-v_old)) > epsilon:
+            v_old = v_new
+            continue
+        break
+    
+    return v_new
+```
+
+
+```{python, echo=TRUE}
+policy_eval(pi_speed).T
+
+policy_eval(pi_50).T
+
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture E1.MDP with Model1 "
+```

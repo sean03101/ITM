@@ -1,0 +1,51 @@
+---
+title: "B_case"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+```
+
+
+## Introduction
+
+Since December last year, transparent plastic bottles have to be separately discharged, not plastic. The "Transparent Pet Bottle Separately Discharge Pilot Project" conducted by the Ministry of Environment was conducted in Seoul, Jeju Island (Jeju, Seogwipo), Cheonan, Gimhae, and Busan last year. Until now, all the fibers and clothing made with waste pet bottles were made with imported waste pet bottles. Only 10% of pet bottles thrown away in Korea were recycled in high quality. 
+This is because transparent pet bottles and colored pet bottles were mixed, and foreign substances were mixed during the discharge and recovery process, making it difficult to use them as high-quality renewable materials. Since December 25, two years ago, bottles of colored plastic have been banned. A revision to the "Act on the Promotion of Resource Saving and Recycling" has been implemented, which calls for switching all bottled water and beverage pet bottles, including soju, to a transparent color and changing the label to an adhesive form that can be removed. 
+
+
+Transparent plastic bottles are the most value-added recyclables among plastics. Pet bottles are screened, compressed and sold at recycling screening sites when they are discharged separately. A recycling company shreds and cleans them to produce recycled materials. High-quality pet bottles are exported in sheets or long fiber, medium- and low-quality single-fiber or other materials, and low-quality plastic bottles are exported. In addition to transparent PET bottles (Polyethylene terephthalate), packaging materials and general plastic (PP. PE) made of PET material were discarded at once, making it difficult to select them. Even if it is the same PET material, packaging PET such as fruit trays and coffee containers are weak in purity, making it difficult to make high-quality raw materials when mixed with pet bottles. In addition, food containers such as shampoo containers (PE/Polyethylene) and red pepper paste (PP/Polypropylene) were also thrown away and there was a limit to regenerating pet bottles as high-quality raw materials due to contamination. 
+
+
+When transparent pet bottles are released separately, the screening process becomes much easier. In the case of transparent pet bottles used mainly in beverages and bottled water, the contamination level is low and the cleaning process can be reduced. If the separation of transparent pet bottles stabilizes, it is expected to be easier to meet T-shirts, bags, and swimsuits made with high-quality recycled materials from Korea.
+
+
+## Problem
+
+If you are the CEO of a company that creates added value through plastic recycling, you can control the amount of waste pet bottles you import when the recycling rate of domestic plastic increases due to the law on recycling. And high-quality recycled materials produced in Korea will increase, which will help optimize the amount of raw materials purchased. When these changes are expected, you will be able to think about which judgment is the best choice.
+
+
+Exact figures have not yet been collected. It may be optimised by approaching the country's economic and social values rather than limited to one company. We need to be specific about the problem and what to optimize.
+
+```{r, results='hide'}
+"B_case"
+```

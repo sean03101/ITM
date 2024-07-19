@@ -1,0 +1,109 @@
+---
+title: "B2_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+py_install("pandas")
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+## Implementation (p. 4)
+
+\vspace{10pt}
+
+```{python}
+import numpy as np
+
+for X in range(11,16):
+    D=np.random.randint(11,high=16)
+    sales_rev = 2*np.minimum(D,X)
+    salvage_rev = 0.5*np.maximum(X-D,0)
+    material_cost = 1*X
+    profit = sales_rev + salvage_rev - material_cost
+    print("X: ",X,", Expected profit : ",np.mean(profit))
+
+```
+
+```{python}
+import numpy as np
+
+for X in range(11,16):
+    D = np.random.uniform(11,15,X)
+    sales_rev = 2*np.minimum(D,X)
+    salvage_rev = 0.5*np.maximum(X-D,0)
+    material_cost = 1*X
+    profit = sales_rev + salvage_rev - material_cost
+    print("X: ",X,", Expected profit : ",np.mean(profit))
+
+```
+
+
+## Continuous distribution - grid search approach (p. 5)
+
+\vspace{10pt}
+
+```{python}
+import numpy as np
+import pandas as pd
+
+try_X = np.arange(20,40,0.01)
+exp_profits=np.array([])
+
+for X in try_X:
+    MC_N = 10000
+    D = np.random.rand(MC_N,1)*20+20
+    sales_rev= 2*np.minimum(D,X)
+    salvage_rev = 0.5*np.maximum(X-D,0)
+    material_cost = 1 *X
+    exp_profit= np.mean(sales_rev + salvage_rev - material_cost)
+    exp_profits=np.append(exp_profits,exp_profit)
+    
+results = pd.DataFrame({'try_X':try_X,'exp_profits':exp_profits})
+results
+```
+
+
+## plot (p. 6)
+
+\vspace{10pt}
+
+```{python}
+import matplotlib.pyplot as plt
+
+plt.plot(try_X,exp_profits,'o')
+plt.xlabel("try_x")
+plt.ylabel("exp_profits")
+plt.show()
+```
+## (p. 8)
+
+\vspace{10pt}
+
+```{python}
+idx=np.where(exp_profits==np.max(exp_profits))
+
+print(try_X[idx]) 
+print(exp_profits[idx]) 
+```

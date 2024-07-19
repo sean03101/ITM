@@ -1,0 +1,247 @@
+---
+title: "D2 Aggreagated) Markov Reward Process 2"
+author: "Winter RL Study Members"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    # extra_dependencies: ["amsmath"]
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+#py_install("scipy")
+py_install("pandas")
+py_install("matplotlib")
+```
+
+\newpage
+## Method 3- Analytic Solution (p.17)
+
+**Setting Environment**
+```{python import, echo=TRUE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter # for setting y-axis decimal points
+```
+
+
+- Option 1. Using matrix (상지인)
+```{python, echo=TRUE}
+P = np.matrix([[0.7,0.3],[0.5,0.5]])
+R = np.matrix([[1.5,1]]).reshape(2,1)
+gamma = 0.9
+v = np.linalg.inv(np.identity(2) - gamma * P) * R
+print(v[0])
+```
+
+- Option 2. Using array (강의현)
+```{python, echo=TRUE}
+P=np.array([0.7,0.5,0.3,0.5]).reshape(2,2,order='F')
+R=np.array([1.5,1.0]).reshape(2,1)
+
+gamma=.9
+
+V=np.dot(np.linalg.inv(np.eye(2)-gamma*P),R)
+V
+```
+
+\newpage
+## Method 4- Iterative Solution - by fixed point theorem (p.21)
+
+- Option 1 : Use np.linalg.norm(v_new-v_old) & matrix (상지인)
+```{python, echo=TRUE}
+P = np.matrix([[0.7,0.3],[0.5,0.5]])
+R = np.matrix([[1.5,1]]).reshape(2,1)
+gamma =0.9
+epsilion = 10**(-8)
+v_old = np.zeros(2).reshape(2,1)
+
+#do-while
+while True: 
+    v_new =R+gamma*np.dot(P,v_old)
+    if np.linalg.norm(v_new-v_old)> epsilion: 
+        v_old = v_new
+        continue 
+    break
+print(v_new)
+```
+
+- Option 2: Use max(np.abs(v_new-v_old) & array (김봉석)
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+R = np.array([1.5,1])[:, None] # return Column vector in 1D
+P = np.array([[0.7,0.3],[0.5,0.5]])
+gamma =0.9
+epsilion = 10**(-8)
+v_old = np.repeat(0,2)[:,None]
+
+while True: 
+    v_new =R+gamma*np.dot(P,v_old)
+    if np.max(np.abs(v_new-v_old))> epsilion: 
+        v_old = v_new
+        continue 
+    break
+
+print(v_new)
+
+```
+
+Option 3: Use amax(v_new - v_old) & array (정원렬)
+```{python, echo=TRUE}
+P = np.array([0.7,0.5,0.3,0.5]).reshape(2,2,order = 'F')
+R = np.array([1.5,1]).reshape(2,1)
+gamma = 0.9
+epsilon = 10**-8
+v_old = np.zeros(2).reshape(2,1)
+v_new = v_new = R + np.dot(gamma*P,v_old)   
+
+while np.amax(v_new - v_old)>epsilon:
+    v_old = v_new
+    v_new = v_new = R + np.dot(gamma*P,v_old)   
+
+
+print(v_new)
+
+```
+
+\newpage
+## Method 4- Iterative Solution - full iteration process (p.24)
+
+- Option 1: Use append() (김봉석)
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+R = np.array([1.5,1])[:, None] # return Column vector in 1D
+P = np.array([[0.7,0.3],[0.5,0.5]])
+gamma =0.9
+epsilion = 10**(-8)
+v_old = np.repeat(0,2)[:,None]
+
+result=[]
+while True: 
+    result.append(v_old.T)
+    v_new =R+gamma*np.dot(P,v_old)
+    if np.max(np.abs(v_new-v_old))> epsilion: 
+        v_old = v_new
+        continue 
+    break
+
+result=pd.DataFrame(np.array(result).reshape(len(result),2), columns = ['coke', 'pepsi'])
+
+print(result)
+```
+- Option 2: Use vstack() (강의현)
+
+```{python, echo=TRUE} 
+R=np.array([1.5,1.0]).reshape(2,1)
+P=np.array([0.7,0.5,0.3,0.5]).reshape(2,2,order='F')
+gamma=0.9
+epsilon=10**(-8)
+
+v_old=np.array(np.zeros(2,)).reshape(2,1)
+v_new=R+np.dot(gamma*P,v_old)
+
+results=v_old.T
+results=np.vstack((results,v_new.T))
+
+while True:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P, v_old)
+    results=np.vstack((results,v_new.T))
+    if np.max(np.abs(v_new-v_old))>epsilon:
+        continue
+    break
+
+results=pd.DataFrame(results, columns=['coke','pepsi'])
+
+print(results.head())
+
+print(results.tail())
+```
+
+
+
+\newpage
+## Method 4- Iterative Solution - Plotting (p.25)
+
+- There weren't that many options
+```{python, echo=FALSE}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter # for setting y-axis decimal points
+
+P = np.matrix([[0.7,0.3],[0.5,0.5]])
+R = np.matrix([[1.5,1]]).reshape(2,1)
+gamma = 0.9
+epsilion = 10**(-8)
+v_old = np.zeros(2).reshape(2,1)
+
+result=[]
+while True: 
+    result.append(v_old.T)
+    v_new = R + gamma * np.dot(P, v_old)
+    if np.linalg.norm(v_new-v_old) > epsilion: 
+        v_old = v_new
+        continue 
+    break
+result = pd.DataFrame(np.array(result).reshape(len(result),2), columns = ['coke', 'pepsi'])
+
+```
+
+```{python, echo=TRUE}
+plt.scatter(result.index,result['coke'], label='coke')
+plt.scatter(result.index,result['pepsi'],label='pepsi')
+
+plt.legend()
+plt.title('Solving value function using iterative method')
+plt.grid(True, axis='both')
+plt.xlabel('steps')
+plt.ylabel('value function')
+plt.show()
+```
+
+### After 50 steps
+```{python, echo=TRUE}
+plt.scatter(result.index[49:],result['coke'][49:], label='coke')
+
+plt.legend()
+plt.title('Solving value function using iterative method after 50 steps')
+plt.grid(True, axis='both')
+plt.xlabel('steps')
+plt.ylabel('value function')
+plt.show()
+```
+
+### After 100 steps
+```{python, echo=TRUE}
+plt.scatter(result.index[99:],result['coke'][99:], label='coke')
+
+plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.5f}')) # y axis decimal places
+plt.legend()
+plt.title('Solving value function using iterative method after 100 steps')
+plt.grid(True, axis='both')
+plt.xlabel('steps')
+plt.ylabel('value function')
+plt.show()
+```
+

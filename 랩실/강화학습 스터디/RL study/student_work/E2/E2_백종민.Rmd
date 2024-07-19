@@ -1,0 +1,213 @@
+---
+title: "Lecture E1. MDP with Model 1"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+## policy_eval()
+
+```{python}
+gamma = 1
+states = np.arange(0,80,10)
+p_normal = pd.DataFrame(np.array([
+0,1,0,0,0,0,0,0,
+0,0,1,0,0,0,0,0,
+0,0,0,1,0,0,0,0,
+0,0,0,0,1,0,0,0,
+0,0,0,0,0,1,0,0,
+0,0,0,0,0,0,1,0,
+0,0,0,0,0,0,0,1,
+0,0,0,0,0,0,0,1
+]).reshape(8,8),index=states, columns=states)
+p_speed = pd.DataFrame(np.array([
+.1,0,.9,0,0,0,0,0,
+.1,0,0,.9,0,0,0,0,
+0,.1,0,0,.9,0,0,0,
+0,0,.1,0,0,.9,0,0,
+0,0,0,.1,0,0,.9,0,
+0,0,0,0,.1,0,0,.9,
+0,0,0,0,0,.1,0,.9,
+0,0,0,0,0,0,0,1,
+]).reshape(8,8),index=states, columns=states)
+```
+
+```{python}
+def transition(given_pi,states,p_normal,p_speed):
+  p_out = pd.DataFrame(np.zeros(shape=(len(states),len(states))),index=states, columns=states)
+  for s in range(len(states)) :
+    action_dist = given_pi.iloc[s]
+    p = action_dist['normal']*p_normal + action_dist['speed']*p_speed
+    p_out.iloc[s] = p.iloc[s]
+  return p_out
+```
+
+```{python}
+R_s_a = np.array([[-1,-1,-1,-1,0.0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,columns=['normal','speed'],index=[states])
+R_s_a
+```
+
+```{python}
+def reward_fn(given_pi,R_s_a):
+  R_pi = np.sum(given_pi*R_s_a,axis=1)
+  return np.array(R_pi).reshape(8,1)
+``` 
+
+```{python}
+def policy_eval(given_pi):
+  R = reward_fn(given_pi,R_s_a=R_s_a)
+  p = transition(given_pi,states=states,p_normal=p_normal,p_speed=p_speed)
+  gamma = 1.0
+  epsilon = 10**(-8)
+  v_old = np.zeros(shape=(8,1))
+  v_new = R + np.dot(gamma*p,v_old)
+  while np.max(np.abs(v_new - v_old)) > epsilon :
+    v_old = v_new
+    v_new = R + np.dot(gamma*p,v_old)
+  return v_new
+```
+
+```{python}
+pi_speed = pd.DataFrame(np.array([np.repeat(0,len(states)),np.repeat(1,len(states))]).T,columns=['normal','speed'],index=[states])
+pi_speed
+```
+```{python}
+policy_eval(pi_speed).T
+```
+```{python}
+pi_50 = pd.DataFrame(np.array([np.repeat(0.5,len(states)),np.repeat(0.5,len(states))]).T,columns=['normal','speed'],index=[states])
+policy_eval(pi_50).T
+```
+\newpage
+## Implementation
+
+```{python}
+# opolicy evaluation
+V_old = policy_eval(pi_speed)
+pi_old = pi_speed
+q_s_a = R_s_a + np.c_[np.dot(gamma*p_normal,V_old),np.dot(gamma*p_speed,V_old)]
+q_s_a
+```
+```{python}
+# r - apply (data,direction,function)
+pi_new_vec=q_s_a.apply(np.argmax,axis=1)
+pi_new = pd.DataFrame(np.zeros([len(q_s_a.index),len(q_s_a.columns)]),
+columns=['normal','speed'],index=[states])
+for i in range(len(pi_new_vec)):
+  pi_new.iloc[i,pi_new_vec.iloc[i]] = 1
+pi_new
+```
+
+```{python}
+def policy_improve(V_old,pi_old,R_s_a,gamma,p_normal,p_speed):
+  q_s_a = R_s_a + np.c_[np.dot(gamma*p_normal,V_old),np.dot(gamma*p_speed,V_old)]
+  pi_new_vec=q_s_a.apply(np.argmax,axis=1)
+  pi_new = pd.DataFrame(np.zeros([len(q_s_a.index),len(q_s_a.columns)]),columns=['normal','speed'],index=[states])
+  for i in range(len(pi_new_vec)):
+    pi_new.iloc[i,pi_new_vec.iloc[i]] = 1
+  return pi_new
+```
+\newpage
+## One step improvement from pi_speed
+
+```{python}
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old,pi_old,R_s_a,gamma,p_normal,p_speed)
+```
+
+
+## Policy iteration
+
+### Step 0
+```{python}
+pi_old = pi_speed
+print(pi_old)
+```
+### Step 1
+```{python}
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old,pi_old,R_s_a,gamma,p_normal,p_speed)
+pi_old = pi_new
+print(pi_old)
+```
+
+### Step 2
+```{python}
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old,pi_old,R_s_a,gamma,p_normal,p_speed)
+pi_old = pi_new
+pi_old
+```
+
+### Step 3
+```{python}
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old,pi_old,R_s_a,gamma,p_normal,p_speed)
+pi_old = pi_new
+pi_old
+```
+
+
+```{python}
+(pi_new == pi_speed).all(axis=1)
+# pi_new.equals(pi_speed)
+# if pi_new.equqals(pi_speed).all() :
+#   print('yes')
+```
+\newpage
+## Policy iteration process (from pi_speed)
+```{python}
+pi_old = pi_speed
+cnt = 0
+while True :
+  print(str(cnt)+'-th iteration')
+  print(pi_old.T)
+  V_old = policy_eval(pi_old)
+  pi_new = policy_improve(V_old,pi_old,R_s_a,gamma,p_normal,p_speed)
+
+  if pi_new.equals(pi_old) == True:
+    break
+  pi_old= pi_new
+  cnt = cnt+1
+print(policy_eval(pi_new))
+```
+
+
+\newpage
+E2.Rmd
+```{r}
+"Hello"
+```
+

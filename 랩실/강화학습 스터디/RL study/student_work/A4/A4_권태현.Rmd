@@ -1,0 +1,249 @@
+---
+title: "A4"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Implementation-basic
+```{python}
+import numpy as np
+
+np.random.seed(1234)
+N = 10**3
+x = np.random.uniform(-1, 1, size=N)
+y = np.random.uniform(-1, 1, size=N)
+t = np.sqrt(x**2+y**2)
+pi_hat = 4*sum(t<=1)/N
+
+print(pi_hat)
+
+```
+
+\newpage
+
+
+#Time difference
+```{python}
+import numpy as np
+import time
+
+start = time.time()
+
+np.random.seed(1234)
+N = 10**6
+x = np.random.uniform(-1, 1, size=N)
+y = np.random.uniform(-1, 1, size=N)
+t = np.sqrt(x**2+y**2)
+pi_hat = 4*sum(t<=1)/N
+
+end = time.time()
+
+print(end-start)
+
+```
+\newpage
+
+
+#custom function
+```{python}
+import numpy as np
+
+def pi_simulator(N):
+    np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+    return(pi_hat)
+
+print('pi_simulator(100):',pi_simulator(100))
+print('pi_simulator(1000):',pi_simulator(1000))
+print('pi_simulator(10000):',pi_simulator(10000))
+print('pi_simulator(100000):',pi_simulator(100000))
+
+```
+
+
+\newpage
+#num_trials
+```{python}
+import numpy as np
+import pandas as pd
+
+def pi_simulator(N):
+    np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+    return(pi_hat)
+
+
+num_trials = 10**np.arange(2,8)
+outcome = [pi_simulator(i) for i in num_trials]
+result = np.vstack((num_trials,outcome)).T
+result = pd.DataFrame(result,columns=['num_trials','outcome'])
+print(result)
+```
+
+\newpage
+
+
+#pi_simulator2
+```{python}
+import numpy as np
+import time
+
+
+def pi_simulator2(N):
+    start = time.time()
+    np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+
+    end = time.time()
+    print(N)
+    print('Time difference of ',end-start,'secs')
+    return (pi_hat)
+
+print([pi_simulator2(100)])
+print([pi_simulator2(1000)])
+print([pi_simulator2(10000)])
+print([pi_simulator2(100000)])
+print([pi_simulator2(1000000)])
+print([pi_simulator2(10000000)])
+```
+\newpage
+
+#pi_simulator3
+```{python}
+import numpy as np
+
+
+def pi_simulator3(N):
+    #np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+    return(pi_hat)
+
+n = 100
+N = 1000
+np.random.seed(1234)
+samples = [0]*n
+for i in range(0,n):
+    samples[i] = pi_simulator3(N)
+
+print(samples[:6])
+```
+\newpage
+
+#confidence interval
+```{python}
+import numpy as np
+from scipy.stats import t
+
+
+def pi_simulator3(N):
+    #np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+    return(pi_hat)
+
+n = 100
+N = 1000
+np.random.seed(1234)
+samples = [0]*n
+for i in range(0,n):
+    samples[i] = pi_simulator3(N)
+samples[:6]
+
+X_bar = np.mean(samples)
+s = np.sqrt((sum((X_bar-samples)**2))/(n-1))
+T = t(n-1).ppf(0.975)
+
+print('X_bar:',X_bar)
+print('s:',s)
+print('T:',T)
+```
+\newpage
+
+#confidence interval length (Excercise 1)
+```{python}
+import numpy as np
+from scipy.stats import t
+
+
+def pi_simulator3(N):
+    #np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+    return(pi_hat)
+
+n = 100
+N = 1000
+np.random.seed(1234)
+samples = [0]*n
+for i in range(0,n):
+    samples[i] = pi_simulator3(N)
+samples[:6]
+
+X_bar = np.mean(samples)
+s = np.sqrt((sum((X_bar-samples)**2))/(n-1))
+T = t(n-1).ppf(0.975)
+
+lb = X_bar-T*s/np.sqrt(n)
+ub = X_bar+T*s/np.sqrt(n)
+
+print('lb:',lb)
+print('ub:',ub)
+print('ub-lb:',ub-lb)
+```
+\vspace{15pt}
+
+#confidence interval length (Excercise 2)
+```{python}
+import numpy as np
+from scipy.stats import t
+
+
+def pi_simulator3(N):
+    #np.random.seed(1234)
+    x = np.random.uniform(-1, 1, size=N)
+    y = np.random.uniform(-1, 1, size=N)
+    t = np.sqrt(x**2+y**2)
+    pi_hat = 4*sum(t<=1)/N
+    return(pi_hat)
+
+n = 1000
+N = 10000
+np.random.seed(1234)
+samples = [0]*n
+for i in range(0,n):
+    samples[i] = pi_simulator3(N)
+samples[:6]
+
+X_bar = np.mean(samples)
+s = np.sqrt((sum((X_bar-samples)**2))/(n-1))
+T = t(n-1).ppf(0.975)
+
+lb = X_bar-T*s/np.sqrt(n)
+ub = X_bar+T*s/np.sqrt(n)
+
+print('lb:',lb)
+print('ub:',ub)
+print('ub-lb:',ub-lb)
+```
+

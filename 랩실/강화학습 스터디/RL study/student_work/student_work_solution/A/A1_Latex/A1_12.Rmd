@@ -1,0 +1,41 @@
+---
+title: "A1_12"
+author: "Kwon"
+date: '2021 1 8 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Exercise 1
+
+
+<Exercise 1>
+
+Problem : Suppose $f(x)=xe^x$, find $f'(x)$.
+
+
+  $f(x)=xe^x$
+
+  $f'(x)=(x)'e^x+x(e^x)'$
+  
+  
+  $\therefore,\,\, f'(x)=e^x+xe^x$
+
+
+
+## Exercise 2
+
+
+<Exercise 2>
+
+Problem : Suppose $f(x)=e^{2x}$, find $f'(x)$.
+
+
+def $f(x)=h(g(x))$
+
+  $f(x)=e^{2x} => h(x)=e^x,\,\,g(x)=2x$
+
+$\therefore, \,\,f'(x)=e^{2x}\times 2 = 2e^{2x}$

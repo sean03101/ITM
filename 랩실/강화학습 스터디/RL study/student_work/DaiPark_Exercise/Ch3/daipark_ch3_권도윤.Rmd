@@ -1,0 +1,212 @@
+---
+title: "daipark_ch3"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## ch3 - 5
+
+### Suppose each morning a factory posts the number of days worked in a row without any injuries. Assume that each day is injury free with probability 98/100. Furthermore, assume that whether tomorrow is injury free or not is independent of which of the preceding days were injury free. Let X0 = 0 be the morning the factory first opened. Let Xn be the number posted onthe morning after n full days of work.
+
+(a) Is ${X_n, n ≥ 0}$ a Markov chain? If so, give its state space, initial distribution, and transition matrix P. If not, show that it is not a Markov chain.
+
+State space:
+
+$S=${injury free,injury}
+
+
+Initial distribution:
+
+$a_0=(1,0)$
+
+
+Transition matrix P:
+
+\begin{equation}
+  P=
+  \begin{pmatrix}
+    0.98&0.02
+    \\0.98&0.02
+  \end{pmatrix}
+\end{equation}
+
+(b) Is the Markov chain irreducible? Explain.
+
+This markov chain is irreducible. because it has only one class.
+
+(c) Is the Markov chain periodic or aperiodic? Explain and if it is periodic, also give the period.
+
+```{python}
+import numpy as np
+a=np.matrix([[0.98,0.02],[0.98,0.02]])
+a**2
+a**3
+a**100
+a**101
+```
+
+$P^2 = P^3=P^{100}=P^{101}=P^\infty$
+
+This markov chain is aperiodic. 
+
+
+(d) Find the stationary distribution.
+
+$s=${0.98,0.02}
+
+(e) Is the Markov chain positive recurrent? If so, why? If not, why not?
+
+No, it isn't recurrent.
+
+\vspace{20pt}
+
+## ch3 - 6
+
+### Consider the following transition matrix:
+
+\begin{equation}
+  P=
+  \begin{pmatrix}
+    0&0.5&0&0.5
+    \\0.6&0&0.4&0
+    \\0&0.7&0&0.3
+    \\0.8&0&0.2&0
+  \end{pmatrix}
+\end{equation}
+
+(a) Is the Markov chain periodic? Give the period of each state.
+
+```{python}
+p=np.matrix([[0,0.5,0,0.5],[0.6,0,0.4,0],[0,0.7,0,0.3],[0.8,0,0.2,0]])
+p**1000
+p**1001
+p**1002
+p**1003
+```
+
+$P^{1000} = P^{1002}$
+$P^{1001} = P^{1003}$
+
+This markov chain is periodic, it has 2 period.
+
+(b) Is $(π1, π2, π3, π4) =$ $(33/96, 27/96, 15/96, 21/96)$ the stationary distribution of the Markov Chain?
+
+```{python}
+k=np.matrix([[33/96,27/96,15/96,21/96]]).T
+p*k
+p*k==k
+```
+
+It is not the stationary distribution of the Markov chain
+
+(c) Is $P^{100}_{11} = π_1$? Is $P^{101}_{11} = π_1$? Give an expression for $π1$ in terms of $P^{100}_{11}$ and $P^{101}_{11}$.
+
+```{python}
+p**100
+p**101
+```
+
+$P^{100}_{11} = 0.6875$
+$P^{101}_{11} = 0$
+
+They are different from each other.
+
+## ch3 - 14 
+
+### Suppose you are working as an independent consultant for a company. Your performance is evaluated at the end of each month and the evaluation falls into one of three categories: 1, 2, and 3. Your evaluation can be modeled as a discrete-time Markov chain and its transition diagram is as follows. Denote your evaluation at the end of $n$th month by $X_n$ and assume that $X_0 = 2$.
+
+![Diagram](C://Users/user/Desktop/Reinforcement learning/daipark_ch3/diagram.png)
+
+(a) What are state space, transition probability matrix and initial distribution of $X_n$?
+
+State space:
+
+$S=${1,2,3}
+
+Transition matrix:
+
+\begin{equation}
+  P=
+  \begin{pmatrix}
+    0.25&0.75&0
+    \\0.5&0&0.5
+    \\0&0.25&0.75
+  \end{pmatrix}
+\end{equation}
+
+
+(b) What is the stationary distribution?
+
+```{python}
+p=np.matrix([[0.25,0.75,0],[0.5,0,0.5],[0,0.25,0.75]])
+p**2
+p**3
+p**100
+p**101
+```
+$P^2 = P^3=P^{100}=P^{101}=P^\infty$
+
+stationary distribution $= (0.18181818, 0.27272727, 0.54545455)$
+
+
+This markov chain is aperiodic. 
+
+
+(c) What is the long-run fraction of time when your evaluation is either 2 or 3?
+
+```{python}
+p=np.matrix([[0.25,0.75,0],[0.5,0,0.5],[0,0.25,0.75]])
+p**2
+p**3
+p**100
+p**101
+```
+$P^2 = P^3=P^{100}=P^{101}=P^\infty$
+
+$=0.27272727+0.54545455 = 0.81818182$
+
+
+Your monthly salary is determined by the evaluation of each month in the following way.
+
+Salary when your evaluation is $n = \$5000 + n^2 × \$5000, \; n = 1, 2, 3$
+
+(d) What is the long-run average monthly salary?
+
+$n=1$:
+
+$= \$5000 + 1^2 × \$5000 = \$10000$
+
+$n=2$:
+
+$= \$5000 + 2^2 × \$5000 = \$25000$
+
+$n=3$:
+
+$= \$5000 + 3^2 × \$5000 = \$50000$
+
+Average monthly salary $= 10000\cdot 0.18181818 + 25000 \cdot 0.272727 + 50000 \cdot 0.54545455 = \$35909.0843$
+
+```{r, results='hide'}
+"daipark_ch3"
+```

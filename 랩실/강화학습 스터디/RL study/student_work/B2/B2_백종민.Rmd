@@ -1,0 +1,129 @@
+---
+title: "Lecture B2.Newsvendor2"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+
+## Implementation(Page.4)
+
+Following code tries the stock level $X \in \{11,12,13,14,15\}$
+
+\vspace{10pt}
+
+```{python}
+# replace = True(Restoration extraction)
+
+for X in range(11,16):
+  MC_N = 10000
+  D = np.random.choice(range(11,16),MC_N,replace=True)
+  sales_rev = 2*np.minimum(D,X)
+  salvage_rev = 0.5*np.maximum(X-D,0)
+  material_cost = 1*X
+  profit = sales_rev + salvage_rev - material_cost
+  print('x : {}, expected profit : {}'.format(X,np.mean(profit)))
+
+```
+\newpage
+
+## Continuous distrivution - grid search approach(Page.5)
+
+\vspace{10pt}
+
+```{python}
+try_X = np.arange(20,40,step=0.01)
+exp_profits = np.array([])
+
+for X in try_X:
+  MC_N = 10000
+  D = np.random.uniform(low=20,high=40,size=MC_N)
+
+  sales_rev = 2*np.minimum(D,X)
+  salvage_rev = 0.5*np.maximum(X-D,0)
+  material_cost = 1*X
+  
+  exp_profit = np.mean(sales_rev + salvage_rev - material_cost)
+  exp_profits = np.append(exp_profits,exp_profit)
+
+  
+results = pd.DataFrame(try_X,exp_profits)
+results
+```
+
+\newpage
+
+## Visualization1(Page.6)
+
+\vspace{10pt}
+
+```{python}
+plt.scatter(try_X,exp_profits,facecolors='none',edgecolors='b')
+plt.xlabel('try_X')
+plt.ylabel('exp_profits')
+plt.show()
+```
+\newpage
+
+## Visualizaion2(Page.7)
+
+\vspace{10pt}
+
+```{python}
+from scipy.interpolate import make_interp_spline, BSpline
+plt.scatter(try_X,exp_profits,alpha=0.2,c='black')
+plt.plot(try_X,exp_profits,c='b')
+plt.grid(True)
+plt.xlabel('try_X')
+plt.ylabel('exp_profits')
+plt.title('Plot for Expected Profit',fontsize=25)
+plt.show()
+```
+
+## Page.8
+
+\vspace{10pt}
+
+```{python}
+idx = np.where(exp_profits == np.max(exp_profits))
+try_X[idx]
+exp_profits[idx]
+```
+
+B2.Rmd
+```{r}
+"Hello"
+```
+

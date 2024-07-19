@@ -1,0 +1,97 @@
+---
+title: "A1_solution"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+
+## Exercise 11
+Solve following and express $\pi_i$ for $i=0,1,2,...$
+\begin{eqnarray}
+\pi_0 + \pi_1 + \pi_2 +... &=& 1 \nonumber\\
+0.02 \pi_0 + 0.02 \pi_1 + 0.02 \pi_2 + ... &=& \pi_0 \nonumber\\
+0.98 \pi_0 &=& \pi_1 \nonumber\\
+0.98 \pi_1 &=& \pi_2 \nonumber\\
+0.98 \pi_2 &=& \pi_3 \nonumber\\
+...&=&... \nonumber
+\end{eqnarray}
+
+### Solution:
+
+\begin{eqnarray}
+\pi_0 + \pi_1 + \pi_2 +... &=& 1 \\
+0.02 \pi_0 + 0.02 \pi_1 + 0.02 \pi_2 + ... &=& \pi_0 \\
+0.98 \pi_0 &=& \pi_1 \\
+0.98 \pi_1 &=& \pi_2 \\
+0.98 \pi_2 &=& \pi_3 \\
+...&=&... \nonumber
+\end{eqnarray}
+
+
+From (3)-(5), 
+
+\begin{eqnarray}
+\pi_1 &=& (0.98)\pi_0 \nonumber\\
+\pi_2 &=& (0.98)\pi_1 = (0.98)^2 \pi_0 \nonumber\\
+\pi_3 &=& (0.98)\pi_2 = (0.98)^3 \pi_0 \nonumber\\
+\pi_i &=& (0.98)^i \pi_0\nonumber
+\end{eqnarray}
+
+Thus (1), becomes 
+
+\begin{eqnarray*}
+\pi_0 + \pi_1 + \pi_2 +... &=& \pi_0(1+0.98+0.98^2 + ...) \nonumber\\
+\pi_0 (\frac{1}{1-0.98})) &=& 1 \nonumber\\
+\pi_0 &=& 0.02\nonumber\\
+\therefore \pi_i &=& (0.02)(0.98)^i \nonumber
+\end{eqnarray*}
+
+\newpage 
+
+## Excercise 12 (Infinite geometric series)
+
+Simplify the following. When $|r|<1$, $S=a+ar+ar^2+ar^3+...$
+
+### Solution :
+
+\setcounter{equation}{0}
+
+\begin{eqnarray}
+S  &=& a+ar^2+ar^3+...      \\
+rS &=&   ar^2+ar^3+ar^4+...  \\
+\nonumber
+\end{eqnarray}
+
+Subtract (1) and (2)
+
+$(1-r)S = a$
+
+$\therefore   S = \frac{a}{1-r}$
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture A5. Simulation 2 "
+```

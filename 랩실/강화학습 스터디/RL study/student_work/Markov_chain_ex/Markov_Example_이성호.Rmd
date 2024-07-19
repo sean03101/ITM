@@ -1,0 +1,53 @@
+---
+title: "Markov Example"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+
+```
+
+
+## Question 1
+
+
+
+Suppose that whether or not it rains today depends on previous weather conditions through the last three days. Show how this system may be analyzed by using a Markov chain. How many states are needed?
+
+
+
+## Question 2
+
+
+
+In Problem 1, suppose that if it has rained for the past three days, then it will rain today with probability 0.7; if it did not rain for any of the past three days, then it will rain today with probability 0.3; and in any other case the weather today will, with probability 0.4, be the same as the weather yesterday. Determine P for this Markov chain.
+
+
+
+## Solution
+
+
+
+Let R : Number of cases of rain, U : Number of cases of rain and number of cases of no rain.
+
+The probability of rain or no rain on the next day depends on the results of the previous three days, so the number of possible cases in the last three days is a total of eight: RRR, RRU, RUR, RUU, UUR, and UUUU. Therefore, a total of eight states are required, and the probability of rain in the future is only affected by the previous state, so it can be called a Markov chain.
+
+![Diagram](./Markov_Sol_이성호.png)
+
+
+
+![Matrix](./Markov_Sol_이성호2.png)

@@ -1,0 +1,141 @@
+---
+title: "D2 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("pandas")
+py_install("matplotlib")
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+
+\newpage
+## Page 17 Analytic solution
+```{python, echo = TRUE}
+import numpy as np
+
+
+P = np.array([[0.7,0.3],[0.5,0.5]])
+R = np.array([1.5,1])
+gamma = 0.9
+
+v = np.linalg.solve((np.eye(2)-gamma*P),R)
+v
+```
+
+
+
+\newpage
+## Page 23 Implementation
+```{python, echo = TRUE}
+import numpy as np
+
+
+P = np.array([[0.7,0.3],[0.5,0.5]]).reshape(2,2)
+R = np.array([1.5,1]).reshape(2,1)
+gamma = 0.9
+epsilon = 10**(-8)
+
+v_old = np.zeros((2,1))
+v_new = R + np.dot(gamma*P,v_old)
+
+while True:
+  v_old = v_new
+  v_new = R + np.dot(gamma*P,v_old)
+  
+  if np.max(abs(v_new-v_old))>epsilon : continue
+  
+  break
+
+print(v_old)
+
+```
+
+
+\newpage
+## Page 24 The full iteration process
+```{python, echo = TRUE}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+P = np.array([[0.7,0.3],[0.5,0.5]]).reshape(2,2)
+R = np.array([1.5,1]).reshape(2,1)
+gamma = 0.9
+epsilon = 10**(-8)
+
+v_old = np.zeros((2,1))
+v_new = R + np.dot(gamma*P,v_old)
+results = v_old.T
+results = np.append(results,v_new.T,axis=0)
+
+while True:
+  v_old = v_new
+  v_new = R + np.dot(gamma*P,v_old)
+  results = np.append(results,v_new.T,axis=0)
+  
+  
+  if np.max(abs(v_new-v_old))>epsilon : continue
+  
+  break
+
+results = pd.DataFrame(results,columns=['coke','pepsi'])
+print(results.head(n=7))
+print(results.tail(n=7))
+
+
+
+plt.scatter(results.index, results['coke'], label='coke')
+plt.scatter(results.index, results['pepsi'], label='pepsi')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+
+\newpage
+## Page 27 After 50 steps(coke only)
+```{python, echo = TRUE}
+plt.scatter(results.index[49:],results['coke'][49:], label='coke')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+
+
+
+\newpage
+## Page 27 After 100 steps(coke only)
+```{python, echo = TRUE}
+plt.scatter(results.index[99:],results['coke'][99:], label='coke')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+
+

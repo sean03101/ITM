@@ -1,0 +1,128 @@
+---
+title: "C2_DTMC Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+\newpage
+```{python import, echo=FALSE,message=F}
+import numpy as np
+```
+# Exercises
+## p.12 Method 1 ‑ eigen‑decomposition
+R code
+```{R, eval = FALSE}
+P <‐ array(c(0.7, 0.5, 0.3, 0.5), dim = c(2,2))
+eigen(t(P)) # eigen‐decomposition for P^t
+
+x_1 <‐ eigen(t(P))$vectors[,1]
+x_1
+
+v <‐ x_1/sum(x_1)
+v
+```
+Python code
+```{python C2_1}
+
+P=np.matrix([[0.7,0.5], [0.3,0.5]])
+eg_val, eg_vec = np.linalg.eig(P)
+print(eg_val)
+print(eg_vec)
+
+x_1 = eg_vec[:,0]
+print(x_1)
+v = x_1/sum(x_1)
+print(v)
+
+```
+
+\newpage
+## p.15 Method 2 ‑ system of linear equation
+R code
+```{r, eval = FALSE}
+P <‐ array(c(0.7, 0.5, 0.3, 0.5), dim = c(2,2))
+n <‐ nrow(P) # n=|S|
+I <‐ diag(n) # identity matrix
+A <‐ cbind(P‐I, rep(1,n))
+b <‐ array(c(rep(0,n),1), dim = c(1, n+1))
+
+v <‐ solve(A %*% t(A), A %*% t(b))
+v
+
+```
+
+Python code
+```{python C2_2}
+P = np.array([[0.7,0.3],[0.5,0.5]])
+n = P.shape[0] #nrow
+I = np.identity(n)
+rep=np.array([[1],[1]])
+A = np.hstack([P-I, rep])
+b=np.array([0,0,1])
+sol = np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+print(sol)
+
+```
+
+\newpage
+## p.17 Limiting probailities Motivation
+R code
+```{r, eval = FALSE}
+library(expm)
+P <- array(c(0.7,0.5,0.3,0.5), dim = c(2,2))
+P %*% P
+P %^% 3
+P %^% 4
+P %^% 20
+```
+Python code
+```{python C1_3}
+P = np.array([[0.7,0.3],[0.5,0.5]])
+print(np.dot(P,P))
+print(np.linalg.matrix_power(P,3))
+print(np.linalg.matrix_power(P,4))
+print(np.linalg.matrix_power(P,20))
+```
+
+\newpage
+## p.19 The limiting distribution may not exist.
+R code
+```{r, eval = FALSE}
+library(expm)
+P <‐ array(c(0, 1, 1, 0), dim = c(2,2))
+P
+P %^% 2
+P %^% 3
+```
+Python code
+```{python C1_4}
+P1 = np.array([[0,1],[1,0]])
+print(P1)
+print(np.dot(P1,P1))
+print(np.linalg.matrix_power(P1,3))
+```

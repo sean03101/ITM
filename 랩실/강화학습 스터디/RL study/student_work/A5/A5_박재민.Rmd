@@ -1,0 +1,107 @@
+---
+title: "A5 Simulation 2 Python code"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+# Exercises
+## p.15 Uniform random numbers
+R code
+```{r, eval= FALSE}
+X <‐ runif(n=1000, min=‐1, max=1)
+hist(X)
+```
+
+Python code
+```{python A5_1}
+rand_list= np.random.uniform(-1,1,1000)
+plt.hist(rand_list,10)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+\newpage
+
+## p.16 Normal random numbers
+R code
+```{r, eval= FALSE}
+X <‐ rnorm(n=1000, min=‐1, max=1)
+hist(X)
+```
+
+Python code
+```{python A5_2}
+rand_list= np.random.normal(3,2,1000)
+plt.hist(rand_list,20)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+\newpage
+
+## p.17 Exponential random numbers
+R code
+```{r, eval= FALSE}
+X <‐ rexp(n=1000, min=‐1, max=1)
+hist(X)
+```
+
+Python code
+```{python A5_3}
+rand_list= np.random.exponential(5,10000)
+plt.hist(rand_list,20)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+\newpage
+
+## p.18 Poisson random numbers
+R code
+```{r, eval= FALSE}
+X <‐ rpois(n=1000, min=‐1, max=1)
+hist(X)
+```
+
+Python code
+```{python A5_4}
+rand_list= np.random.poisson(5,100000)
+plt.hist(rand_list,20)
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```

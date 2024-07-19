@@ -1,0 +1,110 @@
+---
+title: "C3_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+```
+
+\newpage
+
+## Example 1 
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1/2& 1/2& 0& \\
+    &1/2& 1/4&  1/4& \\ 
+    &0& 1/3& 2/3&\\
+  \end{pmatrix}
+\end{align*}
+
+\vspace{20pt}
+
+
+![Example 1 Diagram](C://Users/user/Desktop/Reinforcement learning/C3/Example 1.png)
+
+\newpage
+
+## Example 2
+
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1 & 0& 0& \\
+    &1/4& 1/2&  1/4& \\ 
+    &0& 0& 1\\
+  \end{pmatrix}
+\end{align*}
+
+\vspace{20pt}
+
+![Example 2 Diagram](C://Users/user/Desktop/Reinforcement learning/C3/Example 2.png)
+\newpage
+
+## Example 3
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1 & 0& 0& \\
+    &1/3& 1/2&  1/6& \\ 
+    &0& 0& 1\\
+  \end{pmatrix}
+\end{align*}
+
+\vspace{20pt}
+
+![Example 3 Diagram](C://Users/user/Desktop/Reinforcement learning/C3/Example 3.png)
+\newpage
+
+## Example 4
+
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &1/2 &1/2 & 0 &0 \\
+    &1/2 &1/2 & 0 &0 \\ 
+    &1/4 &1/4 &1/4 &1/4\\
+    &0   &0 &0 &1\\
+  \end{pmatrix}
+\end{align*}
+
+\vspace{20pt}
+
+![Example 4 Diagram](C://Users/user/Desktop/Reinforcement learning/C3/Example 4.png)
+
+
+
+
+
+
+
+
+
+
+```{r, results='hide'}
+"C3_Exercises"
+```

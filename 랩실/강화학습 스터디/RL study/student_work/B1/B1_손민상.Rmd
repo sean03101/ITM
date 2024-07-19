@@ -1,0 +1,297 @@
+---
+title: "B1_Exercise"  
+author: "Son Min Sang"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+
+\newpage  
+
+# Exercise
+
+## Exercise 1
+
+|      d   | 20 | 25 | 30 | 35 | 
+|:--------:|:--:|:--:|:--:|:--:|
+| $P[D=d]$ | 0.1| 0.2|0.4 | 0.3|
+
+
++ $E[30∧ D]$
+
+|      d   | 20 | 25 | 30 | 35 | 
+|:--------:|:--:|:--:|:--:|:--:|
+|$30∧ D$| 20 |  25|  30|  30 | 
+$E[30∧ D]=20*0.1+25*0.2+30*0.4+35*0.3=29.5$
+\vspace{20pt}
+
++ $E[(30-D)^+]$
+
+|      d   | 20 | 25 | 30 | 35 | 
+|:--------:|:--:|:--:|:--:|:--:|
+| $(30-D)^+$| 10 | 5  |0  |0   | 
+$E[(30-D)^+]=10*0.1+5*0.2+0*0.4+0*0.3=2$
+\vspace{20pt}
+
++ $E[24∧ D]$
+
+|      d   | 20 | 25 | 30 | 35 | 
+|:--------:|:--:|:--:|:--:|:--:|
+| $24∧ D$| 20|  24|  24|  24 |
+$E[24∧ D]=20*0.1+24*0.2+24*0.4+24*0.3=23.6$  
+\vspace{20pt}
+
++ $E[(24-D)^+]$
+
+|      d   | 20 | 25 | 30 | 35 | 
+|:--------:|:--:|:--:|:--:|:--:|
+| $(24-D)^+$ | 4|  0 |0   |0   |
+$E[(24-D)^+]=4*0.1+0*0.2+0*0.4+0*0.3=0.4$
+
+\newpage
+
+## Exercise 2
+
+If $D$ is a continuous $r.v$, with $cdf\,F(\cdot)$,then find $y\, s.t. F(y) =\frac{c_u}{c_o+c_u}$
+
+If $D$ is a discrete $r.v$, with $cdf\,F(\cdot)$, then find smallest $y$ such that $F(y) \geq\frac{c_u}{c_o+c_u}$
+
+\vspace{10pt}
+
+$c_o= 0.5$
+$c_u= 1$
+$x^* =$ smallest $y\, s.t. F(y) \geq\frac{c_u}{c_o+c_u}=\frac{1}{0.5+1}=\frac{2}{3}$
+
+|      d   | 11 | 12 | 13 | 14 | 15 | 
+|:--------:|:--:|:--:|:--:|:--:|:--:|
+| $P(D=d)$ | 0.2| 0.2| 0.2| 0.2| 0.2|
+| $P(D\geq d)$ | 0.2| 0.4| 0.6| 0.8| 1|
+
+14 is the minimum value for satisfying the condition.
+
+\vspace{10pt}   
+
+$E[Profit]=E(Sale Rev.)+E(salvage Rev.)-E(material Cost)$
+
+\vspace{10pt}
+E[Sale Revenue]=$2·(D∧14)$  
+
+E[Salvage Revenue]=$\frac{1}{2}·(14-D)^{+}$  
+
+Material Cost=$1·14$  
+\vspace{10pt}   
+
+$E[Profit]=\sum_{D=11}^{15}(2·(D∧14)·P(D))+\sum_{D=11}^{15}(\frac{1}{2}·(14-D)^{+}·P(D))-1·14$  
+
+　　　　　=$2·(\frac{11+12+13+14+14}{5})+\frac{1}{2}·(\frac{3+2+1+0+0}{5})-14$  
+
+　　　　　=$\frac{61}{5}$  
+
+　　　　　=$12.2$  
+
+
+\newpage
+
+## Exercise 3
+
+\vspace{15pt}
+$D$~$U(20,40)$
+
+
+$f(x)=\begin{cases}\frac{1}{20}&20\le x \le 40\\0&otherwise\end{cases}$  
+
+$F(x)=\begin{cases}0&20<x\\\frac{x-20}{20}&20\le x \le 40\\1&x>40\end{cases}$  
+
+If $D$ is a continuous $r.v$, with $cdf\,F(\cdot)$,then find $y\, s.t. F(y) =\frac{c_u}{c_o+c_u}$
+
+If $D$ is a discrete $r.v$, with $cdf\,F(\cdot)$, then find smallest $y$ such that $F(y) \geq\frac{c_u}{c_o+c_u}$
+
+Uniform distribution is continuous
+$F(x^*)=\frac{c_u}{c_o+c_u}$  
+
+\vspace{12pt}
+
+$c_o$=(Material Cost - Salvage Price)=$(1-\frac{1}{2})=\frac{1}{2}$   
+$c_u$=(Retail Price - Material Cost)=(2-1)=1
+
+\vspace{10pt}
+
+$F(x^*) = \frac{1}{1+1/2} = \frac{2}{3}$  
+
+$\frac{x^*-20}{20}=\frac{2}{3} ,\ x^*=\frac{100}{3}$  
+
+\vspace{10pt}
+
+$E[Profit]$=E(Sale Rev.)+E(salvage Rev.)-E(material Cost)
+
+Sale Revenue=$2·(D∧\frac{100}{3})$  
+
+Salvage Revenue=$\frac{1}{2}·(\frac{100}{3}-D)^{+}$  
+
+Material Cost=$1·\frac{100}{3}$  
+\vspace{10pt}   
+
+$E[Profit]=E[2·(D∧\frac{100}{3})]+E[\frac{1}{2}·(\frac{100}{3}-D)^{+}]-1·\frac{100}{3}$
+
+$=\int_{20}^{40}(2·(D∧\frac{100}{3})·\frac{1}{20})dD+\int_{20}^{40}(\frac{1}{2}·(\frac{100}{3}-D)^{+}·\frac{1}{20})dD-\int_{20}^{40}(\frac{100}{30}·\frac{1}{20})dD$  
+
+$=\frac{1}{10}·(\int_{20}^{\frac{100}{30}}(D)dD+\int_{\frac{100}{3}}^{40}(\frac{100}{3})dD)+\frac{1}{40}·(\int_{20}^{\frac{100}{3}}(\frac{100}{3}-D)dD+\int_{\frac{100}{3}}^{40}(0)dD)-\frac{100}{3}$  
+
+$=\frac{1}{10}·([\frac{1}{2}D^2]^\frac{100}{3}_{20}+\frac{100}{3}[D]^{40}_{\frac{100}{3}})+\frac{1}{40}·[\frac{100}{3}D-\frac{1}{2}D^2]^\frac{100}{3}_{20}-\frac{100}{3}$  
+
+$=\frac{80}{3}$  
+
+\vspace{15pt}
+
+\newpage
+
+## Exercise 4
+
+$c_u$=(Retail Price - Material Cost)=(18-3)=15
+
+$c_o$=(Material Cost - Salvage Price)=(3-1)=2  
+
+$c_v$=Material Cost = 3
+
+\vspace{15pt}
+
+
+Expected Economic Cost = $E[Cost]$
+
+        = Manufacturing Cost+E[Cost associated with Understock Risk]+E[Cost assoiciated with Overstock Risk]
+
+　　　　= $c_v·X+c_u·E[(D-X)^+]+c_o·E[(X-D)^+]$  
+
+　　　　= $3X+15\int_{0}^{\infty}((D-X)^+·f(D))dD+2\int_{0}^{\infty}((X-D)^+·f(D))dD$
+　　　　　　　　　　　 
+　　　　= $3X+15\int_{X}^{\infty}((D-X)·f(D))dD+2\int_{0}^{X}((X-D)·f(D))dD$
+
+\vspace{10pt}
+
+Expected Profit = $E[Revenue] - E[Cost]$  
+
+　　　　　　　　= $18·E(X∧D)-(3X+15\int_{X}^{\infty}(D-X)·f(D)dD+2\int_{0}^{X}(X-D)·f(D)dD)$
+　　　　　　　  
+                = $18·(\int_{0}^{X}D·f(D)dD+\int_{X}^{\infty}X·f(D)dD)-(3X+15\int_{X}^{\infty}(D-X)·f(D)dD+2\int_{0}^{X}(X-D)·f(D)dD)$
+　　　　　　　  
+
+\newpage
+
+## Exercise 5
+
++  p = Material Price
++  c_u = Understock cost per unit
++  c_o = Overstock cost per unit
++  X = Sales 
++  D = Market Demand
+\vspace{15pt}
+
+
+Expected Economic Cost = $E[Cost]$
+
+        = Manufacturing Cost+E[Cost associated with Understock Risk]+E[Cost assoiciated with Overstock Risk]
+
+　　　　= $c_v·X+c_u·E[(D-X)^+]+c_o·E[(X-D)^+]$  
+
+　　　　= $c_v·X+c_u·\int_{0}^{\infty}((D-X)^+·f(D))dD+c_o·\int_{0}^{\infty}((X-D)^+·f(D))dD$
+　　　　　　　　　　　 
+　　　　= $c_v·X+c_u·\int_{X}^{\infty}((D-X)·f(D))dD+c_o·\int_{0}^{X}((X-D)·f(D))dD$
+
+\vspace{10pt}
+
+Expected Profit = $E[Revenue] - E[Cost]$  
+
+　　　　　　　　= $p·E(X∧D)-(c_v·X+c_u·\int_{X}^{\infty}((D-X)·f(D))dD+c_o·\int_{0}^{X}((X-D)·f(D))dD)$
+　　　　　　　  
+                = $p·(\int_{0}^{X}D·f(D)dD+\int_{X}^{\infty}X·f(D)dD)-(c_v·X+c_u·\int_{X}^{\infty}((D-X)·f(D))dD+c_o·\int_{0}^{X}((X-D)·f(D))dD)$
+
+
+E[Revenue] is decided by the sales.
+
+So, we should consider only the cost 
+
+
+\newpage
+# DaiPark
+## Exercise 6                                                                                                                                        
+
+$E[Profit]=E(Sale Rev.)+E(salvage Rev.)-E(material Cost)$
+
+\vspace{10pt}
+
+\textbf {(a)}
+
+|      d   | 5 | 6 | 7 | 8 | 9 | 
+|:--------:|:--:|:--:|:--:|:--:|:--:|
+| $P(D=d)$ | 0.1| 0.3| 0.4| 0.1| 0.1|
+
+
+E[Sale Revenue]=$30·(D∧7)$  
+
+Salvage Revenue=$5·(7-D)^{+}$  
+
+Material Cost=$10·7$
+
+\vspace{15pt}
+
+$E[Profit]=\sum_{D=5}^{9}(30·(D∧7)·P(D))+\sum_{D=5}^{9}(5·(7-D)^{+}·P(D))-10·7$  
+
+　　　　　=$30·(5*0.1+6*0.3+7*0.4+7*0.1+7*0.1)+5·(2*0.1+1*0.3+0*0.4+0*0.1+0*0.1)-70$  
+
+　　　　　=$127.5$  
+
+\vspace{15pt}
+　　　　
+　　　　　        
+\textbf {(b)}
+
+\vspace{10pt}
+
+$D$~$U(5,10)$
+
+$E[Profit]=\sum_{D=5}^{9}(30·(D∧7)·P(D))+\sum_{D=5}^{9}(5·(7-D)^{+}·P(D))-10·7$  
+
+　　　　　=$30·(5*0.2+6*0.2+7*0.2+7*0.2+7*0.2)+5·(2*0.2+1*0.2+0*0.2+0*0.2+0*0.2)-70$  
+
+　　　　　=$125$  
+
+\vspace{15pt}
+
+\textbf {(c)}
+
+\vspace{10pt}
+$D$~$exp(\frac{1}{7})$
+
+$E[Profit]=30·\int_{0}^{\infty}(D∧7)·f(D)dD+5·\int_{0}^{\infty}(7-D)^{+}·f(D)dD-10·7$
+
+   =$30·\int_{0}^{7}D·f(D)dD+30·\int_{7}^{\infty}7·f(D)dD+5·\int_{0}^{7}(7-D)·f(D)dD+5·\int_{7}^{\infty}0·f(D)dD-10·7$
+   
+   =$\frac{1}{7}·(25·\int_{0}^{7}D·e^{-\frac{1}{7}D}+30·\int_{7}^{\infty}7·e^{-\frac{1}{7}D}dD+5·\int_{0}^{7}7·e^{-\frac{1}{7}D}dD)$
+   
+   =$\frac{1}{7}·(25·(49-98e^{-1})+1470e^{-1}+245-245·e^{-1})$
+   
+   =$\frac{1}{7}·(1470-1225e^{-1})$
+
+> quote 인용이나 강조 어구 quotation

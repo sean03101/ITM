@@ -1,0 +1,303 @@
+---
+title: "A4 Python Code"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## Implementation - basic (11p)
+
+```{python, echo=TRUE}
+import time
+import numpy as np
+import pandas as pd
+
+# 11p
+np.random.seed(1234)
+N=10**3
+x=np.random.uniform(0,1,size=N)*2-1
+y=np.random.uniform(0,1,size=N)*2-1
+t=np.sqrt(x**2+y**2)
+bind=pd.DataFrame({'x':x,'y':y,'t':t})
+bind.head(6)
+
+pi_hat=4*sum(t<=1)/N
+pi_hat
+```
+
+\newpage
+
+## Vectorized Programming (12p-1)
+
+```{python, echo=TRUE}
+import time
+import numpy as np
+
+# 12p-1
+beg_time=time.time()
+np.random.seed(1234)
+
+N=10**6
+x=np.random.uniform(0,1,size=N)*2-1
+y=np.random.uniform(0,1,size=N)*2-1
+t=np.sqrt(x**2+y**2)
+pi_hat=4*sum(t<=1)/N
+end_time=time.time()
+print('Time difference of ',end_time-beg_time,' secs')
+```
+
+\newpage
+
+## Vectorized Programming (12p-2)
+
+```{python, echo=TRUE}
+import numpy as np
+import time
+
+# 12p-2
+beg_time=time.time()
+np.random.seed(1234)
+
+N=10**6
+count=0
+
+for i in range(N):
+    x_i=np.random.uniform(0,1,size=1)*2-1
+    y_i=np.random.uniform(0,1,size=1)*2-1
+    t_i=np.sqrt(x_i**2+y_i**2)
+    if t_i <=1:
+        count+=1
+
+pi_hat=4*count/N
+end_time=time.time()
+print('Time difference of ',end_time-beg_time,' secs')
+```
+
+\newpage
+
+## Implementation ‑ varying number of trials (13p-1)
+
+```{python, echo=TRUE}
+import numpy as np
+
+# 13p-1
+def pi_simulator(N):
+    np.random.seed(1234)
+    
+    x=np.random.uniform(0,1,size=N)*2-1
+    y=np.random.uniform(0,1,size=N)*2-1
+    t=np.sqrt(x**2+y**2)
+    
+    pi_hat=4*sum(t<=1)/N
+    return pi_hat
+
+print(pi_simulator(100))
+print(pi_simulator(1000))
+print(pi_simulator(10000))
+print(pi_simulator(100000))
+```
+
+\newpage
+
+## Implementation - varying number of trials (13p-2)
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 13p-2
+def pi_simulator(N):
+    np.random.seed(1234)
+    
+    x=np.random.uniform(0,1,size=N)*2-1
+    y=np.random.uniform(0,1,size=N)*2-1
+    t=np.sqrt(x**2+y**2)
+    
+    pi_hat=4*sum(t<=1)/N
+    return pi_hat
+    
+num_trials=10**np.arange(2,8)
+outcomes=[pi_simulator(i) for i in num_trials]
+
+outcomes=np.asarray(outcomes)
+results=pd.DataFrame({'num_trials':num_trials,'outcomes':outcomes})
+results
+
+# 15p
+plt.scatter(results['num_trials'],results['outcomes'], c='blue')
+plt.plot(results['num_trials'],results['outcomes'], c='blue')
+plt.axhline(3.14,0,1,color='black',linestyle='--')
+plt.xscale('log')
+plt.grid(True,axis='both')
+plt.xlabel('num_trials')
+plt.ylabel('outcomes')
+plt.show()
+```
+
+\newpage
+
+## Computation time (17p)
+
+```{python, echo=TRUE}
+import time
+import numpy as np
+
+# 17p
+def pi_simulator2(N):
+    beg_time=time.time()
+    np.random.seed(1234)
+    
+    x=np.random.uniform(0,1,size=N)*2-1
+    y=np.random.uniform(0,1,size=N)*2-1
+    t=np.sqrt(x**2+y**2)
+    pi_hat=4*sum(t<=1)/N
+    end_time=time.time()
+    
+    print(N)
+    print('Time difference of ',end_time-beg_time, 'secs')
+    return pi_hat
+
+num_trials=10**np.arange(2,8)
+[pi_simulator2(i) for i in num_trials]
+```
+
+\newpage
+
+## Repetitive simulation experiments (22-23p)
+
+```{python, echo=TRUE}
+import numpy as np
+from scipy.stats import t
+
+# 22p
+def pi_simulator3(N):
+    x=np.random.uniform(0,1,size=N)*2-1
+    y=np.random.uniform(0,1,size=N)*2-1
+    t=np.sqrt(x**2+y**2)
+    pi_hat=4*sum(t<=1)/N
+    
+    return pi_hat
+
+n=100
+N=1000
+np.random.seed(1234)
+
+samples=np.zeros((n,))
+for i in range(n):
+    samples[i]=pi_simulator3(N)
+    
+samples[:6]
+
+x_bar=np.mean(samples)
+s=np.sqrt(sum((x_bar-samples)**2)/(n-1))
+t_=t(n-1).ppf(0.975)
+
+x_bar
+s
+t
+```
+
+\newpage
+
+## Exercise 1 (24p)
+
+```{python, echo=TRUE}
+import numpy as np
+from scipy.stats import t
+# 24p
+
+def pi_simulator3(N):
+    x=np.random.uniform(0,1,size=N)*2-1
+    y=np.random.uniform(0,1,size=N)*2-1
+    t=np.sqrt(x**2+y**2)
+    pi_hat=4*sum(t<=1)/N
+    
+    return pi_hat
+
+n=100
+N=10000
+np.random.seed(1234)
+
+samples=np.zeros((n,))
+for i in range(n):
+    samples[i]=pi_simulator3(N)
+    
+samples[:6]
+
+x_bar=np.mean(samples)
+s=np.sqrt(sum((x_bar-samples)**2)/(n-1))
+t_=t(n-1).ppf(0.975)
+lb=x_bar-t_*s/np.sqrt(n)
+ub=x_bar+t_*s/np.sqrt(n)
+
+lb
+ub
+ub-lb
+```
+
+\newpage
+
+## Exercise 2 (25p)
+
+```{python, echo=TRUE}
+import numpy as np
+from scipy.stats import t
+
+# 25p
+def pi_simulator3(N):
+    x=np.random.uniform(0,1,size=N)*2-1
+    y=np.random.uniform(0,1,size=N)*2-1
+    t=np.sqrt(x**2+y**2)
+    pi_hat=4*sum(t<=1)/N
+    
+    return pi_hat
+
+n=1000
+N=10000
+np.random.seed(1234)
+
+samples=np.zeros((n,))
+for i in range(n):
+    samples[i]=pi_simulator3(N)
+    
+samples[:6]
+
+x_bar=np.mean(samples)
+s=np.sqrt(sum((x_bar-samples)**2)/(n-1))
+t_=t(n-1).ppf(0.975)
+lb=x_bar-t_*s/np.sqrt(n)
+ub=x_bar+t_*s/np.sqrt(n)
+
+lb
+ub
+ub-lb
+```

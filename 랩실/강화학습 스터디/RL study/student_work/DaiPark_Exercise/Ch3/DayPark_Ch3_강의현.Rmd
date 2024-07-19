@@ -1,0 +1,367 @@
+---
+title: "DayPark - C3"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+
+\vspace{50pt}
+
+## *Exercise 5*
+\vspace{10pt}
+*Suppose each morning a factory posts the number of days worked in a row without any injuries. Assume that each day is injury free with probability 98/100. Furthermore, assume that whether tomorrow is injury free or not is independent of which of the preceding days were injury free. Let $X_{0}=0$ be the morning the factory first opened. Let $X_{n}$ be the number posted on the morning after n full days of work.*  
+
+
+\vspace{15pt}
+
+
+(a) Is {$X_{n}, n\ge0$} a Markov chain? If so, give its state space, initial distribution, and transition matrix P. If not, show that it is not a Markov chain.  
+
+
+
+　　It is Markov chain. Because future state is only affected by present state.
+ 
+  - We can set the state as $S=\{$injury free, injury$\}$.
+  - Initial distribution : $a_{0}=(1,0)$
+  - and transition matrix P is
+  
+$$P=\left[
+\begin{array}{cc}
+0.98&0.02 \\
+0.02&0.98 \\
+\end{array}
+\right] $$
+ 
+(b) Is the Markov chain irreducible? Explain  
+
+
+
+　　It is irreducible. Because all the states communicate with each other.  
+　 　
+  
+\vspace{15pt}
+(c) Is the Markov chain periodic or aperiodic? Explain and if it is periodic, also give the period.  
+
+
+　　It is aperiodic. Because it converges to 
+　　
+$$P^{\infty}=\left[
+\begin{array}{cc}
+0.5&0.5 \\
+0.5&0.5 \\
+\end{array}
+\right]$$
+ 
+(d) Find the stationary distribution.
+
+$$\left[\begin{array}{cc}
+a&b
+\end{array}\right]
+\left[\begin{array}{cc}
+0.98&0.02 \\
+0.02&0.98
+\end{array}\right]=
+\left[\begin{array}{cc}
+a&b
+\end{array}\right]$$
+
+  (1) $a+b=1$
+  
+  (2)
+\begin{eqnarray*}
+0.98×a+0.02×b&=&a \\
+ \\
+0.02×a+0.98×b&=&b \\
+\end{eqnarray*}
+
+　　　　　　　　　　　　　　　　$∴　a=\frac{1}{5}, b=\frac{1}{5}$  
+
+
+
+(e) Is the Markov chain positive recurrent? If so, why? If not, why not?
+
+
+\newpage
+
+## *Exercise 6.*  
+
+
+\vspace{10pt}
+*Considering the following transition matrix*  
+
+
+$$P=\left[
+\begin{array}{cccc}
+  0&0.5&0  &0.5 \\
+0.6&  0&0.4&0 \\
+0  &0.7&0  &0.3 \\
+0.8&0  &0.2&0
+\end{array}\right]$$
+
+(a) Is the Markov chain periodic? Give the period of each state.
+
+$$P_{1}=\left[
+\begin{array}{cccc}
+0     &0.5625&0     &0.4375 \\
+0.6875&0     &0.3125&0 \\
+0     &0.5625&0     &0.4375 \\
+0.6875&0     &0.3125&0
+\end{array}\right]$$
+
+\vspace{10pt}
+\begin{center}
+and
+\end{center}
+
+$$P_{2}=\left[
+\begin{array}{cccc}
+0.6875&0     &0.3125  &0 \\
+0     &0.5625&0       &0.4375 \\
+0.6875&0     &0.3125  &0 \\
+0     &0.5625&0       &0.4375 
+\end{array}\right]$$
+
+\vspace{15pt}
+
+(b) Is $(\pi_{1},\pi_{2},\pi_{3},\pi_{4})=(33/96,27/96,15/96,21/96)$ the stationary distribution of the Markov Chain?
+
+ 1. $\pi_{1}+\pi_{2}+\pi_{3}+\pi_{4}=\frac{33+27+15+21}{96}=1$
+ 2.
+
+$$(\pi_{1},\pi_{2},\pi_{3},\pi_{4})\left[
+\begin{array}{cccc}
+  0&0.5&0  &0.5 \\
+0.6&  0&0.4&0 \\
+0  &0.7&0  &0.3 \\
+0.8&0  &0.2&0
+\end{array}\right]=(0.6\pi_{2}+0.8\pi_{4},0.5\pi_{1}+0.7\pi_{3},0.4\pi_{2}+0.2\pi_{4},0.5\pi_{1}+0.3\pi_{3})$$
+
+\begin{eqnarray*}
+(0.6\pi_{2}+0.8\pi_{4},0.5\pi_{1}+0.7\pi_{3},0.4\pi_{2}+0.2\pi_{4},0.5\pi_{1}+0.3\pi_{3})&=&(\frac{33}{96},\frac{27}{96},\frac{15}{96},\frac{21}{96}) \\
+ \\
+&=&(\pi_{1},\pi_{2},\pi_{3},\pi_{4})
+\end{eqnarray*}
+
+∴ $(\pi_{1},\pi_{2},\pi_{3},\pi_{4})×P=(\pi_{1},\pi_{2},\pi_{3},\pi_{4})$
+
+\vspace{10pt}
+
+Therefore, $(\pi_{1},\pi_{2},\pi_{3},\pi_{4})$ is stationary distribution.  
+
+
+\vspace{15pt}
+
+(c) Is $P_{11}^{100}=\pi_{1}$?　　 $P_{11}^{101}=\pi_{1}$? Give and expression for $\pi_{1}$ in terms of $P_{11}^{100}$ and $P_{11}^{101}$.
+
+$$P^{100}=\left(
+\begin{array}{cccc}
+0&0.5625&0&0.4375 \\
+0.6875&0&0.3125&0 \\
+0&0.5625&0&0.4375 \\
+0.6875&0&0.3125&0 
+\end{array}
+\right)$$
+
+\vspace{10pt}
+$$P^{101}=\left(
+\begin{array}{cccc}
+0.6875&0&0.3125&0 \\
+0&0.5625&0&0.4375 \\
+0.6875&0&0.3125&0 \\
+0&0.5625&0&0.4375 
+\end{array}
+\right)$$
+
+\vspace{10pt}
+
+1)
+
+\begin{eqnarray*}
+(\pi_{1},\pi_{2},\pi_{3},\pi_{4})P^{100}&=&(\pi_{1},\pi_{2},\pi_{3},\pi_{4})\left(
+\begin{array}{cccc}
+0&0.5625&0&0.4375 \\
+0.6875&0&0.3125&0 \\
+0&0.5625&0&0.4375 \\
+0.6875&0&0.3125&0 
+\end{array}
+\right) \\
+ \\
+&=&(0.6875\pi_{2}+0.6875\pi_{4},0.5625\pi_{1}+0.5625\pi_{3}, \\
+&&0.3125\pi_{2}+0.3125\pi_{4},0.4375\pi_{1}+0.4375\pi_{3}) \\
+ \\
+&=&(\frac{33}{96},\frac{27}{96},\frac{15}{96},\frac{21}{96})
+\end{eqnarray*}
+
+\vspace{15pt}
+\begin{center}
+$P_{11}^{100}=\frac{33}{96}$
+\end{center}
+
+2)
+
+\begin{eqnarray*}
+(\pi_{1},\pi_{2},\pi_{3},\pi_{4})P^{101}&=&(\pi_{1},\pi_{2},\pi_{3},\pi_{4})\left(
+\begin{array}{cccc}
+0.6875&0&0.3125&0 \\
+0&0.5625&0&0.4375 \\
+0.6875&0&0.3125&0 \\
+0&0.5625&0&0.4375
+\end{array}
+\right) \\
+ \\
+&=&(0.6875\pi_{1}+0.6875\pi_{3},0.5625\pi_{2}+0.5625\pi_{4}, \\
+&&0.3125\pi_{1}+0.3125\pi_{3},0.4375\pi_{2}+0.4375\pi_{4}) \\
+ \\
+&=&(\frac{33}{96},\frac{27}{96},\frac{15}{96},\frac{21}{96})
+\end{eqnarray*}
+
+\vspace{15pt}
+\begin{center}
+$P_{11}^{101}=\frac{33}{96}$
+\end{center}
+
+\newpage
+
+## Exercise 14
+\vspace{10pt}
+*Suppose you are working as an independent consultant for a company. Your performance is evaluated at the end of each month and the evaluation falls into one of three categories: 1, 2, and 3. Your evaluation can be modeled as a discrete-time Markov chain and its transition diagram is as follows.*
+
+\begin{figure}
+\centering
+  \includegraphics[width=10.0cm]{daipark_3_14}
+  \hfil
+\end{figure}
+
+
+\vspace{10pt}
+*Denote your evaluation at the end of $n$th month by $X_{n}$ and assume that $X_{0}=2$.*
+
+
+\vspace{15pt}
+(a) What are state space, transition probability matrix and initial distribution of $X_{n}$?
+
+  + State space : $S=\{1,2,3\}$
+  + Initial distribution of $X_{n}$ : $a_{0}=(0,1,0)$
+  + Transition probability matrix
+  
+$$P=\left(
+\begin{array}{ccc}
+.25&.75&0 \\
+.5&0&.5 \\
+0&.25&.75
+\end{array}
+\right)$$
+\vspace{10pt}
+  
+(b) What is the stationary distribution?
+
+  1) $V=(v_{1},v_{2},v_{3})$ , $v_{1}+v_{2}+v_{3}=1$
+  2) $VP=V$
+  
+
+$$\left(v_{1},v_{2},v_{3}
+\right)\left(
+\begin{array}{ccc}
+.25&.75&0 \\
+.5&0&.5 \\
+0&.25&.75
+\end{array}
+\right)=\left(v_{1},v_{2},v_{3}
+\right)$$
+
+\begin{eqnarray*}
+0.25v_{1}+0.5v_{2}&=&v_{1} \\
+ \\
+0.5v_{1}+0.5v_{3}&=&v_{2} \\
+ \\
+0.25v_{2}+0.75v_{3}&=&v_{3}
+\end{eqnarray*}
+
+\vspace{10pt}
+\begin{center}
+∴ $v_{1}=\frac{2}{11}$ , $v_{2}=\frac{3}{11}$ , $v_{3}=\frac{6}{11}$
+\end{center}
+\vspace{10pt}
+\begin{center}
+$v_{1}+v_{2}+v_{3}=\frac{2+3+6}{11}=1$
+\end{center}
+
+\vspace{10pt}
+Thus, stationary distribution is $V=(\frac{2}{11},\frac{3}{11},\frac{6}{11})$.
+
+\vspace{15pt}
+(c) What is the long-run fraction of time when your evaluation is either 2 or 3?
+
+$$P^{\infty}=\left(
+\begin{array}{ccc}
+0.1818&0.2727&0.5454 \\
+0.1818&0.2727&0.5454 \\
+0.1818&0.2727&0.5454 
+\end{array}
+\right)$$
+
+Thus, When the evaluation is 2, the long-run fraction of time is about $0.2727$.  
+
+
+And when the evaluation is 3, the long-run fraction of time is about $0.5454$.  
+
+
+
+\vspace{15pt}
+  
+(d) What is the long-run average monthly salary?  
+
+
+
+Your monthly salary is determined by the evaluation of each month in the following way.
+
+\begin{center}
+Salary when your evaluation is $n=\$5000+n^{2}×\$5000$ , $n=1,2,3$ .  
+\end{center}
+
+
+\begin{eqnarray*}
+Salary&=&(5000+1^{2}×5000,5000+2^{2}×5000,5000+3^{2}×5000) \\
+ \\
+&=&(10000,25000,50000)
+\end{eqnarray*}
+
+$$Salary×longRunProb=
+\left(
+\begin{array}{ccc}
+10000&25000&50000
+\end{array}\right)
+\left(
+\begin{array}{c}
+0.1818\\
+0.2727\\
+0.5454
+\end{array}
+\right)=35905.5$$
+
+
+\vspace{10pt}
+
+Thus, 'Long-run average monthly salary' is about 　$\$35905.5$.

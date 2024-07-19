@@ -1,0 +1,169 @@
+---
+title: "lnotes2_MDP"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()` '
+output: pdf_document
+---
+
+```{python}
+import numpy as np
+import pandas as pd
+
+states = ['S1','S2','S3','S4','S5','S6','S7']
+
+P_forward = pd.DataFrame(np.matrix([[1,0,0,0,0,0,0],
+                       [1,0,0,0,0,0,0],
+                       [0,1,0,0,0,0,0],
+                       [0,0,1,0,0,0,0],
+                       [0,0,0,1,0,0,0],
+                       [0,0,0,0,1,0,0],
+                       [0,0,0,0,0,1,0]]), index = states, columns= states)
+
+P_backward = pd.DataFrame(np.matrix([[0,1,0,0,0,0,0],
+                       [0,0,1,0,0,0,0],
+                       [0,0,0,1,0,0,0],
+                       [0,0,0,0,1,0,0],
+                       [0,0,0,0,0,1,0],
+                       [0,0,0,0,0,0,1],
+                        [0,0,0,0,0,0,1]]),index= states, columns=states)
+
+
+print(P_forward)
+
+print(P_backward)
+
+
+
+pi_forward = pd.DataFrame(np.c_[np.repeat(1,len(states)), np.repeat(0,len(states))],index = states, columns= ['forward','backward'])
+
+print(pi_forward)
+
+pi_backward = pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))],index = states, columns= ['forward','backward'])
+
+print(pi_backward)
+
+pi_50 = pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],index = states, columns= ['forward','backward'])
+
+print(pi_50)
+
+
+def transition(given_pi,states,P_forward,P_backward):
+    P_out = pd.DataFrame(np.zeros((len(states),len(states))),index= states,columns=states)
+
+    for s in range(len(states)):
+        action_dist = given_pi.iloc[s]
+        P = action_dist['forward']*P_forward+action_dist['backward']*P_backward
+        P_out.iloc[s] = P.iloc[s]
+
+    return P_out
+
+print(transition(pi_forward,states=states,P_forward=P_forward,P_backward=P_backward))
+
+
+
+R_s_a = pd.DataFrame(np.matrix([1,0,0,0,0,0,10,1,0,0,0,0,0,10]).reshape(len(states),2,order='F'),index=states,columns=['forward','backward'])
+
+print(R_s_a)
+
+
+def reward_fn(given_pi):
+    R_s_a = pd.DataFrame(np.matrix([1,0,0,0,0,0,10,1,0,0,0,0,0,10]).reshape(len(states),2,order='F'),index=states,columns=['forward','backward'])
+    R_pi = np.asarray((given_pi*R_s_a).sum(axis=1)).reshape(-1,1)
+
+    return R_pi
+
+print(reward_fn(pi_forward))
+
+def policy_eval(given_pi):
+    R = reward_fn(given_pi)
+    P = transition(given_pi, states=states, P_forward = P_forward, P_backward= P_backward)
+
+    gamma = 0.9
+    epsilon = 10**(-8)
+
+    v_old = np.repeat(0,7).reshape(7,1)
+    v_new = R+np.dot(gamma*P,v_old)
+
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old = v_new
+        v_new = R+np.dot(gamma*P,v_old)
+
+    return v_new
+
+print(policy_eval(pi_forward))
+
+
+gamma = 0.9
+V_old = policy_eval(pi_forward)
+pi_old = pi_forward
+q_s_a = R_s_a+np.c_[np.dot(gamma*P_forward,V_old),np.dot(gamma*P_backward,V_old)]
+
+print(q_s_a)
+
+pi_new_vec = q_s_a.idxmax(axis=1)
+print(pi_new_vec)
+
+pi_new = pd.DataFrame(np.zeros(shape=(pi_old.shape)),columns=['foward','backward'])
+
+for i in range(len(pi_new_vec)):
+    pi_new.iloc[i][pi_new_vec[i]]=1
+
+
+print(pi_new)
+
+def policy_improve(V_old, pi_old, R_s_a = R_s_a, gamma=gamma, P_forward = P_forward, P_backward=P_backward):
+
+    q_s_a = R_s_a + np.c_[np.dot(gamma*P_forward,V_old),np.dot(gamma*P_backward,V_old)]
+    pi_new_vec = q_s_a.idxmax(axis=1)
+    pi_new = pd.DataFrame(np.zeros(pi_old.shape),index=pi_old.index,columns=pi_old.columns)
+
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec[i]]=1
+
+    return pi_new
+
+pi_old = pi_forward
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_forward=P_forward, P_backward=P_backward)
+
+print(pi_old)
+print(pi_new)
+
+
+
+pi_old=pi_forward
+cnt = 0
+
+while True:
+    print(cnt, '-th iteration')
+    print(pi_old)
+
+    V_old=policy_eval(pi_old)
+    pi_new = policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_forward=P_forward, P_backward=P_backward)
+    if pi_new.equals(pi_old)==True:
+        break
+
+    pi_old = pi_new
+    cnt+=1
+
+print(policy_eval(pi_new))
+
+
+
+pi_old=pi_50
+cnt = 0
+
+while True:
+    print(cnt, '-th iteration')
+    print(pi_old)
+
+    V_old=policy_eval(pi_old)
+    pi_new = policy_improve(V_old, pi_old=pi_old, R_s_a=R_s_a, gamma=gamma, P_forward=P_forward, P_backward=P_backward)
+    if pi_new.equals(pi_old)==True:
+        break
+
+    pi_old = pi_new
+    cnt+=1
+
+print(policy_eval(pi_new))
+```

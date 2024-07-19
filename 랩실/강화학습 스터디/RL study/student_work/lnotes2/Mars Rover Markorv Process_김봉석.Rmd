@@ -1,0 +1,349 @@
+---
+title: "Mars Rover Markorv Process Example "  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+#matplotlib <- import("matplotlib")
+#matplotlib$use("Agg", force = TRUE)
+```
+\newpage
+
+## Mars Rover Markov process
+
+### Trainsition Matrix :
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &0.6 &0.4 &0 &0 &0 &0 &0 \\
+    &0.4 &0.2&0.4 &0 &0 &0 &0 \\
+    &0 &0.4& 0.2& 0.4& 0 &0 &0 \\
+    &0 &0 &0.4 &0.2& 0.4& 0 &0 \\
+    &0 &0 &0 &0.4& 0.2& 0.4 &0 \\
+    &0 &0 &0 &0 &0.4& 0.2& 0.4\\
+    &0 &0 &0 &0 &0 &0.4 &0.6\\ 
+  \end{pmatrix}
+\end{align*}
+
+### Trainsition Diagram : 
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=14cm]{Mars Rover MarkovProcess.png}
+   \hfil
+\caption{Mars Rover MarkovProcess}
+\label{Figure 2.}
+\end{figure}
+
+\vspace{20pt}
+
+
+## Observaton
+
+### Classification of States
+
+* A state $i$ is said to be recurrent if, starting from $i$, the probability of getting back to $i$ is 1 
+
+* A state $i$ is said to be trainsient if, starting from $i$, the probability of getting back to $i$ is less than 1 
+
+* A state $i$ is said to be abosrbing state, as a special case of reccurent state, if $P_ii=1$ (You can naver leave the state $i$ if you get there) 
+
+recurrent state : {1,2,3,4,5,6,7}
+
+trainsient state : {} 
+
+abosrbing state : {}
+
+
+
+### Stationary distribution
+
+```{python, echo=TRUE}
+
+import numpy as np
+
+P=np.array([[0.6,0.4,0,0,0,0,0],
+            [0.4,0.2,0.4,0,0,0,0],
+            [0,0.4,0.2,0.4,0,0,0],
+            [0,0,0.4,0.2,0.4,0,0],
+            [0,0,0,0.4,0.2,0.4,0],
+            [0,0,0,0,0.4,0.2,0.4],
+            [0,0,0,0,0,0.4,0.6]])
+
+print("Shape:",P.shape)
+print(P)
+
+
+egien_value, egien_vector = np.linalg.eig(P.T) ## np.linalg,eig(p) returns egien_value, egienvector
+
+```
+
+
+```{python, echo=TRUE}
+print("egien_value :\n",egien_value)
+
+print("egien_vector :\n",egien_vector)
+```
+
+
+```{python, echo=TRUE}
+x_1=egien_vector[:,5] # egein_vector corresspond with egien_value 1 
+
+v=x_1/np.sum(x_1)
+
+print(v)
+
+```
+
+```{python, echo=TRUE}
+
+np.dot(v,P)
+```
+
+
+### Limiting Probability
+
+```{python,echo=TRUE}
+from numpy.linalg import matrix_power
+np.set_printoptions(formatter={'float_kind': lambda x: "{0:0.5f}".format(x)})
+
+print(P)
+
+print(matrix_power(P,2))
+```
+
+```{python,echo=TRUE}
+
+print(matrix_power(P,3))
+
+print(matrix_power(P,20))
+
+print(matrix_power(P,200))
+```
+
+
+
+### Observation Result 
+
+in Mars Rover Markorv Process Problem 
+
+* MC is ireeducible and Aperiodic 
+
+* Stationary distribution is unique
+
+* Liming probabilites is equal to stationary distribution 
+
+
+\newpage
+
+## Markov Reward Process in Mars Rover example
+
+The rewards obtained by executing an action from any of the states ${S2, S3, S4, S5, S6}$ is 0,
+while any moves from states $S1, S7$ yield rewards 1, 10 respectively. The rewards are stationary and deterministic
+
+Calculate State-value function. (assume that Time Horizon is 10 days, and start at State S4)
+
+\newpage
+
+## Computing the value function of Markov reward process (Monte Carlo simulation)
+
+this code based on leture notes D1, But There are some modifications.
+
+
+```{python, echo=TRUE}
+
+def go_forward(this_state):
+    split_list=list(this_state)
+    next_state=split_list[0]+str(int(split_list[1])+1)
+    
+    return next_state
+
+print(go_forward('s4')) # return next state ex) s4 - > s5, s5 ->s6
+```
+
+
+```{python, echo=TRUE}
+
+def go_backward(this_state):
+    split_list=list(this_state)
+    next_state=split_list[0]+str(int(split_list[1])-1)
+    
+    return next_state
+
+print(go_backward('s4')) # retrun previous state ex) s4->s3, s5->s4
+```
+
+
+mars_simul based on leture notes D1 soda_simul
+
+But There are some modifications with user defined function above and Transition matrix 
+
+```{python, echo=TRUE}
+
+def mars_simul(this_state):
+    u=np.random.uniform()
+    next_state=''
+    if this_state =='s1':
+        if u<=0.6:
+            next_state=this_state
+        else:
+            next_state= go_forward(this_state)
+        
+        
+    if this_state in ['s2','s3','s4','s5','s6']:
+        
+        if u<=0.4:
+            next_state=go_forward(this_state)
+        
+        elif 0.4<=u<=0.6:
+            next_state = this_state
+            
+        else : 
+            next_state = go_backward(this_state)
+        
+        
+    if this_state == 's7':
+        
+        if u<=0.6:
+            next_state=this_state
+        
+        else : 
+            next_state =go_backward(this_state)
+        
+    
+    return next_state
+
+
+
+```
+
+
+There are only reward in state ${s1, s7}$ yield respectivly, 1, 10 
+
+```{python, echo=TRUE}
+
+def cost_eval(path):
+    cost_one_path=path.count('s1')*1+path.count('s7')*10 
+    return cost_one_path
+
+```
+
+
+Combine the functions defined so far to create a Monte Car simulation function.
+
+```{python, echo=TRUE}
+
+def MC_V_t(initial_state, num_episode, time_horizon):
+    
+    episode_i = 0
+
+    cum_sum_G_i = 0
+
+    while(episode_i<num_episode) :
+        path=initial_state
+        for n in range(time_horizon-1):
+            this_state=path[-2:]
+            next_state=mars_simul(this_state)
+            path+=next_state
+            
+        G_i=cost_eval(path) 
+        cum_sum_G_i+=G_i
+        episode_i+=1
+    V_t=cum_sum_G_i/num_episode
+    return V_t
+    
+
+```
+
+Finally Calculate S4`s state value function.
+
+```{python, echo=TRUE}
+print(MC_V_t('s1',10000,10))
+print(MC_V_t('s2',10000,10))
+print(MC_V_t('s3',10000,10))
+print(MC_V_t('s4',10000,10))
+print(MC_V_t('s5',10000,10))
+print(MC_V_t('s6',10000,10))
+print(MC_V_t('s7',10000,10))
+
+```
+
+\newpage
+
+## Computing the value function of Markov reward process (Iterative Solution)
+
+```{python, echo=TRUE}
+P=np.array([[0.6,0.4,0,0,0,0,0],
+            [0.4,0.2,0.4,0,0,0,0],
+            [0,0.4,0.2,0.4,0,0,0],
+            [0,0,0.4,0.2,0.4,0,0],
+            [0,0,0,0.4,0.2,0.4,0],
+            [0,0,0,0,0.4,0.2,0.4],
+            [0,0,0,0,0,0.4,0.6]])
+
+R=np.array([1,0,0,0,0,0,10])[:,None] #[:,None] yield column vector
+
+H=10
+
+v_t1=np.array([0,0,0,0,0,0,0])[:,None] #[:,None] yield column vector 
+
+```
+
+
+```{python, echo=TRUE}
+print('P :\n',P)
+
+print('R :\n',R)
+
+print('v_t1 :\n',v_t1)
+
+```
+
+```{python, echo=TRUE}
+t=H-1
+
+while(t>=0):
+    v_t = R+np.dot(P,v_t1)
+    t = t-1
+    v_t1 = v_t
+
+print(v_t)
+
+```
+
+as a result, now we get state value function for State S1 to S7
+
+it is simillar to Monte Carlo simulation results
+
+Strictly speaking, the iterative solution results are correct.
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Mars Rover Markorv Process Example"
+```

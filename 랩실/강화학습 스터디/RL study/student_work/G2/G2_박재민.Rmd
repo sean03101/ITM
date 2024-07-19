@@ -1,0 +1,136 @@
+---
+title: "G2 Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+```{python}
+import csv
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import OneHotEncoder
+from pyper import *
+import statsmodels.api as sm
+from keras import model,layers
+```
+## Data preparation
+```{python}
+diamonds_csv = open('D:/1학업/2학년 2학기/LAB/Reinforce Study/문제풀이/G2_박재민/diamonds.csv')
+diamonds = pd.read_csv(diamonds_csv)
+filter1 = (diamonds.color == "G") & (diamonds.carat < 1.75)
+diamond_filter1 = diamonds.loc[filter1]
+diamond_filter1 = diamond_filter1.loc[:,['carat','cut','price']]
+print(diamond_filter1)
+```
+## Exploration
+```{python}
+groups = diamond_filter1.groupby('cut')
+fig, ax = plt.subplots()
+
+for name, group in groups:
+    ax.plot(group.carat, 
+            group.price, 
+            marker='o', 
+            linestyle='',
+            label=name)
+ax.legend(fontsize=12, loc='upper left')
+plt.xlabel('carat', fontsize=14)
+plt.ylabel('price', fontsize=14)
+plt.show()
+```
+
+## One hot encoding
+```{python}
+#items=diamond_filter1.cut
+items=["Fair","Good","Very_Good","Premium","Ideal"]
+encoder = LabelEncoder()
+encoder.fit(items)
+
+labels = encoder.transform(diamond_filter1.cut)
+labels = labels.reshape(-1,1)
+
+# One-Hot Encoding
+oneHot_encoder = OneHotEncoder()
+oneHot_encoder.fit(labels)
+oneHot_labels = oneHot_encoder.transform(labels)
+oneHot_labels = oneHot_labels.toarray()
+
+df = np.hstack([diamond_filter1.values,oneHot_labels])
+df = pd.DataFrame(df,columns=["carat","cut","price","Fair","Good","Ideal","Premium","Very_Good"])
+diamond_one_hot = df.drop(['cut'],axis='columns')
+diamond_one_hot = diamond_one_hot[["carat","Fair","Good","Ideal","Premium","Very_Good","price"]]
+print(type(diamond_one_hot))
+```
+
+## Linear regression
+```{python}
+diamond_one_hot = diamond_one_hot.apply(pd.to_numeric)
+lm_fit = sm.OLS.from_formula("price ~ carat + Fair + Good + Very_Good + Premium", diamond_one_hot).fit()
+print(lm_fit.summary())
+
+plt.scatter(lm_fit.predict(),diamond_one_hot.price)
+plt.xlabel('pred', fontsize=14)
+plt.ylabel('actual', fontsize=14)
+plt.show()
+
+
+X = diamond_one_hot.loc[:,["carat","Fair","Good","Premium","Very_Good"]].values()
+Y_actual=diamond_one_hot.loc[:,['price']].values
+model=models.Sequential()
+model.add(layers.Dense(16, activation='relu', input_shape=(X.shape[1],)))
+model.add(layers.Dense(16, activation='relu'))
+model.add(layers.Dense(1, activation='linear'))
+model.summary()
+```
+
+## Deeo Forward Network
+```{python}
+X = diamond_one_hot.loc[:,["carat","Fair","Good","Premium","Very_Good"]].values()
+Y_actual=diamond_one_hot.loc[:,['price']].values
+
+model=models.Sequential()
+model.add(layers.Dense(16, activation='relu', input_shape=(X.shape[1],)))
+model.add(layers.Dense(16, activation='relu'))
+model.add(layers.Dense(1, activation='linear'))
+model.summary()
+
+
+model.compile(loss='mse',optimizer='adam')
+history=model.fit(X, Y_actual, epochs=30, batch_size=16)
+
+loss=history.history['loss']
+epoch_count=np.arange(1,31)
+
+plt.plot(epoch_count,loss,marker='o')
+plt.xlabel('epochs')
+plt.ylabel('loss')
+plt.show()
+```
+

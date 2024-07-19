@@ -1,0 +1,186 @@
+---
+title: "Inotes2_MDP"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import time
+```
+
+\newpage
+
+## Implementation
+
+```{python,echo=T}
+
+gamma = 1
+states = range(1,8)
+P_TL = np.matrix([[1,0,0,0,0,0,0],[1,0,0,0,0,0,0],
+[0,1,0,0,0,0,0],[0,0,1,0,0,0,0],[0,0,0,1,0,0,0],
+[0,0,0,0,1,0,0],[0,0,0,0,0,1,0]])
+P_TR = np.matrix([[0,1,0,0,0,0,0],
+[0,0,1,0,0,0,0],[0,0,0,1,0,0,0],[0,0,0,0,1,0,0],
+[0,0,0,0,0,1,0],[0,0,0,0,0,0,1],[0,0,0,0,0,0,1]])
+
+def transition(given_pi, states, P_TL, P_TR):
+    P_out = pd.DataFrame(np.zeros((len(states),len(states))),states,states)
+    for i,s in enumerate(states):
+        action_dist = given_pi.loc[s]
+        P = action_dist["Left"]*P_TL + action_dist["Right"]*P_TR
+        P_out.loc[s] = P[i,:]
+
+    return P_out
+
+R_s_a = np.matrix([[1,1,0,0,0,0,0],[0,0,0,0,0,10,10]]).T
+R_s_a = pd.DataFrame(R_s_a,states,["Left","Right"])
+
+def reward_fn(given_pi):
+    R_pi = np.matrix(given_pi*R_s_a).sum(axis=1)
+    R_pi = pd.DataFrame(R_pi,states)
+    return(R_pi)
+def policy_eval(given_pi):
+    R=reward_fn(given_pi)
+    P=transition(given_pi, states, P_TL, P_TR)   
+    gamma=1.0
+    epsilon=10**(-8)    
+    v_old=np.repeat(0,7).reshape(7,1)
+    v_new=R+np.dot(gamma*P,v_old)
+    
+    while(np.linalg.norm(v_new-v_old)<epsilon):
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)    
+    return v_new
+
+pi_50 = np.hstack((np.repeat(0.5,len(states)).reshape(7,1),np.repeat(0.5,len(states)).reshape(7,1)))
+pi_50 = pd.DataFrame(pi_50,states,["Left","Right"])
+print(policy_eval(pi_50).T)
+
+pi_TL = np.hstack((np.repeat(1,len(states)).reshape(7,1),np.repeat(0,len(states)).reshape(7,1)))
+pi_TL = pd.DataFrame(pi_TL,states,["Left","Right"])
+print(policy_eval(pi_TL).T)
+
+pi_TR = np.hstack((np.repeat(0,len(states)).reshape(7,1),np.repeat(1,len(states)).reshape(7,1)))
+pi_TR = pd.DataFrame(pi_TR,states,["Left","Right"])
+print(policy_eval(pi_TR).T)
+
+
+V_old=policy_eval(pi_50)
+pi_old=pi_50
+q_s_a=R_s_a+np.hstack((np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)))
+print(q_s_a)
+
+```
+\newpage
+
+## Policy Improve
+```{python}
+
+pi_new_vec=q_s_a.idxmax(axis=1)
+pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+
+for i in range(len(pi_new_vec)):
+    pi_new.iloc[i][pi_new_vec.iloc[i]]=1
+
+def policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma,
+ P_TL = P_TL, P_TR = P_TR):  
+    q_s_a=R_s_a+np.hstack((np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old))) 
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec.iloc[i]]=1
+    return pi_new
+
+pi_old = pi_50
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_TL = P_TL, P_TR = P_TR)
+print(pi_old)
+print(pi_new)
+```
+\newpage
+## policy Iteration
+```{python}
+pi_old = pi_50
+cnt = 0
+while True:
+    print(cnt,"-th iteration")
+    print(pi_old.T)
+    V_old = policy_eval(pi_old)
+    pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_TL = P_TL, P_TR = P_TR)
+    if pi_new.equals(pi_old): 
+        break
+    pi_old = pi_new
+    cnt += 1
+print(policy_eval(pi_new))
+```
+
+\newpage
+
+## Value Improvement
+
+무한루프... 해결중입니다,,
+```{python, eval=F}
+pi_new_vec=q_s_a.idxmax(axis=1)
+pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+
+for i in range(len(pi_new_vec)):
+    pi_new.iloc[i][pi_new_vec.iloc[i]]=1
+
+def policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma,
+P_TL = P_TL, P_TR = P_TR):  
+    q_s_a=R_s_a+np.hstack((np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old))) 
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec.iloc[i]]=1
+    return pi_new
+
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_TL = P_TL, P_TR = P_TR)
+print(pi_old)
+print(pi_new)
+
+pi_old = pi_speed
+cnt = 0
+while True:
+    print(cnt,"-th iteration")
+    print(pi_old.T)
+    V_old = policy_eval(pi_old)
+    pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_TL = P_TL, P_TR = P_TR)
+    if pi_new.equals(pi_old): 
+        break
+    pi_old = pi_new
+    cnt += 1
+print(policy_eval(pi_new))
+```
+

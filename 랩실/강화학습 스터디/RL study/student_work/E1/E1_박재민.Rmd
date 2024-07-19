@@ -1,0 +1,288 @@
+---
+title: "E1_MDP Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+\newpage
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+## p.22 Iterative estimation of state‑value function for a given policy $\pi ^ {speed}$
+Python code
+```{python}
+R = np.matrix([-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(8,1)
+states = np.arange(0,80,10)
+P = np.matrix([[0.1,0,0.9,0,0,0,0,0],[.1,0,0,0.9,0,0,0,0],[0,0.1,0,0,0.9,0,0,0],
+[0,0,0.1,0,0,0.9,0,0],[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],[0,0,0,0,0,0.1,0,0.9],[0,0,0,0,0,0,0,1]])
+print(R.T)
+print(P)
+
+gamma=1
+epsilon = 10**(-8)
+
+v_old=np.array(np.zeros(8,)).reshape(8,1)
+v_new=R + gamma*P*v_old
+
+while np.max(np.abs(v_new-v_old))>epsilon:
+    v_old=v_new
+    v_new=R + gamma*P*v_old
+print(v_new.T)
+```
+\newpage
+## p.23 Rewritten with intermediate saving
+```{python}
+v_old=np.array(np.zeros(8,)).reshape(8,1)
+v_new=R + gamma*P*v_old
+results = []
+while np.max(np.abs(v_new-v_old))>epsilon:
+    results.append(v_new.T)
+    v_old=v_new
+    v_new=R + gamma*P*v_old
+
+results = pd.DataFrame(np.matrix(np.array(results)), columns=states)
+print(results.head())
+print(results.tail())
+```
+\newpage
+## p.25 plot
+
+```{python}
+for i in range(0,6):
+    plt.plot(states,results.iloc[i],marker='o',label=i+1)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 1 to 6',fontweight='bold')
+plt.show()
+```
+\newpage
+```{python}
+for i in range(6,12):
+    plt.plot(states,results.iloc[i],marker='o',label=i+1)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 7 to 12',fontweight='bold')
+plt.show()
+```
+\newpage
+```{python}
+for i in range(12,18):
+    plt.plot(states,results.iloc[i],marker='o',label=i+1)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 13 to 18',fontweight='bold')
+plt.show()
+```
+
+\newpage
+## p.34 Preparation for 1-3
+
+
+1. $\pi$: S -> A\
+```{python}
+states = np.arange(0,80,10)
+pi_speed = np.hstack((np.repeat(0,len(states)).reshape(8,1),np.repeat(1,len(states)).reshape(8,1)))
+pi_speed = pd.DataFrame(pi_speed,states,["normal","speed"])
+print(pi_speed)
+```
+
+2. $R^\pi$ : S->$\mathbb{R}$\
+```{python}
+R_s_a = np.matrix([[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,states,["normal","speed"])
+print(R_s_a)
+def reward_fn(given_pi):
+    R_pi = np.matrix(given_pi*R_s_a).sum(axis=1)
+    R_pi = pd.DataFrame(R_pi,states)
+    return(R_pi)
+print(reward_fn(pi_speed).T)
+```
+
+3. $P^\pi$ : A->S\
+```{python}
+P_normal = np.matrix([[0,1,0,0,0,0,0,0],[0,0,1,0,0,0,0,0],
+[0,0,0,1,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],
+[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,1]])
+P_speed = np.matrix([[0.1,0,0.9,0,0,0,0,0],[0.1,0,0,0.9,0,0,0,0],
+[0,0.1,0,0,0.9,0,0,0],[0,0,0.1,0,0,0.9,0,0],[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],[0,0,0,0,0,0.1,0,0.9],[0,0,0,0,0,0,0,1]])
+
+def transition(given_pi, states, P_normal, P_speed):
+    P_out = pd.DataFrame(np.zeros((len(states),len(states))),states,states)
+    for i,s in enumerate(states):
+        action_dist = given_pi.loc[s]
+        P = action_dist["normal"]*P_normal + action_dist["speed"]*P_speed
+        P_out.loc[s] = P[i,:]
+
+    return P_out
+```
++Test 1\
+```{python}
+print(pi_speed)
+print(transition(pi_speed,states,P_normal,P_speed))
+```
++Test 1\
+```{python}
+print(pi_speed)
+print(transition(pi_speed,states,P_normal,P_speed))
+```
+
+
++Test 2\
+```{python}
+pi_50 = np.hstack((np.repeat(0.5,len(states)).reshape(8,1),np.repeat(0.5,len(states)).reshape(8,1)))
+pi_50 = pd.DataFrame(pi_50,states,["normal","speed"])
+print(pi_50)
+print(transition(pi_50,states,P_normal,P_speed))
+```
+
+\newpage
+## p.37 Summary
+
+
+1. $\pi$: S -> A\
+```{python}
+pi_50
+```
+
+2. $R^\pi$ : S->$\mathbb{R}$\
+```{python}
+reward_fn(pi_50)
+```
+
+3. $P^\pi$ : A->S\
+```{python}
+print(transition(pi_50,states,P_normal,P_speed))
+```
+
+\newpage
+## p.39 Implementation, finally
+
+```{python}
+def policy_eval(given_pi):
+    R=reward_fn(given_pi)
+    P=transition(given_pi, states=states, P_normal=P_normal, P_speed=P_speed)
+    
+    gamma=1.0
+    epsilon=10**(-8)
+    
+    v_old=np.repeat(0,8).reshape(8,1)
+    v_new=R+np.dot(gamma*P,v_old)
+    
+    while(np.linalg.norm(v_new-v_old)>epsilon):
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)
+    return v_new.T
+print(policy_eval(pi_speed))
+print(policy_eval(pi_50))
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

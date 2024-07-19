@@ -1,0 +1,108 @@
+---
+title: "C2_황재훈"
+author: "Jaehun Hwang"
+date: "1/6/2021"
+output:   
+  pdf_document:  
+    # latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    # toc: true   
+    # toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+header-includes:
+  \usepackage{kotex}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library("reticulate")
+knitr::opts_chunk$set(python.reticulate=FALSE)
+
+use_condaenv("tensorflow2")
+
+options(encoding = "UTF-8")
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+
+## P12.Method1 - eigen-decomposition
+
+$xP = x \Rightarrow P^t x^t = x^t \Rightarrow 1 \cdot x^t$
+
+
+```{python p12}
+
+import numpy as np
+
+P = np.array([.7, .5, .3, .5]).reshape((2,2), order="F")
+values, vectors = np.linalg.eig(P.transpose())
+
+print(values)
+print(vectors)
+
+x_1 = vectors[:,0] # get first column
+v = x_1 / sum(x_1)
+
+print(v)
+
+```
+
+
+## P15.Method2 - system of linear equation
+
+```{python p15}
+
+import numpy as np
+
+P = np.array([.7, .5, .3, .5]).reshape((2,2), order="F")
+n = P.shape[0]
+I = np.eye(n)
+
+A = np.c_[P-I, np.array([1] * n)]
+b = np.array([0] * n + [1]).reshape((1, n+1))
+v = np.linalg.solve(A.dot(A.transpose()), A.dot(b.transpose()))
+
+print(v)
+
+```
+
+
+## P17.cont.
+
+```{python p17}
+
+import numpy as np
+
+P = np.array([.7, .5, .3, .5]).reshape((2,2), order="F")
+
+for i, power in enumerate([1,2,3,4,20]):
+    # print("<", i+1, "th w/", power, ">")
+    print(np.linalg.matrix_power(P, power))
+
+```
+
+
+## P19.Limiting probabilities
+
+```{python p19}
+
+import numpy as np
+
+P = np.array([0, 1, 1, 0]).reshape((2,2), order="F")
+
+for i, power in enumerate([2,3,4,5]):
+    # print("<", i+1, "th w/", power, ">")
+    print(np.linalg.matrix_power(P, power))
+
+```
+
+End of file

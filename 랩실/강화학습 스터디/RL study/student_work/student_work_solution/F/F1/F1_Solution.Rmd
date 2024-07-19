@@ -1,0 +1,343 @@
+---
+title: "F1 Solution"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+\newpage
+
+## Preparation
+
+```{python, echo=T}
+states=np.arange(0,70+10,10).astype('str')
+
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+
+P_normal
+
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+P_speed
+
+
+R_s_a=pd.DataFrame(np.c_[[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]],index=states,columns=['n','s'])
+#np.c_[[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]],index=states,columns=['n','s'])
+
+R_s_a.T
+
+
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))],index=states,columns=['n','s'])
+
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],index=states,columns=['n','s'])
+
+
+pi_speed.T
+
+pi_50.T
+```
+
+\newpage
+
+## Simulator - $\pi^{speed}$
+
+```{python,echo=T,message=FALSE, warning=FALSE}
+
+pi=pi_speed
+np.random.seed(1234)
+
+history=list()
+MC_N=10000
+
+for MC_i in range(MC_N):
+    s_now='0'
+    history_i=list(s_now)
+    
+    while s_now != '70' :
+        if np.random.uniform(0,1) < pi.loc[s_now]['n']:
+            a_now='n'
+            P=P_normal
+        else:
+            a_now='s'
+            P=P_speed
+            
+        r_now=str(R_s_a.loc[s_now][a_now])
+        s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now=s_next
+        
+    history.append(history_i)
+    
+history_speed=history
+
+pd.Series(map(lambda x: ','.join(x), history_speed[:20]))
+```
+
+\newpage
+
+## Simulator - $\pi^{50}$
+
+```{python,echo=T,message=FALSE, warning=FALSE}
+
+pi=pi_50
+np.random.seed(1234)
+
+history=list()
+MC_N=10000
+
+for MC_i in range(MC_N):
+    s_now='0'
+    history_i=list(s_now)
+    
+    while s_now != '70' :
+        if np.random.uniform(0,1) < pi.loc[s_now]['n']:
+            a_now='n'
+            P=P_normal
+        else:
+            a_now='s'
+            P=P_speed
+            
+        r_now=str(R_s_a.loc[s_now][a_now])
+        s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now=s_next
+        
+    history.append(history_i)
+    
+history_50=history
+
+pd.Series(map(lambda x: ','.join(x), history_50[:20]))
+```
+
+\newpage
+
+## Implementation 1 - $\pi^{speed}$ (vectorized)
+
+```{python,echo=T}
+
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','sum'])
+
+pol_eval.T
+
+for MC_i in range(len(history_speed)):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]['sum']+=np.sum(np.array(history_i[j+2:len(history_i)-1:3]).astype(float))
+        else:
+            pol_eval.loc[history_i[j]]['sum']+=0
+
+
+pol_eval.T
+
+
+pol_eval['sum']/pol_eval['count']
+```
+
+\newpage
+
+## Implementation 2 - $\pi^{speed}$ (running estimate)
+
+```{python,echo=T}
+
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+
+pol_eval.T
+
+
+for MC_i in range(len(history_speed)):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=np.sum(np.array(history_i[j+2:len(history_i)-1:3]).astype(float))
+          
+        else:
+            new_info=0
+        
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+np.round(pol_eval.T,2)
+```
+
+\newpage
+
+## Implementation 3 - $\pi^{50}$ (vectorized)
+
+```{python, echo=T}
+
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','sum'])
+
+pol_eval.T
+
+for MC_i in range(len(history_50)):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]['sum']+=np.sum(np.array(history_i[j+2:len(history_i)-1:3]).astype(float))
+            
+        else:
+            pol_eval.loc[history_i[j]]['sum']+=0
+
+
+pol_eval.T
+
+
+pol_eval['sum']/pol_eval['count']
+```
+
+\newpage
+
+## Implementation 4 - $\pi^{50}$ (running estimate)
+
+```{python,echo=T}
+
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+
+pol_eval.T
+
+
+for MC_i in range(len(history_50)):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # increment count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=np.sum(np.array(history_i[j+2:len(history_i)-1:3]).astype(float))
+            
+        else:
+            new_info=0
+          
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+np.round(pol_eval.T,2)
+```
+
+\newpage
+
+## TD - Implementation 5 - $\pi^{speed}$
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+
+pol_eval.T
+
+for episode_i in range(len(history_speed)):
+    history_i=history_speed[episode_i]
+    
+    for j in range(0,len(history_i),3):
+        
+        # update count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # build TD target
+        if j+3 < len(history_i):
+            TD_tgt=float(history_i[j+2])+pol_eval.loc[history_i[j+3]]['est']
+        else:
+            TD_tgt=0
+            
+        # TD-updating
+            
+        alpha=1/current_cnt
+        
+        pol_eval.loc[history_i[j]]['est']+=alpha*(TD_tgt-pol_eval.loc[history_i[j]]['est'])
+        
+np.round(pol_eval.T,2)
+```
+
+\newpage
+
+## TD - Implementation 6 - $\pi^{50}$
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+
+pol_eval.T
+
+for episode_i in range(len(history_50)):
+    history_i=history_50[episode_i]
+    
+    for j in range(0,len(history_i),3):
+        
+        # update count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # build TD target
+        if j+3 < len(history_i):
+            TD_tgt=float(history_i[j+2])+pol_eval.loc[history_i[j+3]]['est']
+        else:
+            TD_tgt=0
+            
+        # TD-updating
+            
+        alpha=1/current_cnt
+        
+        pol_eval.loc[history_i[j]]['est']+=alpha*(TD_tgt-pol_eval.loc[history_i[j]]['est'])
+        
+
+np.round(pol_eval.T,2)
+```

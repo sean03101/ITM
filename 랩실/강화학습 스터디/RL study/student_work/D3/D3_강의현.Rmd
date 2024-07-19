@@ -1,0 +1,139 @@
+---
+title: "D3 - Exercise"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+\vspace{30pt}
+
+## Exercise 1
+
+\vspace{10pt}
+#### How would you generalize this game with arbitrary value of $m_{1}$ (minimum increment), $m_{2}$ (maximum increment), and $N$ (the winning number)?
+
++ State Space : $S=\{1,2,3…N\}$
+
++ Action : $A=(m_{1},m_{2})$
+
++ Reward : $R(N-m_{1},m_{1})=R(N-m_{2},m_{2})=1$ and other $R(s,a)=0$.
+
++ Optimal Policy : $\pi^{*}(s)=N-k(m_{1}+m_{2})$, k=natural number
+
+\newpage
+
+## Exercise 2
+
+\vspace{10pt}
+#### Two players are to play a gam.e The two players take turns to call out integers. The rules are as follows. Describe A's winning strategy.
+
+  - A must call out an integer between 4 and 8, inclusive.
+  - B must call out a number by adding A's last number and an integer between 5 and 9, inclusive.
+  - A must call out a number by adding B's last number and an integer between 2 and 6, inclusive.
+  - Keep playing until the number larger than or equal to 100 is called by the winner of this game.
+  
+
+...
+
+
+\newpage
+
+## Exercise 3
+
+\vspace{10pt}
+#### There is only finite number of deterministic stationary policiy. How many is it?
+
+\\
+
+$|\prod|=|A|^{|S|}$
+
+\newpage
+
+## Exercise 4
+
+\vspace{10pt}
+#### Formulate the first example in this lecture note using the terminology including state, action, reward, policy, transition. Describe the optimal policy using the terminology as well.
+
++ State Space : $S=\{1,2,3,…31\}$
+
++ Action : $A=(a_{1},a_{2})$
+  - a_{1} = increments by 1
+  - a_{2} = increments by 2
+  
++ Reward : $R(30,a_{1})=R(29,a_{2})=1$ and all other $R(s,a)=0$.
+
++ Transition : $P_{ss'}^{a}=\begin{cases}1, & s'=s+a_{m}, m\in[1,2]\\0, & otherwise\end{cases}$
+
++ Optimal Policy : $\pi^{*}=\begin{cases}a_{1},&s=3n \\ a_{2}, &s=3n-1\end{cases}$ , n=natural number
+
+\newpage
+
+## Exercise 5
+
+\vspace{10pt}
+#### From the first example,
+
+  + Assume that your opponent increments by 1 with prob. 0.5 and by 2 with prob. 0.5.
+  + Assume that the winning number is 10 instead of 31.
+  + Your opponent played first and she called out 1.
+  + Your current a policy $\pi_{0}$ is that
+    - If the current state s<=5 then increments by 2.
+    - If the current state s>5 then increments by 1.
+    
+Evaluate $V^{\pi_{0}}(1)$
+
+```{python, echo=T}
+import numpy as np
+
+state=1
+
+user=1
+while state<=10:
+    user*=-1
+    
+    if state<=5:
+        state+=2
+    else:
+        state+=1
+        
+    if state>=10:
+        break
+    
+    user*=-1
+    prob=np.random.uniform(0,1)
+    
+    if prob<0.5:
+        state+=1
+        
+    else:
+        state+=2
+        
+    if state>=10:
+        break
+    
+if user==1:
+    print('winner : opponent')
+else:
+    print('winner : me')
+```

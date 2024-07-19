@@ -1,0 +1,138 @@
+---
+title: "DaiPark-chapter1"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+## Exercise 9
+
+### (a)
+$C_o$=(Wholesale cost + Salvage Price)=(480+25)=$505
+
+
+$C_u$=(retail price + special delivery charge)=(600+50)=$650
+
+
+Expected Economic Cost = E[Manufacturing Cost] + E[Cost associated with understock Risk]  
+
+　　　　　　　　　　　　　+ E[Cost associated with overstock Risk]  
+
+
+　　　　　　　　　　　 = $C_v·E[X]+C_u·E[(D-X)^{+}]+C_o·E[(X-D)^{+}]$  
+
+　　　　　　　　　　　 = $480*E[X]+650*E[(D-X)^{+}]+505*E[(X-D)^{+}]$
+　　　　　　　　　　　 
+　　　　　　　　　　　 
+　　　　　　　　　　　 
+　　　　　　　　　　　 
+### (b)　　　　　　　　　　 
+　　　　　　　　　　　 
+　　　　　　　　　　　 
+$F(y) \ge \frac{650}{650+505}$
+$F(y) \ge 0.56277056$
+
+| $d$    |$10$ |$11$ |$12$ |$13$ |$14$ |$15$ |
+|:------:|:---:|:---:|:---:|:---:|:---:|:---:|
+|$P(D=d)$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|
+
+
+
+$F_D(10)=\frac{1}{6}$                                                     $<0.56277056$
+
+$F_D(11)=\frac{1}{6}+\frac{1}{6}=\frac{1}{3}$                             $<0.56277056$  
+
+$F_D(12)=\frac{1}{6}+\frac{1}{6}+\frac{1}{6}=\frac{1}{2}$                 $<0.56277056$  
+
+$F_D(13)=\frac{1}{6}+\frac{1}{6}+\frac{1}{6}+\frac{1}{6}=\frac{2}{3}$     $\ge 0.56277056$
+
+Thus, $y^{*}$=13
+
+
+### (c)
+
+
+N = (1000,100)
+
+
+Z = (Q- $\mu$ )/ $\sigma$ \
+$\rightarrow\, \therefore Best\, order\, quantity\, =   Q = \mu + Z*\sigma$ = 1,000+0.56*100 = 1,056
+
+
+\newpage
+
+## Exercise 10
+
+### (a)
+
+
+
+Regardless of inventory, the unit cost is the same.
+
+
+$C_o$=(solvent costs + disposal charge)=(40+10)=$50
+
+
+$C_u$=(seriously disrupted at a cost)=$100
+
+
+
+$F(y) \ge \frac{100}{100+50}$
+
+
+$F(y) \ge \frac{2}{3}$
+
+
+
+| $d$    |$500$ |$600$ |$700$ |$800$ |
+|:------:|:---:|:---:|:---:|:---:|
+|$P(D=d)$|$\frac{1}{8}$|$\frac{1}{2}$|$\frac{1}{4}$|$\frac{1}{8}$|
+
+
+
+(when m=0)
+
+
+$F_D(500)=\frac{1}{8}$                                                     $<0.6667$
+
+$F_D(600)=\frac{1}{8}+\frac{1}{2}=\frac{5}{8}$                             $<0.6667$  
+
+$F_D(700)=\frac{1}{8}+\frac{1}{2}+\frac{1}{4}=\frac{7}{8}$                 $\ge0.6667$  
+
+
+Thus, $y^{*}$=700
+
+
+### (b)
+　　　　　　　　　　　 
+
+It is the best order quantity obtained by considering the inventory, minus the inventory amount, which has the lowest value.
+
+
+### (c)

@@ -1,0 +1,189 @@
+---
+title: "Daipark_chapter3"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+## Exercise 5
+a) Is ${\{X_n, n\geq 0}\}$ a Markov chain? If so, give its **state space**, **initial distribution** and **transition matrix P**. If not,m show that it is not a Markov chain  
+
+This is Markov chain.  
+States = [injury free,injury]  
+initial distribution = $X_0=(1,0)$  
+
+
+transition matrix P = 
+$\left(\begin{array}{cc}
+    0.98 & 0.02  \\
+    0.98 & 0.02  
+\end{array}\right)$
+\vspace{10pt}
+
+b) Is the Markov chain irreducible? Explain.  
+
+\vspace{10pt}
+
+This Markov chain is irreducible.  
+The state does not stay in one state.  
+
+c) Is the Markov chain periodic or aperiodic? Explain and if it is periodic, also give the period.
+this is aperiod  
+```{python}
+from numpy.linalg import matrix_power
+p = np.array([[0.98,0.02],[0.98,0.02]])
+matrix_power(p,100)
+matrix_power(p,101)
+```
+\newpage
+d) Find the stationary distribution.  
+
+```{r}
+p = array(c(0.7,0.5,0.3,0.5),dim= c(2,2))
+p
+t(p)
+```
+
+```{python}
+import numpy as np
+p = np.array([[0.98,0.02],[0.98,0.02]])
+p.T
+eig_value, eig_vector = np.linalg.eig(p.T)
+print('Eigenvalue : {}'.format(eig_value))
+print('Eigenvector : {}'.format(eig_vector))
+#
+x_1 = eig_vector[:,0]
+v = x_1/np.sum(x_1)
+print('stationary distribution : {}'.format(v))
+```
+
+e) Is the Markov chain positive recurrent? If so, why? If not, why not?  
+\vspace{5pt}
+No absorbing states exists. so, the markov chain is recurrent   
+
+\newpage
+
+## Exercise 6
+
+
+\begin{align*}
+P = \left(\begin{array}{cccc}
+    0 & 0.5 & 0 & 0.5  \\
+    0.6 & 0 & 0.4 & 0   \\
+    0 & 0.7 & 0 & 0.3 \\
+    0.8 & 0 & 0.2 & 0 
+\end{array}\right)
+\end{align*}
+
+a) Is the Markov chain periodic? Give the period of each state.
+this is periodic  
+```{python}
+import numpy as np
+from numpy.linalg import matrix_power
+p = np.array([0,0.5,0,0.5,0.6,0,0.4,0,0,0.7,0,0.3,0.8,0,0.2,0]).reshape(4,4)
+matrix_power(p,2)
+matrix_power(p,151)
+```
+
+
+b) Is $(\pi_1, \pi_2, \pi_3,\pi_4) = (33/96, 27/96,15/96,21/96)$ the stationary distribution of the Markov chain?  
+yes, this is stationary distribution
+
+```{python}
+import numpy as np
+p = np.array([0,0.5,0,0.5,0.6,0,0.4,0,0,0.7,0,0.3,0.8,0,0.2,0]).reshape(4,4)
+v = np.array([33/96, 27/96,15/96,21/96]).reshape(1,4)
+print(np.dot(v,p))
+print(v)
+```
+
+c) Is $P^{100}_{11} = \pi_1$? Is $p^{101}_{11} = \pi_1$? Give an expression for $\pi_1$ in terms of $P^{100}_{11} = \pi_1$ and  $p^{101}_{11} = \pi_1$
+
+\newpage
+## Exercise 14
+
+a) What are state space, transition probability matrix and initial distribution of $X_n$  
+\vspace{15pt}
+state space = [1,2,3]  
+
+\begin{align*}
+\left(\begin{array}{ccc}
+    0.25 & 0.75 & 0  \\
+    0.5 & 0 & 0.5 \\
+    0 & 0.25 & 0.75
+\end{array}\right)
+\vspace{10pt}
+\end{align*}
+initial distribution = [0,1,0]  
+
+b) What is the stationary distribution?
+
+```{python}
+import numpy as np
+p = np.array([[0.25,0.75,0],[0.5,0,0.5],[0,0.25,0.75]])
+eig_value, eig_vector = np.linalg.eig(p.T)
+print('Eigenvalue : {}'.format(eig_value))
+print('Eigenvector : {}'.format(eig_vector))
+
+x_1 = eig_vector[:,2]
+x_1
+v = x_1/np.sum(x_1)
+
+print('stationary distribution : {}'.format(v))
+```
+\newpage
+c) What is the long-run fraction of time when your evaluation is either 2 or 3?  
+
+long-run??  
+
+salary when your evaluation is n = $5000 +n^2 \times\$5000, n=1,2,3,$    
+```{python}
+evalutaion_2 = v[1]
+evalutaion_3 = v[2]
+print('the long-run fraction for time (evalutaion 2) : {:f}'.format(evalutaion_2))
+print('the long-run fraction for time (evalutaion 2) : {:f}'.format(evalutaion_3))
+```
+
+
+d) What is the long-run average monthly salary?  
+average...?  
+
+\vspace{20pt}
+
+Daipark_ch3.Rmd
+```{r}
+"Hello"
+```
+

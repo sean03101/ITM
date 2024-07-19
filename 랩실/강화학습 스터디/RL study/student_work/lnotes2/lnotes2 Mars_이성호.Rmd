@@ -1,0 +1,78 @@
+---
+title: "Mars Rover Markov Process python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+```
+
+\newpage
+## Mar MC simulation
+```{python, echo = TRUE}
+import numpy as np
+
+def mar_simul(this_state):
+
+  u=np.random.rand()
+  if (this_state == 1):
+    if(u<=0.6):
+      next_state = this_state
+    else:
+      next_state = this_state+1
+      
+  elif (this_state == 7):
+    if(u<=0.4):
+      next_state = this_state-1
+    else:
+      next_state = this_state
+      
+  else:
+    if(u<=0.4):
+      next_state = this_state-1
+    elif(u<=0.6 and u>0.4):
+      next_state = this_state
+    else:
+      next_state = this_state+1
+      
+  return next_state
+  
+def reward_eval(path):
+  reward_one_path = path.count(1)*1 + path.count(7)*10
+  return reward_one_path
+
+MCN = 10000
+spending_record = ['0']*MCN
+
+for i in range(MCN):
+  path = [4]
+  for t in range(9):
+    this_state = path[-1]
+    next_state = mar_simul(this_state)
+    path.append(next_state)
+    
+  spending_record[i] = reward_eval(path)
+
+spending_record = sum(spending_record)/len(spending_record)
+
+print("Average of Mar simulation reward using MC is",spending_record)
+```

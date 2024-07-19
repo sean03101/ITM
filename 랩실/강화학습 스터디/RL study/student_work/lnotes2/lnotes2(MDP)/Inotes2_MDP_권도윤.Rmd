@@ -1,0 +1,208 @@
+---
+title: "Inotes2_MDP_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+```
+
+\newpage
+
+## Example of a Markov decision process : Mars Rover
+As an example of a MDP, consider the example given in Figure 3. The agent is again a Mars rover
+whose state space is given by S = \{S1, S2, S3, S4, S5, S6, S7\}. The agent has two actions in each
+state called "try left" and "try right", and so the action space is given by A = \{TL, TR\}. Taking an
+action always succeeds, unless we hit an edge in which case we stay in the same state. This leads to
+the two transition probability matrices for each of the two actions as shown in Figure 3. The rewards
+from each state are the same for all actions, and is 0 in the states \{S2, S3, S4, S5, S6\}, while for the
+states S1, S7 the rewards are 1, 10 respectively. The discount factor for this MDP is some γ ∈ [0, 1].
+
+
+## $\pi:S \rightarrow A$
+```{python}
+import numpy as np
+import pandas as pd
+
+states=["S1","S2","S3","S4","S5","S6","S7"]
+action=["TL","TR"]
+
+pi_TL=pd.DataFrame(np.c_[np.repeat(1,len(states)),np.repeat(0,len(states))], index=states, columns=action)
+pi_TR=pd.DataFrame(np.c_[np.repeat(0,len(states)), np.repeat(1,len(states))],index=states, columns=action)
+pi_50 =(pi_TL+pi_TR)/2
+
+pi_50
+```
+
+## $R^{\pi}:S \rightarrow \mathbb{R}$
+```{python}
+R_s_a=pd.DataFrame(np.matrix([[1,1,0,0,0,0,0],[0,0,0,0,0,10,10]]).T,columns=action,index=states)
+
+def reward_fn(given_pi):
+    R_pi = np.sum(R_s_a*given_pi, axis=1)
+    return R_pi.values.reshape([7,1])
+
+reward_fn(pi_50)
+```
+
+## $P^{\pi}: S \times A \rightarrow S$
+```{python}
+P_TL = np.array([
+                  [1,0,0,0,0,0,0],
+                  [1,0,0,0,0,0,0],
+                  [0,1,0,0,0,0,0],
+                  [0,0,1,0,0,0,0],
+                  [0,0,0,1,0,0,0],
+                  [0,0,0,0,1,0,0],
+                  [0,0,0,0,0,1,0],
+                 ])
+                 
+                 
+P_TR = np.array([[0,1,0,0,0,0,0],
+                  [0,0,1,0,0,0,0],
+                  [0,0,0,1,0,0,0],
+                  [0,0,0,0,1,0,0],
+                  [0,0,0,0,0,1,0],
+                  [0,0,0,0,0,0,1],
+                  [0,0,0,0,0,0,1],
+                 ])
+
+P_50 = (P_TL + P_TR)/2
+
+def transition(given_pi,states, P_TL, P_TR):
+    P_out = pd.DataFrame(np.zeros(shape=(len(states),len(states))))
+    
+    for s in range(len(states)):
+        action_dist = given_pi.iloc[s,:]
+        
+        P= action_dist['TL']*P_TL + action_dist['TR']*P_TR
+        P_out[s]=P[:,s]
+      
+    return P_out
+    
+transition(pi_50, states=states, P_TL=P_TL, P_TR=P_TR)
+```
+
+## Policy evaluation
+
+```{python}
+def policy_eval(given_pi,gamma,states,P_TL,P_TR):
+    R=reward_fn(given_pi)
+    P=transition(given_pi,states,P_TL,P_TR)
+    gamma = gamma
+    epsilon = 10**(-8)
+    
+    v_old=np.matrix([0,0,0,0,0,0,0]).T
+    v_new = R + np.dot(gamma*P,v_old)
+    
+    while(np.max(np.abs(v_new-v_old)) > epsilon) :
+        v_old = v_new
+        v_new = R + np.dot(gamma*P,v_old)
+
+    return v_new
+```
+
+```{python}
+gamma=0.99
+print(policy_eval(pi_50,gamma,states,P_TL,P_TR))
+print(policy_eval(pi_TL,gamma,states,P_TL,P_TR))
+print(policy_eval(pi_TR,gamma,states,P_TL,P_TR))
+```
+
+```{python}
+gamma=0
+print(policy_eval(pi_50,gamma,states,P_TL,P_TR))
+print(policy_eval(pi_TL,gamma,states,P_TL,P_TR))
+print(policy_eval(pi_TR,gamma,states,P_TL,P_TR))
+```
+
+## Policy imporve
+```{python}
+def policy_imporve(V_old,pi_old,gamma):
+    q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+    idx = q_s_a.idxmax(axis=1).values
+    count = 0
+    for i in states:
+        pi_new.loc[i][idx[count]] = 1
+        count +=1
+    return pi_new
+```
+
+```{python}
+gamma=0.99
+pi_old = pi_TL
+V_old = policy_eval(pi_TL,gamma,states,P_TL,P_TR)
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+pi_new = policy_imporve(V_old,pi_old,gamma)
+pi_new
+```
+
+```{python}
+gamma=0.99
+pi_old = pi_TR
+V_old = policy_eval(pi_TR,gamma,states,P_TL,P_TR)
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+pi_new = policy_imporve(V_old,pi_old,gamma)
+pi_new
+```
+
+```{python}
+gamma=0.99
+pi_old = pi_50
+V_old = policy_eval(pi_50,gamma,states,P_TL,P_TR)
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+pi_new = policy_imporve(V_old,pi_old,gamma)
+pi_new
+```
+
+```{python}
+gamma=0
+pi_old = pi_TL
+V_old = policy_eval(pi_TL,gamma,states,P_TL,P_TR)
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+pi_new = policy_imporve(V_old,pi_old,gamma)
+pi_new
+```
+
+```{python}
+gamma=0
+pi_old = pi_TR
+V_old = policy_eval(pi_TR,gamma,states,P_TL,P_TR)
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+pi_new = policy_imporve(V_old,pi_old,gamma)
+pi_new
+```
+
+```{python}
+gamma=0
+pi_old = pi_50
+V_old = policy_eval(pi_50,gamma,states,P_TL,P_TR)
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_TL,V_old),np.dot(gamma*P_TR,V_old)]
+pi_new = policy_imporve(V_old,pi_old,gamma)
+pi_new
+```
+
+
+```{r, results='hide'}
+"Inotes2_MDP_Exercises"
+```

@@ -1,0 +1,429 @@
+---
+title: "Lecture A1 Solution"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+header-includes: 
+  - \usepackage{tikz}
+  - \usepackage{pgfplots}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+
+\newpage 
+
+## Exercise 1
+
+
+Problem : Suppose $f(x)=xe^x$, find $f'(x)$.
+
+
+  $f(x)=xe^x$
+
+  $f'(x)=(x)'e^x+x(e^x)'$
+  
+  
+  $\therefore,\,\, f'(x)=e^x+xe^x$
+
+
+
+## Exercise 2
+
+
+Problem : Suppose $f(x)=e^{2x}$, find $f'(x)$.
+
+
+def $f(x)=h(g(x))$
+
+  $f(x)=e^{2x} => h(x)=e^x,\,\,g(x)=2x$
+
+$\therefore, \,\,f'(x)=e^{2x}\times 2 = 2e^{2x}$
+
+
+## Exercise 3
+
+Derive $\int{f'(x)g(x) dx} = f(x)g(x) - \int{f(x)g'(x) dx}.$(Hint: Use Theorem 2 above.)
+
+### Solution
+
+$(f(x)·g(x))' =f'(x)g(x)+f(x)g'(x)$
+
+\vspace{10pt}
+
+\bf{ antiderivative}
+
+$f(x)·g(x) =\int f'(x)g(x)dx+\int f(x)g'(x)dx$
+
+$\int f'(x)g(x)dx=f(x)g(x)-\int f(x)g'(x)dx$
+
+\vspace{20pt}
+
+## Exercise 4 
+
+Find $\int{xe^xdx}$,and evaluate $\int_{0}^{1}{xe^x}dx$.(Hint: Use Exercise 3 above.)
+
+### Solution
+
+\bf {Exercise 3}
+
+$\int f'(x)g(x)dx=f(x)·g(x)-\int f(x)g'(x)dx$
+
+\vspace{10pt}
+
+
+$\int xe^xdx=e^xx-\int (e^x·1)dx$
+
+\qquad \qquad $=e^xx-e^x+Cdx$
+
+\vspace{10pt}
+
+$\int_{0}^{1} xe^xdx=[e^xx-e^x+C]_0^1$
+
+\qquad \qquad $=(e^1·1-e^1+C)-(e^0·0-e^0+C)$
+
+\qquad \qquad $=(0+C)-(0-1+C)$
+
+\qquad \qquad $=1$
+
+
+## Exercise 5
+
+Solve the followings
+$$
+\left(\begin{array}{cc} 
+.6 & .4\\
+\end{array}\right)
+\left(\begin{array}{cc} 
+.7 & .3\\ 
+.5 & .5
+\end{array}\right) =
+$$ 
+$$
+\left(\begin{array}{cc} 
+0.6*0.7+0.4*0.5 & 0.6*0.4+0.4*0.5\\
+\end{array}\right) = 
+\left(\begin{array}{cc} 
+0.62 & 0.38.\\
+\end{array}\right)
+$$
+
+
+
+## Exercise 6
+
+What is $P^2$?
+
+$$
+P=
+\left(\begin{array}{cc} 
+.7 & .3\\ 
+.5 & .5
+\end{array}\right)
+$$ 
+$$
+P=
+\left(\begin{array}{cc} 
+0.7 & 0.3\\ 
+0.5 & 0.5
+\end{array}\right) 
+\left(\begin{array}{cc} 
+0.7 & 0.3\\ 
+0.5 & 0.5
+\end{array}\right) = 
+\left(\begin{array}{cc} 
+0.74 & 0.36\\ 
+0.6 & 0.4
+\end{array}\right)
+$$ 
+
+
+## Exercise 7
+
+#### Solve the followings.  
+
+
+\vspace{15pt}
+$$\left(
+\begin{array}{cc}
+\pi_{1}&\pi_{2}
+\end{array}\right)
+\left(\begin{array}{cc}
+.7&.3 \\
+.5&.5
+\end{array}\right)
+\left(
+\begin{array}{cc}
+\pi_{1}&\pi_{2}
+\end{array}
+\right)$$
+
+\begin{center}
+$\pi_{1}+\pi_{2}=1$
+\end{center}
+
+\vspace{15pt}
+
+(1)
+\begin{eqnarray*}
+0.7\pi_{1}+0.5\pi_{2}&=&\pi_{1}\\
+ \\
+0.5\pi_{2}&=&0.3\pi_{1} \\
+ \\
+\pi_{2}&=&0.6\pi_{1}
+\end{eqnarray*}
+
+(2)
+\begin{eqnarray*}
+\pi_{1}+\pi_{2}=1
+\end{eqnarray*}
+
+**From(1) & (2),**
+  
+  
+$\pi_{1}+0.6\pi_{1}=1$  
+
+
+Thus,  $\pi_{1}=\frac{5}{8}$, $\pi_{2}=\frac{3}{8}$.
+
+\newpage
+
+## Exercise 8
+
+#### Solve the following system of equations.
+
+\begin{eqnarray*}
+(1)　　x&=&y \\
+ \\
+(2)　　y&=&0.5z \\
+ \\
+(3)　　z&=&0.6-0.4x \\
+ \\
+(4)　　x+y+z&=&1
+\end{eqnarray*}
+
+**From (1) & (2) & (4),**
+  
+\begin{eqnarray*}
+y+y+z&=&1 \\
+ \\
+2y+z&=&1 \\
+ \\
+z+z&=&1 \\
+ \\
+z&=&\frac{1}{2}
+\end{eqnarray*}
+
+Thus, $x=\frac{1}{4}, y=\frac{1}{4}, z=\frac{1}{2}$
+
+
+## Exercise 9
+**Solve the following system of equations.**
+$$
+\begin{pmatrix} \pi_0 & \pi_1 & \pi_2 \end{pmatrix}
+\begin{pmatrix} -2 & 2 \\ 3 & -5 & 2 \\ & 3 &-3 \end{pmatrix} =
+\begin{pmatrix} 0 & 0 & 0 \end{pmatrix}
+$$
+$$ \pi_0 + \pi_1 + \pi_2 = 1 $$
+
+\vspace{50pt}
+$$
+\begin{pmatrix} \pi_0 & \pi_1 & \pi_2 \end{pmatrix}
+\begin{pmatrix} -2 & 2 \\ 3 & -5 & 2 \\ & 3 &-3 \end{pmatrix} =
+\begin{pmatrix} -2\pi_0+3\pi_1 & 2\pi_0-5\pi_1+3\pi_2 & 2\pi_1-3\pi_2 \end{pmatrix}
+$$
+
+\begin{align}
+  -2\pi_0+3\pi_1= 0 \\
+  2\pi_0-5\pi_1+3\pi_2 = 0 \\
+  2\pi_1-3\pi_2 = 0 \\
+  \pi_0 + \pi_1 + \pi_2 = 1
+\end{align}
+
+(1) equals $\pi_0=\frac{3}{2}\pi_1$.
+(3) equals $\pi_2=\frac{3}{2}\pi_1$.
+Using above two equations, (4) equals $\frac{3}{2}\pi_1+\pi_1+\frac{2}{3}\pi_1=1$.
+Thus, $\pi_1=\frac{6}{19}$.
+
+Using (1), $\pi_0=\frac{9}{19}$.
+Using (3), $\pi_2=\frac{4}{19}$.
+
+(2) equals $\frac{18}{19}-\frac{30}{19}+\frac{12}{19}=0$.
+
+$\therefore \pi_0=\frac{9}{19}$, $\pi_1=\frac{6}{19}$, $\pi_2=\frac{4}{19}$.
+
+
+## Exercise 10
+**Solve the following system of equations.**
+$$
+\begin{pmatrix} \pi_1 & \pi_2 & \pi_3 & \pi_4 \end{pmatrix}  
+\begin{pmatrix} .7 & .3 \\ .5 & .5 \\ & & .6 & .4 \\ & & .3 & .7 \end{pmatrix} = 
+\begin{pmatrix} \pi_1 & \pi_2 & \pi_3 & \pi_4 \end{pmatrix} 
+$$
+
+$$
+\pi_1 + \pi_2 + \pi_3 + \pi_4 = 1 \\
+
+\pi_1 + \pi_2 = \alpha
+$$
+
+\begin{align}
+  0.7\pi_1 + 0.5\pi_2 = \pi_1 \\
+  0.3\pi_1 + 0.5\pi_2 = \pi_2 \\
+  0.6\pi_3 + 0.3\pi_4 = \pi_3 \\
+  0.4\pi_3 + 0.7\pi_4 = \pi_4
+\end{align}
+
+(5) equals $5\pi_2 = 3\pi_1$.
+(6) equals $3\pi_1 = 5\pi_2$.
+(7) equals $4\pi_3 = 3\pi_4$.
+(8) equals $4\pi_3 = 3\pi_4$.
+
+
+By using (5) and (6), $\pi_2=\frac{3}{5}\pi_1$.
+By using (7) and (8), $\pi_4=\frac{4}{3}\pi_3$.
+
+
+\begin{align}
+  \pi_1 + \pi_2 + \pi_3 + \pi_4 = \pi_1 + \frac{3}{5}\pi_1 + \pi_3 + \frac{4}{3}\pi_3 = \frac{3}{5}\pi_1 + \frac{7}{3}\pi_3 =  1
+\end{align}
+
+(9) equals $\pi_3=\frac{3}{7}-\frac{24}{35}\pi_1$.
+
+Thus, $\pi_4 = \frac{4}{7}-\frac{32}{35}\pi_1$.
+
+$$ 
+\therefore \pi_1 = \frac{5}{8}\alpha,
+\pi_2 = \frac{3}{8}\alpha, 
+\pi_3 = \frac{3}{7}-\frac{3}{7}\alpha, 
+\pi_4 = \frac{4}{7}-\frac{4}{7}\alpha 
+$$
+
+
+## Exercise 11
+
+Solve following and express $\pi_i$ for $i=0,1,2,...$
+\begin{eqnarray}
+\pi_0 + \pi_1 + \pi_2 +... &=& 1 \nonumber\\
+0.02 \pi_0 + 0.02 \pi_1 + 0.02 \pi_2 + ... &=& \pi_0 \nonumber\\
+0.98 \pi_0 &=& \pi_1 \nonumber\\
+0.98 \pi_1 &=& \pi_2 \nonumber\\
+0.98 \pi_2 &=& \pi_3 \nonumber\\
+...&=&... \nonumber
+\end{eqnarray}
+
+### Solution:
+
+\begin{eqnarray}
+\pi_0 + \pi_1 + \pi_2 +... &=& 1 \\
+0.02 \pi_0 + 0.02 \pi_1 + 0.02 \pi_2 + ... &=& \pi_0 \\
+0.98 \pi_0 &=& \pi_1 \\
+0.98 \pi_1 &=& \pi_2 \\
+0.98 \pi_2 &=& \pi_3 \\
+...&=&... \nonumber
+\end{eqnarray}
+
+
+From (3)-(5), 
+
+\begin{eqnarray}
+\pi_1 &=& (0.98)\pi_0 \nonumber\\
+\pi_2 &=& (0.98)\pi_1 = (0.98)^2 \pi_0 \nonumber\\
+\pi_3 &=& (0.98)\pi_2 = (0.98)^3 \pi_0 \nonumber\\
+\pi_i &=& (0.98)^i \pi_0\nonumber
+\end{eqnarray}
+
+Thus (1), becomes 
+
+\begin{eqnarray*}
+\pi_0 + \pi_1 + \pi_2 +... &=& \pi_0(1+0.98+0.98^2 + ...) \nonumber\\
+\pi_0 (\frac{1}{1-0.98})) &=& 1 \nonumber\\
+\pi_0 &=& 0.02\nonumber\\
+\therefore \pi_i &=& (0.02)(0.98)^i \nonumber
+\end{eqnarray*}
+
+\newpage 
+
+## Excercise 12 (Infinite geometric series)
+
+Simplify the following. When $|r|<1$, $S=a+ar+ar^2+ar^3+...$
+
+### Solution :
+
+\setcounter{equation}{0}
+
+\begin{eqnarray}
+S  &=& a+ar^2+ar^3+...      \\
+rS &=&   ar^2+ar^3+ar^4+...  \\
+\nonumber
+\end{eqnarray}
+
+Subtract (1) and (2)
+
+$(1-r)S = a$
+
+$\therefore   S = \frac{a}{1-r}$
+
+## Exercise 13 (Finite geometric series)
+
+### Simplify the following. When $r\neq 1, S = a+ar+ar^2+ar^3+ ... +ar^{n-1}$
+
+### Solution:
+
+$S = a+ar+ar^2+ ... +ar^{n-1}$
+
+$rS = ar+ar^2+ar^3+ ... +ar^{n}$
+
+$S-rs = a-ar^n$
+
+$S=\frac{a(1-r^n)}{(1-r)}$
+
+## Exercise 14 (Power series)
+
+### Simplify the following. When $|r|\neq 1, S = r+2r^2+3r^3+4r^4+ ...$
+
+### Solution:
+
+
+$S = r+2r^2+3r^3+4r^4+ ...$
+
+$rS = r^2+2r^3+3r^4+...$
+
+$(1-r)S=r+r^2+r^3+...$
+
+$(1-r)S=\frac{r}{1-r}$
+
+$S=\frac{r}{(1-r)^2}$
+
+
+## Exercise 15
+
+### During the first hour $(0\leq t \geq 1), \lambda(t)$ increases linearly from 0 to 60. After the first hour, $\lambda(t)$ is constant at 60. Draw plot for $\lambda(t)$ and express the function in math form.
+
+### Solution:
+
+$\lambda(t) = \begin{cases}60t & t\le 60 \\60 &t>60 \end{cases}$
+
+![graph](C://Users/user/Desktop/A1/A1_solution_latex/graph.png)
+
+```{r, results='hide'}
+"A1_Solution"
+```

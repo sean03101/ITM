@@ -1,0 +1,63 @@
+---
+title: "Lecture B_case"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+\newpage
+
+## Bakery inventory management issues  
+
+\vspace{10pt}
+
+A bakery in a village specializes in making and selling bread only. The store is only open on weekdays. I buy flour for 800 won for 1kg to make bread. You can make two breads for one kilogram, and the price of bread is 600 won. If bread is not sold, some company sells it for 200 won. The distribution of consumers follows the normal distribution N (10,60). (Round up the decimal places.)
+
+\vspace{20pt}
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+  \hline
+  $d$ & 10 & 20 & 35 & 40 & 50    \\ \hline
+  $\mathbb{P}[D = d]$ & $\frac{1}{10}$ & $\frac{2}{10}$ & $\frac{5}{10}$ & $\frac{2}{10}$ & $\frac{1}{10}$ \\
+  $(y^*-D)^+$ &  &  &  &  \\
+  $(D-y^*)^+$ &  &  &  &  \\
+  \hline
+\end{tabular}
+\end{center}
+
+\vspace{20pt}
+
+1. What's the best amount of preparation?(optimal quantity)  
+2. Fill in the blanks in the table above.(if y* is optimal quantity)  
+3. what is the Total Expected cost?  
+  
+
+
+\newpage
+B_case.Rmd
+```{r}
+"Hello"
+```
+

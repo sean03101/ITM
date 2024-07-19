@@ -1,0 +1,113 @@
+---
+title: "D2_MRP2 Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+# Exercises
+## p.11 analytic solution
+
+Python code
+```{python}
+P = np.matrix([[0.7,0.3],[0.5,0.5]])
+R = np.matrix([[1.5,1]]).reshape(2,1)
+gamma = 0.9
+v = np.linalg.inv(np.identity(2)-gamma*P)*R
+print(v)
+```
+
+\newpage
+
+
+## p.21 Iterative algorithm
+Python code
+```{python}
+epsilon = 10**(-8)
+v_old = np.matrix([[0,0]]).reshape(2,1)
+v_new = R+gamma*P*v_old
+while(np.linalg.norm(v_new-v_old)>epsilon):
+    v_old=v_new
+    v_new = R+gamma*P*v_old
+print(v_old)
+```
+\newpage
+## p.24 full iteration process
+Python code
+```{python}
+epsilon = 10**(-8)
+v_old = np.matrix([[0,0]]).reshape(2,1)
+v_new = R+gamma*P*v_old
+coke_res = []
+pep_res = []
+while(np.linalg.norm(v_new-v_old)>epsilon):
+    coke_res.append(v_old.item(0))
+    pep_res.append(v_old.item(1))
+    v_old=v_new
+    v_new = R+gamma*P*v_old
+    
+results = pd.DataFrame({'coke':coke_res, 'pepsi':pep_res})
+print(results[:6])
+print(results[-6:])
+```
+\newpage
+## p.25 plot
+Python code
+
+```{python}
+plt.scatter(results.index,results.coke, label='coke')
+plt.scatter(results.index,results.pepsi,label='pepsi')
+plt.grid(True,axis='both')
+plt.xlabel('idx')
+plt.ylabel('value_fn')
+plt.show()
+```
+
+After 50 steps
+```{python}
+filtered_result = results[50:]
+#filtered_result = results[100:]
+plt.scatter(filtered_result.index, filtered_result.coke)
+plt.grid(True,axis='both')
+plt.xlabel("index")
+plt.ylabel("value")
+plt.show()
+```
+After 100 steps
+```{python}
+#filtered_result = results[50:]
+filtered_result = results[100:]
+plt.scatter(filtered_result.index, filtered_result.coke)
+plt.grid(True,axis='both')
+plt.xlabel("index")
+plt.ylabel("value")
+plt.show()
+```

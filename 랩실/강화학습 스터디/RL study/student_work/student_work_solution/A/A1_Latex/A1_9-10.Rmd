@@ -1,0 +1,115 @@
+---
+title: "A1 Exercises 9 & 10"
+author: "Sang, Ji in"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+    extra_dependencies: ["amsmath"] #needed for matrix
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+\newpage
+## Exercise 9
+**Solve the following system of equations.**
+$$
+\begin{pmatrix} \pi_0 & \pi_1 & \pi_2 \end{pmatrix}
+\begin{pmatrix} -2 & 2 \\ 3 & -5 & 2 \\ & 3 &-3 \end{pmatrix} =
+\begin{pmatrix} 0 & 0 & 0 \end{pmatrix}
+$$
+$$ \pi_0 + \pi_1 + \pi_2 = 1 $$
+
+\vspace{50pt}
+$$
+\begin{pmatrix} \pi_0 & \pi_1 & \pi_2 \end{pmatrix}
+\begin{pmatrix} -2 & 2 \\ 3 & -5 & 2 \\ & 3 &-3 \end{pmatrix} =
+\begin{pmatrix} -2\pi_0+3\pi_1 & 2\pi_0-5\pi_1+3\pi_2 & 2\pi_1-3\pi_2 \end{pmatrix}
+$$
+
+\begin{align}
+  -2\pi_0+3\pi_1= 0 \\
+  2\pi_0-5\pi_1+3\pi_2 = 0 \\
+  2\pi_1-3\pi_2 = 0 \\
+  \pi_0 + \pi_1 + \pi_2 = 1
+\end{align}
+
+(1) equals $\pi_0=\frac{3}{2}\pi_1$.
+(3) equals $\pi_2=\frac{3}{2}\pi_1$.
+Using above two equations, (4) equals $\frac{3}{2}\pi_1+\pi_1+\frac{2}{3}\pi_1=1$.
+Thus, $\pi_1=\frac{6}{19}$.
+
+Using (1), $\pi_0=\frac{9}{19}$.
+Using (3), $\pi_2=\frac{4}{19}$.
+
+(2) equals $\frac{18}{19}-\frac{30}{19}+\frac{12}{19}=0$.
+
+$\therefore \pi_0=\frac{9}{19}$, $\pi_1=\frac{6}{19}$, $\pi_2=\frac{4}{19}$.
+
+
+
+
+
+
+\newpage
+## Exercise 10
+**Solve the following system of equations.**
+$$
+\begin{pmatrix} \pi_1 & \pi_2 & \pi_3 & \pi_4 \end{pmatrix}  
+\begin{pmatrix} .7 & .3 \\ .5 & .5 \\ & & .6 & .4 \\ & & .3 & .7 \end{pmatrix} = 
+\begin{pmatrix} \pi_1 & \pi_2 & \pi_3 & \pi_4 \end{pmatrix} 
+$$
+
+$$
+\pi_1 + \pi_2 + \pi_3 + \pi_4 = 1 \\
+\pi_1 + \pi_2 = \alpha
+$$
+
+\begin{align}
+  0.7\pi_1 + 0.5\pi_2 = \pi_1 \\
+  0.3\pi_1 + 0.5\pi_2 = \pi_2 \\
+  0.6\pi_3 + 0.3\pi_4 = \pi_3 \\
+  0.4\pi_3 + 0.7\pi_4 = \pi_4
+\end{align}
+
+(5) equals $5\pi_2 = 3\pi_1$.
+(6) equals $3\pi_1 = 5\pi_2$.
+(7) equals $4\pi_3 = 3\pi_4$.
+(8) equals $4\pi_3 = 3\pi_4$.
+
+
+By using (5) and (6), $\pi_2=\frac{3}{5}\pi_1$.
+By using (7) and (8), $\pi_4=\frac{4}{3}\pi_3$.
+
+
+\begin{align}
+  \pi_1 + \pi_2 + \pi_3 + \pi_4 = \pi_1 + \frac{3}{5}\pi_1 + \pi_3 + \frac{4}{3}\pi_3 = \frac{3}{5}\pi_1 + \frac{7}{3}\pi_3 =  1
+\end{align}
+
+(9) equals $\pi_3=\frac{3}{7}-\frac{24}{35}\pi_1$.
+
+Thus, $\pi_4 = \frac{4}{7}-\frac{32}{35}\pi_1$.
+
+$$ 
+\therefore \pi_1 = \frac{5}{8}\alpha,
+\pi_2 = \frac{3}{8}\alpha, 
+\pi_3 = \frac{3}{7}-\frac{3}{7}\alpha, 
+\pi_4 = \frac{4}{7}-\frac{4}{7}\alpha 
+$$
+
+
+

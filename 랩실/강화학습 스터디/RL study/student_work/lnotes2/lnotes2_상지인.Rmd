@@ -1,0 +1,108 @@
+---
+title: "CS234 lecture 02) Mars Rover Problem "
+author: "Jiin Sang"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    # extra_dependencies: ["amsmath"]
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+#py_install("scipy")
+```
+
+\newpage
+## Exercise 1) States Classification
+**Determine states of the Mars rover problem whether they're stationary, transient or recurrent, and give reasons why. **
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=14cm]{MarsRover.png}
+   \hfil
+\caption{Mars Rover Markov Process}
+\label{Figure 1.}
+\end{figure}
+
+
+\vspace{50pt}
+
+Transition Probability Matrix of Mars rover problem:
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &0.6 &0.4 &0 &0 &0 &0 &0 \\
+    &0.4 &0.2&0.4 &0 &0 &0 &0 \\
+    &0 &0.4& 0.2& 0.4& 0 &0 &0 \\
+    &0 &0 &0.4 &0.2& 0.4& 0 &0 \\
+    &0 &0 &0 &0.4& 0.2& 0.4 &0 \\
+    &0 &0 &0 &0 &0.4& 0.2& 0.4\\
+    &0 &0 &0 &0 &0 &0.4 &0.6\\
+  \end{pmatrix}
+\end{align*}
+
+<!-- \begin{definition} -->
+
+  Let $X$ be a DTMC on state space $S$ with transition matrix $P$.
+  For each state $i \in S$, let $\tau_i$ denote the first $n \ge 1$ such that $X_n = i$.
+
+  1. State $i$ is said to be recurrent, if $Pr(\tau_i < \infty | X_0 = i) = 1$.
+  2. State $i$ is said to be transient, if it is not recurrent.
+  3. State $i$ is said to be absorbing, as a special case of recurrent state, if $Pr_{ii}=1$.
+
+<!-- \end{definition} -->
+
+$\therefore$ All states are recurrent.
+
+\newpage
+## Exercise 2) Reward computation using iterative method
+**Compute reward for above Mars rover problem assuming time horizon = 10, starting from S4**
+
+\vspace{50pt}
+
+
+```{python, echo=TRUE}
+import numpy as np
+
+# Transition Probability Matrix
+P = np.matrix ([[0.6,0.4,0,0,0,0,0],
+                [0.4,0.2,0.4,0,0,0,0],
+                [0,0.4,0.2,0.4,0,0,0],
+                [0,0,0.4,0.2,0.4,0,0],
+                [0,0,0,0.4,0.2,0.4,0],
+                [0,0,0,0,0.4,0.2,0.4],
+                [0,0,0,0,0,0.4,0.6]])
+
+# Reward Matrix
+R = np.matrix([1,0,0,0,0,0,10]).reshape(7,1)
+# Time Horizon
+H = 10
+
+# V_(t+1)(s')
+V_t1 = np.matrix([0,0,0,0,0,0,0]).reshape(7,1)
+t = H-1
+
+while(t >= 0):
+    V_t = R + (P * V_t1)
+    t = t-1
+    V_t1 = V_t
+
+print(V_t[3])
+```
+$\therefore$ Reward is 8.119.

@@ -1,0 +1,100 @@
+---
+title: "B2_python"  
+author: "Son Min Sang"  
+date:  "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+     in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("pandas")
+py_install("matplotlib")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+\newpage
+## page 4
+``` {python, echo = TRUE }
+import numpy as np
+
+for X in range(11,16):
+    MC_N = 10000
+    D = np.random.uniform(11,15,MC_N)
+    sales_rev= 2* np.minimum(D,X)
+    salvage_rev = 0.5*np.maximum(X-D,0)
+    material_cost = 1 *X
+    profit= sales_rev + salvage_rev - material_cost
+    print("X: ",X,", expected profit: ",np.mean(profit))
+```
+
+
+\newpage
+## page 5
+``` {python b2_5, echo = TRUE}
+import numpy as np
+import pandas as pd
+
+try_X = np.arange(20,40,0.01)
+exp_profits=np.array([])
+
+for X in try_X:
+    MC_N = 10000
+    D = np.random.rand(MC_N,1)*20+20
+    sales_rev= 2* np.minimum(D,X)
+    salvage_rev = 0.5*np.maximum(X-D,0)
+    material_cost = 1 *X
+    exp_profit= np.mean(sales_rev + salvage_rev - material_cost)
+    exp_profits=np.append(exp_profits,exp_profit)
+
+results = pd.DataFrame({'try_X':try_X,'exp_profits':exp_profits})
+
+results
+
+```
+\newpage
+## page 6,7
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+plt.plot(try_X,exp_profits,'o',ms=1,alpha=0.1)
+plt.xlabel("try_x")
+plt.ylabel("exp_profits")
+plt.title("Plot for Expected Profit")
+plt.rc('font', size=25)      
+plt.show()
+
+```
+
+
+## page 8
+```{python, echo=TRUE}
+idx=np.where(exp_profits==np.max(exp_profits))
+
+print(*try_X[idx]) #this is optimal quantity
+print(*exp_profits[idx]) #this is expected optimal profit
+
+```
+

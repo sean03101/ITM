@@ -1,0 +1,364 @@
+---
+title: "Lecture A1. Math Review"
+author: "Sim, Min Kyu, Ph.D., `mksim@seoultech.ac.kr`"     
+date: \includegraphics[height=0.2in]{../myRmdBeamerStyle/logo_ds.png}
+output:
+  beamer_presentation:
+    theme: CambridgeUS # 1. Montpellier-beaver # 2. Singapore-seahorse # 3. CambridgeUS-dolphin
+    colortheme: dolphin # dove # rose # dolphin # seahorse # dolphin # rose # beaver # orchid
+    font: serif # serif structureitalicserif
+    includes:
+      in_header: ../myRmdBeamerStyle/latex-topmatter.tex
+    latex_engine: xelatex
+    slide_level: 2  
+    keep_tex: yes
+    toc: yes
+  ioslides_presentation: default
+  slidy_presentation: default
+mainfont: NanumMyeongjo # NanumGothic  
+monofont: Consolas
+fontsize: 9pt
+classoption: t
+---  
+
+```{r setup, include=FALSE}
+library(rmarkdown)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+# I. Differentiation and Integration
+
+## Differentiation
+
+\begin{defn}[differentiation]
+Differentiation is the action of computing a derivative. 
+\end{defn}
+
+\begin{defn}[derivative]
+The derivative of a function $y = f(x)$ of a variable $x$ is a measure of the rate at which the value $y$ of the function changes with respect to (wrt., hereafter) the change of the variable $x$. It is notated as $f'(x)$ and called derivative of $f$ wrt. $x$.
+\end{defn}
+
+\begin{rmk}
+If $x$ and $y$ are real numbers, and if the graph of $f$ is plotted against $x$, the derivative is the slope of this graph at each point.
+\end{rmk}
+
+##
+
+\begin{defn}[differentiable]
+If $\lim_{h \rightarrow 0} \frac{f(x+h/2)-f(x-h/2)}{h}$ exists for a function $f$ at $x$, we say the function \textit{$f$ is differentiable at $x$}. That is, $f'(x)=\lim_{h \rightarrow 0} \frac{f(x+h/2)-f(x-h/2)}{h}$. If $f$ is differentiable for all $x$, then we say \textit{$f$ is differentiable (everywhere)}.
+\end{defn}
+
+\begin{rmk}
+The followings are popular derivatives.
+\begin{itemize}
+\item $f(x)=x^p \Rightarrow f'(x)=px^{p-1}$ (polyomial)
+\item $f(x)=e^x \Rightarrow f'(x)=e^x$ (exponential)
+\item $f(x)=log(x) \Rightarrow f'(x)=1/x$ (log function; not differentiable at $x=0$)
+\end{itemize}
+\end{rmk}
+
+\begin{thm}
+Differentiation is linear. That is, $h(x)=f(x)+g(x)$ implies $h'(x)=f'(x)+g'(x)$.
+\end{thm}
+
+##
+
+\begin{thm}[differentiation of product]\label{prod}
+If $h(x)=f(x)g(x)$, then $h'(x)=f'(x)g(x)+f(x)g'(x)$.
+\end{thm}
+
+\begin{exer}
+Suppose $f(x)=xe^x$, find $f'(x)$. 
+\end{exer}
+
+\vspace{50pt}
+
+\begin{thm}[differentiation of fraction]
+If $h(x)=\frac{f(x)}{g(x)}$, then $h'(x)=\frac{f'(x)g(x)-f(x)g'(x)}{(g(x))^2}$.
+\end{thm}
+
+##
+
+\begin{thm}[composite function]\label{composite}
+If $h(x)=f(g(x))$, then $h'(x)=f'(g(x)) \cdot g'(x)$.
+\end{thm}
+
+\begin{exer}
+Suppose $f(x)=e^{2x}$, find $f'(x)$. 
+\end{exer}
+
+## Integration
+
+\begin{defn}[integration]
+Integration is the computation of an integral, which is a reverse operation of differentiation up to an additive constant.
+\end{defn}
+
+\begin{defn}[antiderivative]
+Let's say a function $f$ is a derivative of $g$, or $g'(x)=f(x)$, then we say $g$ is an \textit{antiderivative} of $f$, written as $g(x)=\int f(x) dx + C$, where $C$ is a integration constant.
+\end{defn}
+
+##
+
+\begin{rmk}
+The followings are popular antiderivatives.
+\begin{itemize}
+\item For $p \neq 1$, $f(x)=x^p \Rightarrow \int f(x) dx = \frac{1}{p+1}x^{p+1}+C$ (polyomial)
+\item $f(x)=\frac{1}{x} \Rightarrow \int f(x) dx = log(x) + C$ (fraction)
+\item $f(x)=e^x \Rightarrow \int f(x) dx=e^x+C$ (exponential)
+\item $f(x)=\frac{g'(x)}{g(x)} \Rightarrow \int f(x) dx=log(g(x))+C$ (See Theorem \ref{composite} above)
+\end{itemize}
+\end{rmk}
+
+\begin{exer}\label{int_prod}
+Derive $\int f'(x)g(x) \,\, dx = f(x)g(x) - \int f(x)g(x)' \,\, dx$. (Hint: Use Theorem \ref{prod} above.)
+\end{exer}
+
+\vspace{50pt}
+
+##
+
+\begin{exer}
+Find $\int xe^x \,\, dx$, and evaluate $\int_{0}^{1} xe^x \,\, dx$. (Hint: Use Exercise \ref{int_prod} above.)
+\end{exer}
+
+# II. Numerical Methods
+
+## Differentiation
+
++ Oftentimes, finding analytic derivative is hard, but finding numerical derivative is often possible.
+
+\begin{defn}
+For a function $f$ and small constant $h$, \\
+\vspace{5pt}
+\begin{itemize}
+\item $f'(x) \approx \frac{f(x+h)-f(x)}{h} \,\, \textit{(forward difference formula)}$
+\item $f'(x) \approx \frac{f(x)-f(x-h)}{h} \,\, \textit{(backward difference formula)}$
+\item $f'(x) \approx \frac{f(x+h)-f(x-h)}{2h} \,\, \textit{(centered difference formula)}$
+\end{itemize}
+\end{defn}
+
+## Solving an equation
+
++ For the rest of this section, we consider a nonlinear and differentiable (thus, continuous) function $f: \mathbb{R} \rightarrow \mathbb{R}$, we aim to find a point $x^* \in \mathbb{R}$ such that $f(x^*)=0$. We call such $x^*$ as a *solution* or a *root*.
+
+## Bisection Method
+
++ The *bisection* method aims to find a very short interval $[a,b]$ in which $f$ changes a sign. 
++ Why? Changing a sign from $a$ to $b$ means the function crosses the $\{y=0\}$-axis, (a.k.a. $x$-axis), at least once. It means $x^*$ such that $f(x^*)=0$ is in this interval. Since $[a,b]$ is a very short interval, We may simply say $x^*=\frac{a+b}{2}$.
+
+\begin{defn}[sign function]
+$sgn(\cdot)$ is called a \textit{sign function} that returns 1 if the input is positive, -1 if negative, and 0 if zero.
+\end{defn}
+
+## Bisection algorithm
+
++ Let $tol$ be the maximum allowable length of the *short interval* and an initial interval $[a,b]$ be such that $sgn(f(a)) \neq sgn(f(b))$.
++ The *bisection algorithm* is the following.
+
+\vspace{10pt}
+
+\begin{texttt}
+1: while $((b-a) > tol)$ do \\
+2: \hspace{20pt} $m = \frac{a+b}{2}$ \\
+3: \hspace{20pt} if $sgn(f(a))=sgn(f(m))$ then \\
+4: \hspace{40pt} $a=m$ \\
+5: \hspace{20pt} else \\
+6: \hspace{40pt} $b=m$ \\
+7: \hspace{20pt} end \\
+8: end \\
+\end{texttt}
+
+\vspace{10pt}
+
++ At each *iteration*, the interval length is halved. As soon as the interval length becomes smaller than $tol$, then the algorithm stops.
+
+## Newton Method
+
++ The bisection technique makes no used of the function values other than their signs, resulting in slow but sure convergence.
++ More rapid convergence can be achieved by using the function values to obtain a more accurate approximation to the solution *at each iteration*.
++ Newton method is a method that use both the function value and derivative value.
+
+##
+
++ Newton method approximates the function $f$ near $x_k$ by the tangent line at $f(x_k)$.
+
+\vspace{10pt}
+
+\begin{texttt}
+1: $x_0=$ initial guess \\
+2: for $k$=0,1,2,... \\
+3: \hspace{20pt} $x_{k+1}=x_k-f(x_k)/f'(x_k)$ \\
+4: \hspace{20pt} break if $|x_{k+1}-x_{k}|<tol$ \\ 
+5: end
+\end{texttt}
+
+\vspace{10pt}
+
+## 
+
++ Root-finding numerical methods such as bisection method and newton method has a few common properties.
+    1. It is characterized as a *iterative process* (such as $x_0 \rightarrow x_1 \rightarrow x_2 \rightarrow \cdots$).
+    2. In each *iteration*, the current candidate *gets closer* to the true value.
+    3. It converges. That is, it is theoretically reach the *exact value* up to tolerance.
+
+\vspace{10pt}
+
++ Many iterative numerical methods share the properties above.
++ The famous back propagation in deep neural network is also motivated by Newton method.
++ Major algorithms for dynamic programming are called *policy iteration* and *value iteration* that also share the properties above.
+
+##
+
+# III. Matrix Algebra
+
+## Matrix multiplication
+
+\begin{exer} 
+Solve the followings.
+\begin{align*}
+  \begin{matrix}
+    (.6&.4)
+  \end{matrix}
+  \begin{pmatrix}
+    .7&.3\\.5&.5
+  \end{pmatrix}
+  =
+\end{align*}
+\end{exer}
+
+##
+
+\begin{exer}
+What is $P^2$?
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    .7&.3\\.5&.5
+  \end{pmatrix}
+\end{align*}
+\end{exer}
+
+## Solution to system of linear equations
+
+\begin{exer}
+Solve the followings.
+\begin{align*}
+  \begin{matrix}
+    (\pi_1&\pi_2)
+  \end{matrix}
+  \begin{pmatrix}
+    .7&.3\\.5&.5
+  \end{pmatrix}
+  =
+  \begin{matrix}
+  (\pi_1&\pi_2)
+  \end{matrix}
+\end{align*}
+\begin{center}
+$\pi_1+\pi_2=1$
+\end{center}
+\end{exer}
+
+##
+
+\begin{exer}
+Solve the following system of equations.
+\begin{eqnarray}
+&& x = y \nonumber\\
+&& y = 0.5z \nonumber\\
+&& z = 0.6+0.4x \nonumber\\
+&& x+y+z =1\nonumber
+\end{eqnarray}
+\end{exer}
+
+##
+
+\begin{exer}
+Solve the following system of equations.
+\begin{align*}
+  \begin{matrix}
+    (\pi_0&\pi_1&\pi_2)
+  \end{matrix}
+  \begin{pmatrix}
+    -2&2&\\3&-5&2\\&3&-3
+  \end{pmatrix}
+  = (0 \,\,\,\, 0 \,\,\,\, 0)
+\end{align*}
+\begin{center}
+$\pi_0+\pi_1+\pi_2=1$
+\end{center}
+\end{exer}
+
+##
+
+\begin{exer}
+Solve the following system of equations.
+\begin{align*}
+  \begin{matrix}
+    (\pi_1 \,\,\,\, \pi_2 \,\,\,\, \pi_3 \,\,\,\, \pi_4)
+  \end{matrix}
+  \begin{pmatrix}
+    .7&.3& & \\.5&.5& & \\ & &.6 &.4 \\  & &.3 &.7
+  \end{pmatrix}
+  = (\pi_1 \,\,\,\, \pi_2 \,\,\,\, \pi_3 \,\,\,\, \pi_4)
+\end{align*}
+\begin{center}
+$\pi_1+\pi_2+\pi_3+\pi_4=1$
+\end{center}
+\end{exer}
+
+##
+
+\begin{exer}
+Solve following and express $\pi_i$ for $i=0,1,2,...$
+\begin{eqnarray}
+\pi_0 + \pi_1 + \pi_2 +... &=& 1 \nonumber\\
+0.02 \pi_0 + 0.02 \pi_1 + 0.02 \pi_2 + ... &=& \pi_0 \nonumber\\
+0.98 \pi_0 &=& \pi_1 \nonumber\\
+0.98 \pi_1 &=& \pi_2 \nonumber\\
+0.98 \pi_2 &=& \pi_3 \nonumber\\
+...&=&... \nonumber
+\end{eqnarray}
+\end{exer}
+
+##
+
+# IV. Series and Others
+
+##
+
+\begin{exer}[Infinite geometric series]
+Simplify the following. When $|r|<1$, $S=a+ar+ar^2+ar^3+...$
+\end{exer}
+
+##
+
+\begin{exer}[Finite geometric series]
+Simplify the following. When $r \neq 1$, $S=a+ar+ar^2+ar^3+...+ar^{n-1}$
+\end{exer}
+
+##
+
+\begin{exer}[Power series]
+Simplify the following. When $|r|<1$, $S=r+2r^2+3r^3+4r^4+...$
+\end{exer}
+
+## Formulation of time varying function
+
+\begin{exer}
+During the first hour $(0 \le t \le 1)$, $\lambda(t)$ increases linearly from $0$ to $60$.  After the first hour,$\lambda(t)$ is constant at $60$. Draw plot for $\lambda(t)$ and express the function in math form.
+\end{exer}
+
+##
+
+##
+
+##
+
+```{r, results='hide'}
+"Man can learn nothing unless he proceeds from the known to the unknown. - Claude Bernard"
+```
+
+
+

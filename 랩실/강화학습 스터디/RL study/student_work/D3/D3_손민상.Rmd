@@ -1,0 +1,72 @@
+---
+title: "D3_손민상"
+author: "Son Min Sang"
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+
+```
+
+\newpage
+
+## Exercise 1
+How would you genalize this game with arbitraty value of $m_1$ (minimum increment),$m_2$ (maximum increment), and $N$ (the winning number)?
+
+\begin{itemize}
+\item $S=\{1,2,\dots ,N\}$
+\item $A= \{a_{m1},a_{m1}+1, \dots ,a_{m2}\}$
+\item $a_{m}$ means the action of incrementing the previous number by $m$
+\end{itemize}
+When $State = N-a_{m1}$, optimal action $=a_{m1}$
+
+When $State = N-a_{m2}$, optimal action $=a_{m2}$
+
+When $State = N-a_{m1}-l-k*(a_{m1}+a_{m2})\,(l\leq a_{m2}-a_{m1})\,(k:integer)$, optimal action $=a_{m1}+l$
+
+## Exercise 2
+Two players are to play a game. The two players take turns to call out integers. The rules are as follows. Describe $A$’s winning strategy.
+
+\begin{itemize}
+\item $S=\{1,2,\dots ,100\}$
+\item $A_{start}= \{4,5,6,7,8\}$
+\item $A_B= \{5,6,7,8,9\}$
+\item $A_A= \{2,3,4,5,6\}$
+\end{itemize}
+
+There is no A's winning strategy
+
+\newpage 
+
+## Exercise 3
+
+
+## Exercise 4
+Formulate the first example in this lecture note using the terminology including state,action, reward, policy, transition. Describe the optimal policy using the terminology as well.
+
+\begin{itemize}
+\item $S=\{1,2,\dots ,31\}$
+\item $A= \{a_1,a_2\}$
+\item $a_{m}$ means the action of incrementing the previous number by $m$
+\item $R(30,a_1)=R(29,a_2)=1$ otherwise 0
+\item optimal policy: $\pi (N-a_1-k*(a_1+a_2))\,(k:integer)=a_1$
+\item optimal policy: $\pi (N-a_2-k*(a_1+a_2))\,(k:integer)=a_2$
+\end{itemize}
+

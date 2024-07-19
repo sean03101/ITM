@@ -1,0 +1,213 @@
+---
+title: "E3"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+use_virtualenv("r-reticulate")
+```
+
+## Value improvement
+
+### Preparation
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+gamma = 1
+states = np.arange(0,80,10).astype(str)
+
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+
+R_s_a=pd.DataFrame(np.matrix([-1,-1,-1,-1,0.0,-1,-1,0,-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['normal','speed'],index=states)
+```
+
+### Implementation
+
+```{python, echo,TRUE}
+# 1nitialize V
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+V_old.T
+```
+
+```{python, echo=TRUE}
+# 2. Evaluate the Q-function
+q_s_a = R_s_a+np.c_[gamma*np.dot(P_normal,V_old), gamma*np.dot(P_speed,V_old)]
+
+q_s_a
+```
+
+```{python, echo=TRUE}
+
+# 3. Find the best action for each state
+V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+V_new.T
+```
+
+\newpage
+## Value Iteration
+
+### Implementation
+```{python, echo=TRUE}
+cnt=0
+epsilon=10**(-8)
+V_old=pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+results=V_old.T
+while True:
+    q_s_a=R_s_a+np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+    V_new=np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+    
+    if np.max(np.abs(V_new-V_old)).item() < epsilon :
+        break
+    
+    results=np.r_[results, V_new.T]
+    V_old=V_new
+    
+    cnt+=1
+    
+```
+
+
+```{python, echo=TRUE}
+value_iter_process = results
+
+results = pd.DataFrame(results, columns=states)
+
+results.head()
+results.tail()
+```
+
+\newpage
+
+### Visualization
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+
+for i in range(6):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+
+
+
+```{python}
+for i in range(7,13):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 7 to 12', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+
+```{python,echo=TRUE}
+for i in range(13,19):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 13 to 18', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+
+### Optimal value function to Optimal Policy
+
+원핫 인코딩을 이용하면 for문 안돌아도 될것 같음
+
+```{python, echo=TRUE}
+V_opt=value_iter_process[-1]
+q_s_a=R_s_a+np.c_[np.dot(gamma*P_normal,V_opt.T),np.dot(gamma*P_speed,V_opt.T)]
+
+q_s_a
+
+
+opt_action = q_s_a.idxmax(axis=1)
+
+opt_action
+```
+
+
+```{r}
+#py_install("scikit-learn")
+#sk<-import("scikit-learn")
+#use_virtualenv("r-reticulate")
+
+```
+
+### sklearn 모델이 설치오류가 계속나서 latex 작성불가..
+```{python, echo=TRUE}
+#from sklearn.preprocessing import OneHotEncoder # Skitlearn OnHotEncoder 이용
+
+
+#integer_encoded = opt_action.values.reshape(len(opt_action), 1)
+#print(opt_action.values.reshape(len(opt_action), 1))
+
+#onehot_encoded = onehot_encoder.fit_transform(integer_encoded)
+#print(onehot_encoded)
+
+
+#pi_opt=pd.DataFrame(onehot_encoded, index=states, columns=['normal','speed'])
+#pi_opt.T
+```
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done "
+```

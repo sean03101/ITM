@@ -1,0 +1,120 @@
+---
+title: "Lecture C2.Discrete Time Markov Chain 2"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+
+## Method 1-eigen-decomposition
+
+Remark 3(Page 12)
+
+\vspace{10pt}
+
+```{python}
+import numpy as np
+eig = np.linalg.eig
+P = np.array([0.7, 0.5, 0.3, 0.5]).reshape(2,2)
+print('Eigenvalue : {}'.format(eig(P)[0]))
+print('Eigenvector : {}'.format(eig(P)[1]))
+```
+```{python}
+x_1 = eig(P)[1]
+x_1 = x_1[:,0]
+x_1
+v = x_1/np.sum(x_1)
+print('stationary distribution : {}'.format(v))
+```
+
+\newpage
+
+Remark 5(Page 15)
+
+\vspace{10pt}
+
+```{python}
+P = np.array([0.7, 0.5, 0.3, 0.5]).reshape(2,2)
+n = len(P) # nrow
+I = np.identity(n)
+A = np.c_[(P-I).T,np.array([1,1])]
+b = np.array([0,0,1])
+print(A)
+print(b)
+```
+
+```{python}
+v = np.linalg.solve(np.dot(A,A.T), np.dot(A,b.T))
+v
+```
+\newpage
+
+## Limiting probabilities
+
+Motivation (Page 17)  
+
+\vspace{10pt}
+
+```{python}
+from numpy.linalg import matrix_power
+P = np.array([0.7,0.5,0.3,0.5]).reshape(2,2).T
+print(P)
+print(matrix_power(P,2))
+print(matrix_power(P,3))
+print(matrix_power(P,4))
+print(matrix_power(P,20))
+```
+
+\newpage
+
+## Page 19
+
+The limiting distribution may or may not exist. For example,  
+
+\vspace{10pt}
+
+```{python}
+P = np.array([0,1,1,0]).reshape(2,2)
+P
+matrix_power(P,2)
+matrix_power(P,3)
+```
+
+
+
+C2.Rmd
+```{r}
+"Hello"
+```
+

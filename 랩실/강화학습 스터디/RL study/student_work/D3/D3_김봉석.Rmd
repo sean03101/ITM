@@ -1,0 +1,256 @@
+---
+title: "Lecture D3"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+#library(reticulate)
+#matplotlib <- import("matplotlib")
+#matplotlib$use("Agg", force = TRUE)
+```
+
+## Exercise 1
+How would you genalize this game with arbitraty value of $m_1$ (minimum increment),$m_2$ (maximum increment), and $N$ (the winning number)?
+
+### solution:
+
+$m_1=1$, $m_2=2$, $N=31$, you should always do action to go $S_{28},S_{25},\dots$ 
+
+
+$m_1=2$, $m_2=5$, $N=50$, you should always do action to go $S_{43}\dots$ 
+
+
+$\dots$
+
+in general
+
+you should do action to go $S_{N-k(m1+m2)}$
+
+then, $\pi{(s)}^*=N-k(m1+m2)-s$, where $N-k(m1+m2)-s \in[m1,m2]$
+
+\newpage
+
+## Exercise 3
+There is only finite number of $deterministic$ $stationary$ policy. How many is it?
+
+### solution :
+
+\begin{enumerate}
+  \item $deterministic$ policy gives an single action for each state.
+  \item $stationary$ is, a policy that does not change over time
+  \item $deterministic$ $stationary$ policy deterministically selects actions based on the current state with mapping with no loss of generality
+\end{enumerate}
+
+$\therefore$ a number of deterministic stationary policy is $|A|^{|S|}$
+
+
+\newpage
+
+
+## Exercise 4
+Formulate the first example in this lecture note using the terminology including state,action, reward, policy, transition. Describe the optimal policy using the terminology as well.
+
+**State** : 
+
+$S = \{1,2,\dots ,31\}$
+ 
+ 
+**Action** :
+
+$A = \{a_1,a_2\}$
+ 
+ 
+**Reward** :
+
+$R(30,a_1)=R(29,a_2)=1$ all ohter $R(s,a)$ = 0
+ 
+
+**Transition** : 
+
+$P_{ss^\prime}^a =P(S_{t+1}=S^{\prime} |S_t=s, A_t=a) =1$ 
+
+  $s^{\prime}=s+1, if(a=a1)$ 
+ 
+  $s^{\prime}=s+2, if(a=a2)$
+ 
+  otherwise 0.
+ 
+**Optimal Policy** :
+
+$\pi^*=argmax_{\pi}V_t(s)^\pi$ 
+
+S(3n-1) : a2 
+
+S(3n) : a1
+
+\newpage
+
+## Exercise 5 (파이썬으로 구현 어떻게 할지 잘 모르겠음..)
+
+\vspace{10pt}
+#### From the first example,
+
+  + Assume that your opponent increments by 1 with prob. 0.5 and by 2 with prob. 0.5.
+  + Assume that the winning number is 10 instead of 31.
+  + Your opponent played first and she called out 1.
+  + Your current a policy $\pi_{0}$ is that
+    - If the current state s<=5 then increments by 2.
+    - If the current state s>5 then increments by 1.
+    
+Evaluate $V^{\pi_{0}}(1)$
+
+### 어떻게 Value iteration으로 ? P?
+
+```{python,echo=TRUE}
+import numpy as np
+import pandas as pd
+Winning_num = 10
+
+States = np.arange(1,Winning_num+1)
+
+R = np.append(np.repeat(0,9),1).reshape(10,1)
+
+P_my = np.array([ [ 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 ],
+                  [ 0, 0, 0, 1, 0, 0, 0, 0, 0, 0 ],
+                  [ 0, 0, 0, 0, 1, 0, 0, 0, 0, 0 ],
+                  [ 0, 0, 0, 0, 0, 1, 0, 0, 0, 0 ],
+                  [ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 ],
+                  [ 0, 0, 0, 0, 0, 0, 1, 0, 0, 0 ],
+                  [ 0, 0, 0, 0, 0, 0, 0, 1, 0, 0 ],
+                  [ 0, 0, 0, 0, 0, 0, 0, 0, 1, 0 ],
+                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ],
+                  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 ] ])
+
+
+P_opp =np.array([[0, 0.5, 0.5, 0, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0.5, 0.5, 0, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0.5, 0.5, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0.5, 0.5, 0, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0.5, 0.5, 0, 0, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0.5, 0.5, 0, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0.5, 0.5, 0],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0.5],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 1]])
+
+P= (P_opp+P_my)/2
+
+
+gamma=0.9
+
+epsilon =10**(-8)
+
+v_old = np.array(np.repeat(0,10)).reshape(10,1)
+
+
+result = []
+while True:
+    result.append(v_old.T)
+    v_new = R+gamma*np.dot(P, v_old)
+    if np.max(np.abs(v_new-v_old)) > epsilon:
+        v_old = v_new
+        continue
+    break
+
+v_old
+
+```
+
+
+### MC ...의미가 없음 
+````{python,echo=TRUE}
+
+###########
+
+states =list(range(1, 11))
+
+import numpy as np
+
+def Environment(this_state):
+    global turn
+    if (turn % 2) == 0 :
+        next_state = my_policy(this_state)
+
+
+    else:
+        next_state = opp_policy(this_state)
+
+
+    turn += 1
+
+    return next_state
+
+
+
+def my_policy(this_state):
+    if this_state <= 5:
+        return this_state+2
+    else :
+        return this_state+1
+
+
+def opp_policy(this_state):
+    rand = np.random.uniform()
+    if this_state == 1:
+        return this_state+1
+
+    elif rand < 0.5:
+         return this_state+1
+
+    else :
+        return this_state+2
+
+
+## Simulation
+win = 0
+
+#for i in range(1000):
+ #   turn = 1
+  #  done_mark = 1
+   # this_state = 1
+   # while done_mark:
+    #    next_state = Environment(this_state)
+
+#        this_state = next_state
+
+        #print(this_state)
+
+ 
+ #       if (turn %2 == 0) and this_state == 10:
+  #          win += 1
+   #         print("win game_over")
+    #        done_mark=0
+
+     #   else:
+      #      print("lose game_over")
+      #      done_mark=0
+
+```
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture D3 "
+```

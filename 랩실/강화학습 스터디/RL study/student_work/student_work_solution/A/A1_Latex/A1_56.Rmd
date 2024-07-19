@@ -1,0 +1,87 @@
+---
+title: "C1_DTMC Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+# Q 5,6
+## Q5
+
+Solve the followings
+$$
+\left(\begin{array}{cc} 
+.6 & .4\\
+\end{array}\right)
+\left(\begin{array}{cc} 
+.7 & .3\\ 
+.5 & .5
+\end{array}\right) =
+$$ 
+$$
+\left(\begin{array}{cc} 
+0.6*0.7+0.4*0.5 & 0.6*0.4+0.4*0.5\\
+\end{array}\right) = 
+\left(\begin{array}{cc} 
+0.62 & 0.38.\\
+\end{array}\right)
+$$
+
+
+
+## Q6
+
+What is $P^2$?
+
+$$
+P=
+\left(\begin{array}{cc} 
+.7 & .3\\ 
+.5 & .5
+\end{array}\right)
+$$ 
+$$
+P=
+\left(\begin{array}{cc} 
+0.7 & 0.3\\ 
+0.5 & 0.5
+\end{array}\right) 
+\left(\begin{array}{cc} 
+0.7 & 0.3\\ 
+0.5 & 0.5
+\end{array}\right) = 
+\left(\begin{array}{cc} 
+0.74 & 0.36\\ 
+0.6 & 0.4
+\end{array}\right)
+$$ 
+
+
+
+```{r}
+"Q 5,6"
+```
+

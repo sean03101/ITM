@@ -1,0 +1,212 @@
+---
+title: "D_case"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '2021 2 5 '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA') 
+```
+
+
+
+1. Problem
+
+-In korea, Thanksgiving day, many people go to the their hometown. So, that day many cars in highway and many people take a rest in service area. There are 5 area between Seoul and Busan. And almost all vehicles stop at service area least 1. The more you use a rest area, the higher your satisfaction, but if you use a busy area, your satisfaction may decrease. 
+
+\vspace{15pt}
+
+2. state
+
+S = {Seoul,A,B,C,D,E,Busan}
+
+(A,B,C,D,E) is name of service area
+\vspace{15pt}
+
+3. transition matrix
+
+- Probability of visiting service area
+
+4. reward
+
+-Seoul, Busan and A,E is -1.0
+
+-B,D is -1.5
+
+-C is -2.0 (because area C is middle of Seoul to Busan. So, many cars want to rest there.)
+
+
+\newpage
+
+# states and transition matrix, reward
+```{python}
+import numpy as np
+import pandas as pd
+
+
+states = ['0','A','B','C','D','E','1']
+P_transition = pd.DataFrame(np.matrix([[0,0.05,0.15,0.4,0.25,0.05,0.1],
+                                       [0.05,0,0.05,0.15,0.4,0.15,0.2],
+                                       [0.15,0.05,0,0.05,0.2,0.25,0.3],
+                                       [0.35,0.15,0.05,0,0.05,0.15,0.35],
+                                       [0.3,0.25,0.2,0.05,0,0.05,0.15],
+                                       [0.2,0.15,0.4,0.15,0.05,0,0.05],
+                                      [0.1,0.05,0.25,0.4,0.15,0.05,0]]),index=states,columns=states)
+
+
+print(P_transition)
+
+
+R_s_a = pd.DataFrame(np.matrix([-1,-1,-1.5,-2.0,-1.5,-1,-1]).reshape(len(states),1),index=states,columns=['reward'])
+
+
+print(R_s_a.T)
+
+
+pi_stop = pd.DataFrame(np.c_[np.repeat(0,len(states))],index=states,columns=['reward'])
+
+print(pi_stop.T)
+
+```
+\newpage
+
+# gamma 
+```{python}
+gamma = 0.9
+epsilon = 10**(-8)
+
+v_old = np.array(np.zeros(7,)).reshape(7,1)
+v_new = R_s_a + np.dot(gamma*P_transition, v_old)
+
+results = v_old.T
+results = np.vstack((results,v_new.T))
+while np.max(np.abs(v_new-v_old)).item() > epsilon:
+    v_old = v_new
+    v_new = R_s_a + np.dot(gamma*P_transition, v_old)
+    results = np.vstack((results,v_new.T))
+
+results = pd.DataFrame(results, columns=states)
+print(v_new.T)
+print(results.head())
+print(results.tail())
+
+```
+\newpage
+
+# MC
+```{python}
+
+pi = pi_stop
+np.random.seed(1234)
+
+history = list()
+MC_N = 10**4
+
+for MC_i in range(MC_N):
+    s_now = '0'
+    history_i = list(s_now)
+
+    while s_now != '1':
+
+        a_now = 'reward'
+        P = P_transition
+
+        r_now = str(R_s_a.loc[s_now][a_now])
+        s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(0,1))]
+        history_i.extend([a_now,r_now,s_next])
+        s_now = s_next
+
+    history.append(history_i)
+
+history_stop = history
+
+func = np.vectorize(lambda x: ','.join(x))
+
+print(pd.Series(func(history_stop[:20])))
+
+```
+\newpage
+
+# TD (Seoul -> Busan)
+```{python}
+pol_eval = pd.DataFrame(np.zeros((len(states),2)),index=states,columns=['count','est'])
+
+for episode_i in range(len(history_stop)):
+    history_i = history_stop[episode_i]
+
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt = pol_eval.loc[history_i[j]]['count']
+
+        if j+3 < len(history_i):
+            TD_tgt = float(history_i[j+2])+pol_eval.loc[history_i[j+3]]['est']
+        else:
+            TD_tgt = 0
+
+        alpha = 1/current_cnt
+
+        pol_eval.loc[history_i[j]]['est']+=alpha*(TD_tgt-pol_eval.loc[history_i[j]]['est'])
+
+print(np.round(pol_eval.T,2))
+
+```
+\newpage
+
+# MC (Busan -> Seoul)
+```{python}
+pi = pi_stop
+np.random.seed(1234)
+
+history = list()
+MC_N = 10**4
+
+for MC_i in range(MC_N):
+    s_now = '1'
+    history_i = list(s_now)
+
+    while s_now != '0':
+
+        a_now = 'reward'
+        P = P_transition
+
+        r_now = str(R_s_a.loc[s_now][a_now])
+        s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(0,1))]
+        history_i.extend([a_now,r_now,s_next])
+        s_now = s_next
+
+    history.append(history_i)
+
+history_stop = history
+
+func = np.vectorize(lambda x: ','.join(x))
+
+print(pd.Series(func(history_stop[:20])))
+
+```
+\newpage
+
+# TD (Busan -> Seoul)
+```{python}
+pol_eval = pd.DataFrame(np.zeros((len(states),2)),index=states,columns=['count','est'])
+
+for episode_i in range(len(history_stop)):
+    history_i = history_stop[episode_i]
+
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt = pol_eval.loc[history_i[j]]['count']
+
+        if j+3 < len(history_i):
+            TD_tgt = float(history_i[j+2])+pol_eval.loc[history_i[j+3]]['est']
+        else:
+            TD_tgt = 0
+
+        alpha = 1/current_cnt
+
+        pol_eval.loc[history_i[j]]['est']+=alpha*(TD_tgt-pol_eval.loc[history_i[j]]['est'])
+
+print(np.round(pol_eval.T,2))
+```
+

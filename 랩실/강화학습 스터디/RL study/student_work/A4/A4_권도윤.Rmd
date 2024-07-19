@@ -1,0 +1,262 @@
+---
+title: "A4_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+## Implementation - basic (p. 11)
+
+\vspace{10pt}
+
+```{python}
+import numpy as np
+np.random.seed(1234)
+N = 10**3
+x = np.random.rand(N, 1)*2-1
+y = np.random.rand(N, 1)*2-1
+t = np.sqrt(x**2+y**2)
+
+vec = np.concatenate((x,y,t), axis=1)
+print(vec[:5])
+
+pi_hat = 4*sum(t<=1)/N
+print(pi_hat)
+
+```
+
+## Vectorized programming (p. 12)
+
+```{python}
+from datetime import datetime
+import numpy as np
+
+beg_time = datetime.now()
+N = 10**6
+x = np.random.rand(N, 1)*2-1
+y = np.random.rand(N, 1)*2-1
+t = np.sqrt(x**2+y**2)
+pi_hat = 4*sum(t<=1)/N
+end_time = datetime.now()
+print("Time difference of " ,end_time - beg_time, "secs")
+```
+
+```{python}
+from datetime import datetime
+import numpy as np
+
+beg_time = datetime.now()
+N = 10**6
+count = 0
+
+for i in range(N) :
+    x_i = np.random.rand(1)*2-1
+    y_i = np.random.rand(1)*2-1
+    z_i = x_i**2 + y_i**2
+    t_i = np.sqrt(z_i)
+    if (t_i <= 1):
+        count+=1
+
+pi_hat = 4*count/N
+end_time = datetime.now()
+print("Time difference of " ,end_time - beg_time, "secs")
+```
+
+## Implementation - varying number of trials (p. 13)
+
+```{python}
+import numpy as np
+def pi_simulator(N):
+    np.random.seed(1234)
+    x = np.random.rand(N,1)*2-1
+    y = np.random.rand(N,1)*2-1
+    t = np.sqrt(x**2+y**2)
+    pi_hat=4*np.sum(t <= 1)/N
+    return pi_hat
+```
+
+```{python}
+pi_simulator(100)
+```
+
+```{python}
+pi_simulator(1000)
+```
+
+```{python}
+pi_simulator(10000)
+```
+
+```{python}
+pi_simulator(100000)
+```
+
+```{python , echo=TRUE}
+import numpy as np
+def pi_simulator(N):
+    np.random.seed(1234)
+    x = np.random.rand(N,1)*2-1
+    y = np.random.rand(N,1)*2-1
+    t = np.sqrt(x**2+y**2)
+    pi_hat=4*np.sum(t <= 1)/N    
+    return pi_hat
+
+num_trials = [10**i for i in range(2,8)]
+outcomes=list(map(pi_simulator, num_trials))
+print(outcomes)
+
+```
+
+## How many repetition is neceessary to get closer? (p. 14)
+
+```{python}
+import matplotlib.pyplot as plt
+plt.plot(num_trials,outcomes)
+plt.grid(True,axis='both')
+plt.xscale('log')
+plt.xlabel("num_trials")
+plt.ylabel("outcomes")
+plt.show()
+```
+
+## Computation time (p. 17)
+
+```{python}
+import numpy as np
+from datetime import datetime
+def pi_simulator_2(N):
+    beg_time = datetime.now()
+    np.random.seed(1234)
+    x = np.random.rand(N,1)*2-1
+    y = np.random.rand(N,1)*2-1
+    t = np.sqrt(x**2+y**2)
+    pi_hat=4*np.sum(t <= 1)/N
+    end_time = datetime.now()
+    print(N)
+    print(end_time - beg_time)
+    return pi_hat
+```
+
+```{python}
+num_trials = [10**i for i in range(2,8)]
+list(map(pi_simulator_2, num_trials))
+```
+
+## Repetitive simulation experiments (p. 22)
+
+```{python}
+import numpy as np
+def pi_simulator_3(N):
+    x = np.random.rand(N,1)*2-1
+    y = np.random.rand(N,1)*2-1
+    t = np.sqrt(x**2+y**2)
+    pi_hat=4*np.sum(t <= 1)/N
+    return pi_hat
+```
+
+```{python}
+n = 100
+MC_N = 1000
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n):
+    samples[i] = pi_simulator_3(MC_N)
+print(samples[:5])
+```
+
+## p. 23
+
+```{python}
+import scipy as sp
+import scipy.stats
+
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t_ = sp.stats.t.ppf(0.975, n-1) # ppf means inverse cumulative distribution function
+print("X_bar :",X_bar)
+print("s :",s)
+print("t :",t_)
+```
+
+## Exercise 1 (p. 24)
+```{python}
+n = 100 
+MC_N = 10000 
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n): 
+    samples[i] = pi_simulator_3(MC_N) 
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t_ = sp.stats.t.ppf(0.975, n-1)
+lb = X_bar-t_*s/np.sqrt(n)
+ub = X_bar+t_*s/np.sqrt(n)
+```
+
+```{python}
+print(lb)
+```
+
+```{python}
+print(ub)
+```
+
+```{python}
+print(ub-lb)
+```
+
+## Exercise 2 (p. 25)
+
+```{python}
+n = 1000 
+MC_N = 10000 
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n): 
+    samples[i] = pi_simulator_3(MC_N) 
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t_ = sp.stats.t.ppf(0.975, n-1)
+lb = X_bar-t_*s/np.sqrt(n)
+ub = X_bar+t_*s/np.sqrt(n)
+```
+
+```{python}
+print(lb)
+```
+
+```{python}
+print(ub)
+```
+
+```{python}
+print(ub-lb)
+```
+
+
+
+
+

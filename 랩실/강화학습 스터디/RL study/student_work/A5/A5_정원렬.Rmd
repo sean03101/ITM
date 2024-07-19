@@ -1,0 +1,75 @@
+---
+title: "A5_Jeong,wonryeol"
+author: "Jeong, wonryeol"
+date: "1/4/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Uniform random numbers 15p
+
+
+```{python}
+import numpy as np
+import pandas as pd
+
+
+X = np.random.uniform(-1,1,1000)
+
+X = pd.DataFrame(X)
+
+X.plot.hist()
+
+
+
+
+
+
+```
+\newpage
+
+
+# Normal random numbers 16p
+
+
+```{python}
+X = np.random.normal(3,2,1000)
+X = pd.DataFrame(X)
+X.plot.hist()
+
+
+```
+
+
+\newpage
+
+
+# Exponential random numbers 17p
+
+```{python}
+X = np.random.exponential(1/5,size=10000)
+
+X = pd.DataFrame(X)
+X.plot.hist()
+
+
+```
+
+
+\newpage
+
+
+# Poisson random numbers 18p
+```{python}
+x=np.random.poisson(5, size=10000)
+X  = pd.DataFrame(X)
+X.plot.hist()
+
+```
+

@@ -1,0 +1,149 @@
+---
+title: "D1_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+```
+
+\newpage
+
+## Recap (P. 10)
+
+```{python}
+import numpy as np
+
+def soda_simul(this_state):
+    n=np.random.random()
+    
+    if this_state=='c':
+        if n<=0.7:
+            next_state='c'
+        else:
+            next_state='p'
+    else:
+        if n<=0.5:
+            next_state='c'
+        else:
+            next_state='p'
+            
+    return next_state
+    
+def cost_eval(path):
+    cost_one_path=path.count('c')*1.5+path.count('p')*1
+    return cost_one_path
+    
+MC_N=10000
+spending_records=np.zeros((MC_N,))
+
+for i in range(MC_N):
+    path='c' 
+    
+    for t in range(10):
+        this_state=path[-1]
+        next_state=soda_simul(this_state)
+        path+=next_state
+      
+    spending_records[i]=cost_eval(path)
+    
+```
+
+
+```{python}
+print(spending_records)
+```
+
+
+
+## MC simulation for estimating state-value function (P. 11)
+
+```{python}
+episode_i = 0
+cum_sum_G_i = 0
+num_episode = 10000
+H = 10 #time_horizon
+while episode_i < num_episode:
+  path = 's'
+  for time in range(H):
+    this_state = path[-1]
+    next_state = soda_simul(this_state)
+    path = path+next_state
+    
+  G_i = cost_eval(path)
+  
+  cum_sum_G_i = cum_sum_G_i + G_i
+  
+  episode_i +=1
+  
+V_t = cum_sum_G_i / num_episode
+
+print(V_t)
+```
+
+
+## For general t, Exercise (P. 17)
+
+\begin{align}
+  &V_t(s)=\mathbb E[G_t|S_t = s] \\
+  &=\mathbb E[\sum_{i=t}^{H-1}r_i|S_t = s]\\
+  &=\mathbb E[r_t+r_{t+1}+...+r_{H-1}|S_t = s]\\
+  &=\mathbb E[r_t|S_t = s] + \mathbb E[r_{t+1}+...+r_{H-1}|S_t = s]\\
+  &=R(s) + \mathbb E[G_{t+1}|S_{t+1} = s]\\
+  &=R(s) + \sum_{s\prime\in S}P_{ss\prime} \mathbb E[G_{t+1}|S_{t+1} = s\prime]\\
+  &=R(s) + \sum_{s\prime\in S}P_{ss\prime} V_{t+1}(s\prime)
+\end{align}
+
+
+
+\newpage
+
+## P. 20
+
+```{python}
+import numpy as np
+P = np.array([0.7,0.3,0.5,0.5]).reshape(2,2)
+R = np.array([1.5,1.0]).reshape(2,1)
+H = 10
+v_t1 = np.array([0,0]).reshape(2,1)
+t = H-1
+
+while (t>=0):
+    v_t = R+ np.dot(P,v_t1)
+    t = t-1
+    v_t1 = v_t
+print(v_t)
+
+```
+
+
+```{python}
+while (t>=0):
+    v_t = R+P*v_t1
+    t = t-1
+print('Backward induction',v_t)
+```
+
+
+```{r, results='hide'}
+"D1_Exercises"
+```

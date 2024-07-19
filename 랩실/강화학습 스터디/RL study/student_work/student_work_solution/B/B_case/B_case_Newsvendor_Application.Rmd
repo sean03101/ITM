@@ -1,0 +1,374 @@
+---
+title: "Newsvendor Application Example"  
+author: "BongSeokKim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+case들은 종합하기 애매해서, 학생들의 case를 읽고 나름대로 축약한 제목을 이름 옆에 붙였습니다.
+
+## 권태현 (Factory location selection problem)
+
+*Samsung electronics will present galaxy S30 in 2021. The company expect demand follows U(4000,8000).the opening price is $1500. Then the company worry about that choosing factory for produce S30. In China factory, labor cost is $10 per unit and They're shipping the product by ship. One box has packing 100 unit and cost is $30 per one packing. If the stock was to remain in the box the shipping cost is $0.5 per unit.In Vietnam factory, labor cost is $6 per unit. And shipping cost is $45. Remain product shipping cost is $0.9 per unit. Material cost is $300 each of them. They sell the part of S30's leftover and the value is $150. Choose the efficiency factory to produce Galaxy S30.*
+
+
+### China Factory
+```{r}
+try_X <- seq(from = 4000, to = 8000, by = 1)
+exp_profits <- NULL
+  
+for(X in try_X){
+  set.seed(1234)
+  D <- runif(n=10000, min= 4000, max=8000)
+  sales_rev <- 1500*pmin(D,X)
+  salvage_rev <- 150*pmax(X-D,0)
+  material_cost <- 300*X
+  labor_cost <- 10*X
+  shipping_cost <- 30*(X%/%100)
+  shipping_remain_cost <- 0.5*(X%%100)
+  exp_profit <- mean(sales_rev + salvage_rev - material_cost - labor_cost - shipping_cost -shipping_remain_cost)
+  exp_profits <- c(exp_profits, exp_profit)
+}
+  
+result <- data.frame(try_X, exp_profits)
+idx <- which(exp_profits==max(exp_profits))
+print ('optimal stock')
+try_X[idx]
+print ('expected profits')
+exp_profits[idx]
+```
+
+
+### Vietnam Factory
+```{r,echo=TRUE}
+try_X <- seq(from = 4000, to = 8000, by = 1)
+exp_profits <- NULL
+  
+for(X in try_X){
+  set.seed(1234)
+  D <- runif(n=10000, min= 4000, max=8000)
+  sales_rev <- 1500*pmin(D,X)
+  salvage_rev <- 150*pmax(X-D,0)
+  material_cost <- 300*X
+  labor_cost <- 6*X
+  shipping_cost <- 45*(X%/%100)
+  shipping_remain_cost <- 0.9*(X%%100)
+  exp_profit <- mean(sales_rev + salvage_rev - material_cost - labor_cost - shipping_cost -shipping_remain_cost)
+  exp_profits <- c(exp_profits, exp_profit)
+}
+  
+result <- data.frame(try_X, exp_profits)
+idx <- which(exp_profits==max(exp_profits))
+print ('optimal stock')
+try_X[idx]
+print('expected profits')
+exp_profits[idx]
+
+
+```
+
+\newpage 
+
+## 강의현 (Optimal Stock for susi restaurant)
+
+
+**Problem**
+
+You run a sushi restaurant in Seoul. You buy a fish for \$3 at the fish market and sell them as a sushi for \$6. If you can't sell all the fish on that day, you'll have to resell it for $1.5 per fish in the fish market. When the demand for sushi is as shown in the table below, answer to questions.
+
++--------+-----+-----+-----+-----+-----+
+|$d$     |30   |  31 |  32 |   33|34   |
++:======:+:===:+:===:+:===:+:===:+:===:+
+|$P(D=d)$|$0.4$|$0.1$|$0.1$|$0.2$|$0.2$|
++--------+-----+-----+-----+-----+-----+
+
+**Question.**
+
+  1. Find Optimal stock
+  
+  2. What is Expected profit?
+
+\newpage
+
+## 김봉석 (transportation resource allocation)
+
+### Introduction
+I think that, newsvendor model can applied into the transportation resource allocation problem.
+such problem is about what is optimal number of resource or capacity under demand uncertainty in logistics.
+for example ) if you allocate too many resource than demand, service level will increase enough but cost will also increase such as Transportation cost, maintenence cost. Otherwise If you allocate too few resources, servoce level will decrease, Opportunity costs will incur and other cost will be also incur. 
+These trade-off relationship, the optimal resource allocation problem in logistics, can be solved with the news vendor model.
+
+
+### Problem (Incomplete yet.)
+
+Suppose you are the new CEO for an airline company that continues to lose money. so that, you are thinking of reorganizing the flight route.
+best solution up to now is to reduce the number of planes on air routes that are constantly experiencing deficits, and reinvest in new alternatives. (you will have 10~50 spare aircraft if the reorgarnizing plan sucessfully carried out)
+
+
+### Executives suggested two alternatives as follows
+
+1) New direct flights to South America will be established :
+   
+   
+   Annual demand follows Normar distribution with mean =100,000 and standard deviation=500.
+   1 flight can meet 200 demands and 1 flight ticket will sell at /$100
+   
+   
+
+2) It is converted into a cargo transport aircraft and used for air logistics only :
+
+   switching cost will incur $2000 per units, and Annual demand follows Normar distribution with mean =100,00000 and standard deviation=100.
+   1 fligt can transport 10000 units of cargo, revenue will occur $/10 per unit 
+\newpage
+
+## 박재민 (Optimal Stock for KF-94 masks in COVID-19)
+
+### Question
+### Newsvendor Model applied problem
+
+Due to COVID-19, demand for KF94 masks has exploded. You thought that mask business has potential, you decided to start a mask sales business.\
+You can choose 2 options for supply contract from mask factory.\
+First is usual method. You buy masks for 200won per sheet from factory and sell for 300won. Salvage value is 50won per sheet. Second method is sharing profit with supplier. By this method, you can get mask from factory for 100won per sheet, but you have to pay 25% of the profit to the factory. Selling price and salvage value are same as before. 300won and 50won per sheet.\
+Note that you sell masks to customers in sets, not individually. There are 10 masks in 1 set. The mask set demand follows $\mathbb{U}$(1000,2000). Calculate optimal stock and expected profit for each options.
+
+**1. Usual method**\
+$\textbf{1) Finding optimal stock}$\
+$C_o$=(Material Cost - Salvage Price)=$(200-50)=150$\
+$C_u$=(Retail Price - Material Cost)=300-200=100\
+optimal stock = smallest Y that matches F(Y) = $\frac{c_u}{c_o+c_u}$\
+$F(Y) = \frac{100}{100+150}$\
+$F(Y) = \frac{2}{5}$\
+\normalsize
+\begin{equation*}
+  f(x) =
+  \begin{cases}
+        \frac{1}{1000} & \text{when $1000 \leq\ x\ \leq\ 2000$} \\
+        0           & \text{otherwise} 
+  \end{cases}
+\end{equation*}\
+\begin{equation*}
+  F(x) =
+  \begin{cases}
+        0           & \text{when $x\ \leq 1000$}\\
+        \frac{x}{1000} -1 & \text{when $1000 \leq\ x\ \leq\ 2000$} \\
+        1           & \text{when $x\ \geq 2000$} 
+  \end{cases}
+\end{equation*}\
+$\therefore\ $ Optimal Stock = 1400\
+
+$\textbf{2) Expected Revenue}$\
+$\mathbb{E}[Profit]=\mathbb{E}(Sale\ Rev.)+\mathbb{E}(salvage\ Rev.)-\mathbb{E}(material\ Cost)$\
+=$\mathbb{E}[3000·(D∧Y)]+\mathbb{E}[500·(Y-D)^{+}]-Y·2000$\
+$\mathbb{E}[sale\ rev.] = \mathbb{E}[y\wedge\ 1400] \times3000 \\ = 3000\times(\int_{1000}^{1400} \frac{1}{1000}y\,dy\ +\int_{1400}^{2000} 1400\times{\frac{1}{1000}}\,dy\ )$\
+$\mathbb{E}[salvage\ rev.] = \mathbb{E}[ (1400-y)^+]\times 500 =500\times(\int_{1000}^{1400} \frac{1}{1000}(1400-y)\,dy)$\
+$\mathbb{E}[material\ cost] = 1400 \times 2000$\
+$\mathbb{E}[sale\ rev.] = 3,960,000,\ \mathbb{E}[salvage\ rev.] = 40,000,\ \mathbb{E}[material\ cost]\ = 2,800,000$\
+
+$\therefore$ Expected Profit = 1,200,000 won
+
+**2. Sharing profit**\
+$\textbf{1) Finding optimal stock}$\
+$C_o$=(Material Cost - Salvage Price)=$(100-50)=50$\
+$C_u$=(Retail Price - Material Cost - profit share)=300-100-(200*0.25)=150\
+optimal stock = smallest Y that matches F(Y) = $\frac{c_u}{c_o+c_u}$\
+$F(Y) = \frac{150}{50+150}$\
+$F(Y) = \frac{3}{4}$\
+
+$\therefore\ $ Optimal Stock = 1750\
+
+$\textbf{2) Expected Revenue}$\
+$\mathbb{E}[Profit]=\mathbb{E}(Sale\ Rev.)+\mathbb{E}(salvage\ Rev.)-\mathbb{E}(material\ Cost) - \mathbb{E}(profit\ share\ cost)$
+=$\mathbb{E}[3000·(D∧Y)]+\mathbb{E}[500·(Y-D)^{+}]-Y·1000-\mathbb{E}[\frac{1}{4}(3000-1000)·(D∧Y)]$\
+$\mathbb{E}[sale\ rev.] = \mathbb{E}[y\wedge\ 1750] \times3000 \\ = 3000\times(\int_{1000}^{1750} \frac{1}{1000}y\,dy\ +\int_{1750}^{2000} 1750\times{\frac{1}{1000}}\,dy\ )$\
+$\mathbb{E}[salvage\ rev.] = \mathbb{E}[ (1750-y)^+]\times \\ =500\times(\int_{1000}^{1750} \frac{1}{1000}(1750-y)\,dy)$\
+$\mathbb{E}[material\ cost] = 1750 \times 1000$\
+$\mathbb{E}[profit\ share\ cost] = \mathbb{E}[y\wedge\ 1750] \times500 \\ = 500\times(\int_{1000}^{1750} \frac{1}{1000}y\,dy\ +\int_{1750}^{2000} 1750\times{\frac{1}{1000}}\,dy\ )$\
+$\mathbb{E}[sale\ rev.] = 4,406,250,\ \mathbb{E}[salvage\ rev.] = 140,625,\ \\ \mathbb{E}[material\ cost]\ = 1,750,000,\ \mathbb{E}[profit\ share\ cost]\ = 734,375$\
+
+$\therefore$ Expected Profit = 2,062,500 won
+
+\newpage
+
+## 손민상(The amount of COVID-19 vaccine to buy)
+
+\vspace{20pt}
+
+### Introduction 
+When I watched the article of Korea's vaccine purchasing. I wondered about the way to decide the amount of the vaccine for each company. Of course, to buy the cheapest one, or the most effective one is the best. But, it is impossible. In this situation the newsvender algorithm can help to solve these problems effectively. 
+
+\vspace{15pt}
+
+### Problem
+Due to the spread of COVID-19, all the country are trying to secure the vaccine. Korea also planned to inoculate all the people in Korea , 52 millions. Korea will buy the vaccine of pfizer and the vaccine of AStraZenca at the same time. The amount of pfizer vaccine will be decided by pfizer company and it follows normal distribution mean of 20million, standard deviation of 1. The amount of AStraZenca vaccine will be decided by pfizer company and it follows exponential distribution mean of 10million. Korea should decide the amount of Moderna's vaccine. After securing the three vaccines, Korea will buy the vaccine of shortage from other countries for 40$ and can sell the remains for 3$ each to other countries. The table  below shows the price of vaccine.
+
+|  vaccine |  price  |  
+|:--------:|:-------:|
+|  Moderna |   25$   |
+|AStraZenca|    5$   |
+|  pfizer  |   20$   |
+
+\vspace{15pt}
+
+### To make the cost minimum, how much Korea should buy Moderna? Then how about the expected cost?
+
+\newpage
+
+## 권도윤 (optimizing the amount of raw materials purchased in Recycling value-added Business)
+
+### Introduction
+
+Since December last year, transparent plastic bottles have to be separately discharged, not plastic. The "Transparent Pet Bottle Separately Discharge Pilot Project" conducted by the Ministry of Environment was conducted in Seoul, Jeju Island (Jeju, Seogwipo), Cheonan, Gimhae, and Busan last year. Until now, all the fibers and clothing made with waste pet bottles were made with imported waste pet bottles. Only 10% of pet bottles thrown away in Korea were recycled in high quality. 
+This is because transparent pet bottles and colored pet bottles were mixed, and foreign substances were mixed during the discharge and recovery process, making it difficult to use them as high-quality renewable materials. Since December 25, two years ago, bottles of colored plastic have been banned. A revision to the "Act on the Promotion of Resource Saving and Recycling" has been implemented, which calls for switching all bottled water and beverage pet bottles, including soju, to a transparent color and changing the label to an adhesive form that can be removed. 
+
+
+Transparent plastic bottles are the most value-added recyclables among plastics. Pet bottles are screened, compressed and sold at recycling screening sites when they are discharged separately. A recycling company shreds and cleans them to produce recycled materials. High-quality pet bottles are exported in sheets or long fiber, medium- and low-quality single-fiber or other materials, and low-quality plastic bottles are exported. In addition to transparent PET bottles (Polyethylene terephthalate), packaging materials and general plastic (PP. PE) made of PET material were discarded at once, making it difficult to select them. Even if it is the same PET material, packaging PET such as fruit trays and coffee containers are weak in purity, making it difficult to make high-quality raw materials when mixed with pet bottles. In addition, food containers such as shampoo containers (PE/Polyethylene) and red pepper paste (PP/Polypropylene) were also thrown away and there was a limit to regenerating pet bottles as high-quality raw materials due to contamination. 
+
+
+When transparent pet bottles are released separately, the screening process becomes much easier. In the case of transparent pet bottles used mainly in beverages and bottled water, the contamination level is low and the cleaning process can be reduced. If the separation of transparent pet bottles stabilizes, it is expected to be easier to meet T-shirts, bags, and swimsuits made with high-quality recycled materials from Korea.
+
+
+### Problem
+
+If you are the CEO of a company that creates added value through plastic recycling, you can control the amount of waste pet bottles you import when the recycling rate of domestic plastic increases due to the law on recycling. And high-quality recycled materials produced in Korea will increase, which will help optimize the amount of raw materials purchased. When these changes are expected, you will be able to think about which judgment is the best choice.
+
+\newpage
+
+## 이성호 (given A/F ratio, obtain the expected actual demand distribution)
+
+### Problem_1
+
+
+The A/F ratio is the ratio of actual demand divided by the predicted value. As a result of O'Neill's forecast of 3.2 million swimwear sales in 20, the sales data were normally distributed, with the expected A/F ratio of 0.9976 and the standard deviation of the A/F ratio of 0.369. Given that 21 years of swimwear sales are 2.2 million and the A/F ratios are the same, and sales volume is normally distributed, obtain the expected actual demand distribution.
+
+
+#### sol_1 
+
+
+$\mu=Estimated\, A/F \,Ratio × Demand\, forecasting=0.9976×2,200,000=2,194,720$\
+$\sigma=Standard\, deviation\, of\, A/F\, ratio × Demand\, forecasting=0.369×2,200,000=811,800$\
+$\therefore\, expected\, actual\, demand= N(2194720,811800)$
+
+
+### Problem_2
+
+
+The factory costs $110 to produce swimsuits, $180 to sell at the store and $90. Get the best order quantity using the actual demand you've got earlier.(φ(0.76)=0,7764, φ(0.77)=0.7794)
+
+
+
+### sol_2 
+
+
+$C_o$=(Material Cost - Salvage Price)=(110-90)=$20
+
+
+$C_u$=(Retail Price - Material Cost)=(180-110)=$70
+
+
+optimal stock = smallest Y that matches F(Y) = $\frac{c_u}{c_o+c_u}$\
+
+
+$F(z) = \frac{70}{70+20}$\
+
+
+$F(z) = \frac{7}{9} \fallingdotseq 0.7778$\
+
+
+Z = (Q- $\mu$ )/ $\sigma$ \
+$\rightarrow\, \therefore Best\, order\, quantity\, =   Q = \mu + Z*\sigma$ = 2,194,720+0.77*811,800 = 2,819,806
+
+
+Exact figures have not yet been collected. It may be optimised by approaching the country's economic and social values rather than limited to one company. We need to be specific about the problem and what to optimize.
+
+\newpage
+
+## 정원렬 (comparing Bus and Train Selection)
+
+
+### Introduce
+
+\vspace{15pt}
+
+Newsbender is a way to provide solutions to how resources are utilized. Using this as an advantage we can analysis how the resource deployment will incur a small cost following some dicisions. 
+
+
+Train time (ktx) and bus time are considered in terms of time and money. If a company serves both buses and trains, it compares and analyzes where more investment should be made. And it presents an appropriate supply
+
+
+
+### Problems 
+\vspace{15pt}
+You are the CEO of a company that provides both trains and buses. You should proceed with additional investment. At this time, you must decide by utilizing all the customer's demands, utility, and economic benefits. What decision would you make if you were in the red? Or what decision will you make when you're in the black? Give your decision according to your assumptions.
+
+
+### Executives in some conditions as follows
+
+
+
+1) If customer miss, cost will be calculated folliwing interval width  :
+   
+2) The customer considers only cost and utility thoroughly.
+
+3) You have $10,000 and spend $5,000 on train and $1,000 on bus.
+
+4) The closer the distance, the smaller the difference in utility, and the farther the difference in utility is, the greater the difference in utility.
+
+
+## 상지인(Energy management for stationary electric energy storage systems)
+
+### Abstract
+
+This proposal adopts a single-period Newsvendor model to predict optimal scheduling of battery energy storage system (BESS) to minimize electric bill while maintaining the desired level of battery state of charge (SoC).  
+
+### introduction
+
+There is a rising demand for replacing destructive energy sources with renewable energy sources. To effectively manage microgrids with multiple power sources, a battery energy storage system (BESS) can improve grid stability and flexible power dispatch. This paper aims to optimally schedule the BESS based on load and PV prediction using a Newsvendor model. 
+
+### Probelem Formulation
+
+To scale down the computational load and for easier access to data, this proposal aims to design the BESS of one of the school buildings. Also, possible various power sources will be scaled down to a single source, photovoltaic (PV) power.   
+
+To minimize the electric bill, maximizing the utilization of PV is crucial. Thus, this paper suggests building a daily BESS scheduling model based on the seasonal pattern of load and PV data. BESS will store the PV power during the low load conditions and dispatch the stored energy during the high load conditions like the summer daytime. 
+
+If PV power isn't enough to meet the loads' needs, we should buy electricity from Korea Electric Power Corporation (KEPCO). On the other hand, if there are unused PV power, we can sell the PV generated electricity back to KEPCO. 
+
+### Limitation
+
+\begin{itemize}
+\item Since the model is built on the past seasonal data, it cannot adapt to unexpected real-time changes of load, PV generation and price of electricity market.
+\end{itemize}
+
+
+
+
+
+
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done"
+```

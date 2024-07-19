@@ -1,0 +1,179 @@
+---
+title: "E1 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("pandas")
+py_install("matplotlib")
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+## Page 21 
+```{python, echo = TRUE}
+import numpy as np
+import pandas as pd
+
+R=np.hstack((np.repeat(-1.5,4),-0.5,np.repeat(-1.5,2),0)).reshape(-1,1)
+
+states=np.arange(0,80,step=10)
+
+P=np.matrix([[.1,0,.9,0,0,0,0,0],
+             [.1,0,0,.9,0,0,0,0],
+             [0,.1,0,0,.9,0,0,0],
+             [0,0,.1,0,0,.9,0,0],
+             [0,0,0,.1,0,0,.9,0],
+             [0,0,0,0,.1,0,0,.9],
+             [0,0,0,0,0,.1,0,.9],
+             [0,0,0,0,0,0,0,1]]).reshape(8,8)
+
+
+print(R.T)
+
+```
+
+```{python, echo = TRUE}
+print(P)
+```
+
+```{python, echo = TRUE}
+gamma=1.0
+epsilon=10**(-8)
+v_old=np.array(np.zeros(8))
+v_new=R+np.dot(gamma*P,v_old)
+
+while np.max(np.abs(v_new-v_old))>epsilon:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P, v_old)
+    
+print(v_new.T[-1])
+```
+
+
+\newpage
+## Rewritten
+```{python, echo = TRUE}
+gamma=1.0
+epsilon=10**(-8)
+
+v_old=np.array(np.zeros(8,)).reshape(8,1)
+v_new=R+np.dot(gamma*P,v_old)
+
+results=v_old.T
+results=np.vstack((results,v_new.T))
+
+while np.max(np.abs(v_new-v_old)) > epsilon:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P, v_old)
+    results=np.vstack((results,v_new.T))
+    
+results=pd.DataFrame(results, columns=states)
+results.head()
+```
+
+
+
+
+```{python, echo = TRUE}
+results.tail()
+```
+
+
+\newpage
+## Iteration from 1 to 6
+```{python, echo = TRUE}
+import matplotlib.pyplot as plt
+
+for i in range(0,6):
+    plt.plot(states, results.iloc[i], marker='o', label=str(i+1))
+    
+plt.rcParams["figure.figsize"] = (16,16)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 1 to 6',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## Iteration from 7 to 12
+```{python, echo = TRUE}
+for i in range(7,12):
+    plt.plot(states, results.iloc[i], marker='o', label=str(i+1))
+    
+plt.rcParams["figure.figsize"] = (16,16)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 7 to 12',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## Iteration from 13 to 18
+```{python}
+for i in range(13,18):
+    plt.plot(states, results.iloc[i], marker='o', label=str(i+1))
+    
+plt.rcParams["figure.figsize"] = (16,16)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 13 to 18',fontweight='bold')
+plt.show()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

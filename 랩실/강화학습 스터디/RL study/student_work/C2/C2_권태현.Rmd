@@ -1,0 +1,89 @@
+---
+title: "C2"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()` '
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+#Eigen-decomposition
+```{python}
+import numpy as np
+
+eig = np.linalg.eig
+matrix = np.matrix
+
+p = matrix([[0.7,0.5],
+            [0.3,0.5]])
+
+print('eigen value',eig(p)[0])
+
+print('eigen matrix',eig(p)[1])
+
+X_1 = eig(p)[1][:,0]
+
+v = X_1/sum(X_1)
+
+print('X_1', X_1)
+
+print('v', v)
+
+```
+\newpage
+
+#page 15 Method system of linear equation
+```{python}
+P = np.array([[0.7,0.3],[0.5,0.5]])
+n = len(P)
+I = np.eye(2)
+A = np.c_[P-I,np.repeat(1,n)]
+b = np.append(np.repeat(0,n),np.array([1]))
+v = np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+
+print(A)
+
+print(b)
+
+print(v)
+
+```
+\newpage
+
+
+#page 17 Motivation
+```{python}
+import numpy as np
+
+matrix = np.matrix
+p = matrix([[0.7,0.3],[0.5,0.5]])
+
+
+print(p)
+
+print(np.dot(p,p))
+
+print(p**3)
+
+print(p**4)
+
+print(p**20)
+```
+
+\newpage
+
+#page 19 limiting distribution
+```{python}
+import numpy as np
+
+matrix = np.matrix
+p = matrix([[0,1],[1,0]])
+
+print(p**2)
+
+print(p**3)
+```

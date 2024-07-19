@@ -1,0 +1,96 @@
+---
+title: "Mars Rover Markorv Process"
+author: "Son Min Sang"
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+
+```
+
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    &0.6 &0.4 &0 &0 &0 &0 &0 \\
+    &0.4 &0.2&0.4 &0 &0 &0 &0 \\
+    &0 &0.4& 0.2& 0.4& 0 &0 &0 \\
+    &0 &0 &0.4 &0.2& 0.4& 0 &0 \\
+    &0 &0 &0 &0.4& 0.2& 0.4 &0 \\
+    &0 &0 &0 &0 &0.4& 0.2& 0.4\\
+    &0 &0 &0 &0 &0 &0.4 &0.6\\ 
+  \end{pmatrix}
+\end{align*}
+
+
+\newpage
+
+## page 10
+```{python, echo=TRUE}
+
+import numpy as np
+
+def MC_simul(this_state):
+    u=np.random.random()
+    
+    state =["S1","S2","S3","S4","S5","S6","S7"]
+    index=state.index(this_state)
+  
+    if this_state=="S1":
+        if u<=0.4:
+            next_state=state[index+1]
+        else:
+            next_state="S1"
+
+    elif this_state=="S7":
+        if u<=0.4:
+            next_state=state[index-1]
+        else:
+            next_state='S7'
+  
+    else :
+        if u<=0.4:
+            next_state=state[index+1]
+        elif u<=0.8:
+            next_state=state[index-1]
+        else :
+            next_state=this_state
+            
+    return next_state
+
+def reward_eval(path):
+    reward=path.count('S1')*1+path.count('S7')*10
+    return reward
+    
+MC_N=10000
+spending_records=np.zeros((MC_N,))
+for i in range(MC_N):
+    path=['S4'] # starting point
+    
+    for t in range(9):
+        this_state=path[-1]
+        next_state=MC_simul(this_state)
+        path.append(next_state)
+      
+    spending_records[i]=reward_eval(path)
+
+print(np.mean(spending_records))
+
+```

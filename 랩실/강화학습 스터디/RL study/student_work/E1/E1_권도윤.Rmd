@@ -1,0 +1,166 @@
+---
+title: "E1_Exercises"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: True   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## P. 21
+
+```{python}
+import numpy as np
+import pandas as pd
+
+R=np.hstack((np.repeat(-1.5,4),-0.5,np.repeat(-1.5,2),0)).reshape(-1,1)
+states=np.arange(0,70+10,step=10)
+P=np.matrix([[.1,0,.9,0,0,0,0,0],
+             [.1,0,0,.9,0,0,0,0],
+             [0,.1,0,0,.9,0,0,0],
+             [0,0,.1,0,0,.9,0,0],
+             [0,0,0,.1,0,0,.9,0],
+             [0,0,0,0,.1,0,0,.9],
+             [0,0,0,0,0,.1,0,.9],
+             [0,0,0,0,0,0,0,1]])
+             
+P=pd.DataFrame(P,columns=states)
+
+```
+
+```{python}
+print(R)
+print(P)
+```
+
+```{python}
+gamma=1.0
+epsilon=10**(-8)
+
+v_old=np.array(np.zeros(8,)).reshape(8,1)
+v_new=R+np.dot(gamma*P,v_old)
+
+while np.max(np.abs(v_new-v_old))>epsilon:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P, v_old)
+print(v_new.T)
+```
+
+\newpage
+
+## Rewritten with intermediate saving
+```{python}
+R=np.hstack((np.repeat(-1.5,4),-0.5,np.repeat(-1.5,2),0)).reshape(-1,1)
+states=np.arange(0,70+10,step=10)
+P=np.matrix([[.1,0,.9,0,0,0,0,0],
+             [.1,0,0,.9,0,0,0,0],
+             [0,.1,0,0,.9,0,0,0],
+             [0,0,.1,0,0,.9,0,0],
+             [0,0,0,.1,0,0,.9,0],
+             [0,0,0,0,.1,0,0,.9],
+             [0,0,0,0,0,.1,0,.9],
+             [0,0,0,0,0,0,0,1]])
+P=pd.DataFrame(P,columns=states)
+gamma=1.0
+epsilon=10**(-8)
+v_old=np.array(np.zeros(8,)).reshape(8,1)
+v_new=R+np.dot(gamma*P,v_old)
+results=v_old.T
+results=np.vstack((results,v_new.T))
+while np.max(np.abs(v_new-v_old)) > epsilon:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P, v_old)
+    results=np.vstack((results,v_new.T))
+    
+results=pd.DataFrame(results, columns=states)
+results.head()
+results.tail()
+
+```
+
+\newpage
+
+## Plots iteration 1 to 6
+```{python, echo=T}
+import matplotlib.pyplot as plt
+
+plt.plot(states,results.iloc[0],marker='o',label='1')
+plt.plot(states,results.iloc[1],marker='o',label='2')
+plt.plot(states,results.iloc[2],marker='o',label='3')
+plt.plot(states,results.iloc[3],marker='o',label='4')
+plt.plot(states,results.iloc[4],marker='o',label='5')
+plt.plot(states,results.iloc[5],marker='o',label='6')
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 1 to 6',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## Plots iteration 7 to 12
+```{python, echo=T}
+plt.plot(states,results.iloc[6],marker='o',label='7')
+plt.plot(states,results.iloc[7],marker='o',label='8')
+plt.plot(states,results.iloc[8],marker='o',label='9')
+plt.plot(states,results.iloc[9],marker='o',label='10')
+plt.plot(states,results.iloc[10],marker='o',label='11')
+plt.plot(states,results.iloc[11],marker='o',label='12')
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 7 to 12',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## Plots iteration 13 to 18
+```{python, echo=T}
+plt.plot(states,results.iloc[12],marker='o',label='13')
+plt.plot(states,results.iloc[13],marker='o',label='14')
+plt.plot(states,results.iloc[14],marker='o',label='15')
+plt.plot(states,results.iloc[15],marker='o',label='16')
+plt.plot(states,results.iloc[16],marker='o',label='17')
+plt.plot(states,results.iloc[17],marker='o',label='18')
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 13 to 18',fontweight='bold')
+plt.show()
+```
+
+
+
+
+```{r, results='hide'}
+"E1_Exercises"
+```

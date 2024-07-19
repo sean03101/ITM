@@ -1,0 +1,100 @@
+---
+title: "A5 Python Code"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import matplotlib.pyplot as plt
+```
+
+\newpage
+
+## Exercise 1 (10p)
+```{python, echo=TRUE}
+N=1000
+u=np.random.uniform(0,1,size=N)
+x=-np.log(1-u)/3
+
+x[:6]
+```
+
+\newpage
+
+## Uniform random numbers (15p)
+```{python, echo=TRUE}
+x=np.random.uniform(-1,1,size=1000)
+
+plt.hist(x,color='gray',edgecolor='black')
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+\newpage
+
+## Normal random numbers (16p)
+```{python, echo=TRUE}
+x=np.random.normal(3,2,size=1000)
+
+plt.hist(x,color='gray',edgecolor='black')
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+\newpage
+
+## Exponential random numbers (17p)
+```{python, echo=TRUE}
+x=np.random.exponential(1/5,size=10000)
+
+plt.hist(x,bins=20,color='gray',edgecolor='black')
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```
+
+\newpage
+
+## Poisson random numbers (18p)
+```{python, echo=TRUE}
+x=np.random.poisson(5, size=10000)
+
+plt.hist(x,bins=20,color='gray',edgecolor='black')
+plt.title('Histogram of X')
+plt.xlabel('x')
+plt.ylabel('Frequency')
+plt.show()
+```

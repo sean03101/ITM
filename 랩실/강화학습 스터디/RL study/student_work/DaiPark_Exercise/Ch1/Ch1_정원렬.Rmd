@@ -1,0 +1,160 @@
+---
+title: "Ch1_Jeong,wonryeol"
+author: "Jeong, wonryeol"
+date: "1/6/2021"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: yes
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+
+```
+
+
+
+## Ch1 Ex9
+
+### A camera store specializes in a particular popular and fancy camera. Assume that these cameras become obsolete at the end of the month. They guarantee that if they are out of stock, they will special order the cam- era and promise delivery the next day. In fact, what the store does is to purchase the camera from an out of state retailer and have it delivered through an express service. Thus, when the store is out of stock, they actually lose the sales price of the camera and the shipping charge, but they maintain their good reputation. The retail price of the camera is $600, and the special delivery charge adds another $50 to the cost. At the end of each month, there is an inventory holding cost of $25 for each camera in stock (for doing inventory etc). Wholesale cost for the store to purchase the cameras is $480 each. (Assume that the order can only be made at the beginning of the month.)
+
+\vspace{30pt}
+
+\begin{itemize}
+\item  if out of stock is occured , cost : $ (600+50)*(D-S)  , S * 480$
+\item  if $if S > D  , inventoryfee : 25*(S-D) , stock : 480 * D$
+\end{itemize}
+
+
+#### a)Assume that the demand has a discrete uniform distribution from 10 to 15 cameras a month (inclusive). If 12 cameras are ordered at the beginning of a month, what are the expected overstock cost and the expected understock or shortage cost? What is the expected total cost?
+
+\vspace{10pt}
+
+
+| $d$   | 10 | 11 | 13 | 14 | 15 |
+|:-----:|:------:| :------:|:------:|:------: |:------:|
+| $P[D=d]$ |$\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ |
+| $S=12$ | $480*12+2*25$ | $480*12 + 1*25$ | $480*12$ | $480*12+(600+50)*1$ | $480*12 + (600+50)*2$  |
+
+
+$C_{u}$ is $\$170$\
+$C_{o}$ is $\$25$\
+
+
+
+Therefore, cost is 
+`r 1/6*(480*12 + 2*25) + 1/6*(480*12 + 1*25) + 1/6*(480*12) + 1/6*(480*12 + 650*1) + 1/6*(480*12 + 650*2)`
+
+\newpage
+
+#### b)What is optimal number of cameras to order to minimize the expected total cost?
+
+\vspace{10pt}
+
+
+
+| $d$   | 10 | 11 | 12 | 13 | 14 | 15 |
+|:---:|:----:| :----:|:----:|:----: |:----:|:----:|
+| $P[D=d]$ |$\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ | $\frac{1}{6}$ |
+| $P[D<d]$ |$\frac{1}{6}$ | $\frac{2}{6}$ | $\frac{3}{6}$ | $\frac{4}{6}$ | $\frac{5}{6}$ | $\frac{6}{6}$ |
+
+
+
+
+optimal order number is Y that matches smallest Y s.t $F(Y) \ge \frac{C_u}{C_u+C_o}$\
+$\frac{C_u}{C_u+C_o} = \frac{170}{195}$, smallest Y that matches $F(Y) \ge \frac{170}{195}$ is Y = 15\
+
+Thus optimal S = 15
+
+
+
+#### (c) Assume that the demand can be approximated by a normal distribution with mean 1000 and standard deviation 100 cameras a month. What is the optimal number of cameras to order to minimize theexpected total cost?
+
+
+Demand follows: \
+\begin{enumerate}
+\item mean = 1000
+\item sd = 100
+\end{enumerate}
+
++ $\frac{C_u}{C_u+C_o} = 0.8718$
+
+Optimal Y is \ 
+
+
+```{r}
+qnorm(0.8718,1000,100)
+```
+
+
+\newpage
+
+## Ch1 ex10
+
+### Next month’s production at a manufacturing company will use a certain solvent for part of its production process. Assume that there is an ordering cost of $1,000 incurred whenever an order for the solvent is placed and the solvent costs $40 per liter. Due to short product life cycle, unused solvent cannot be used in following months. There will be a $10 disposal charge for each liter of solvent left over at the end of the month. If there is a shortage of solvent, the production process is seriously disrupted at a cost of $100 per liter short. Assume that the initial inventory level is m, where m = 0, 100, 300, 500 and 700 liters.
+
+**(a) What is the optimal ordering quantity for each case when the demand is discrete with Pr{D = 500} = Pr{D = 800} = $\frac{1}{8}$, Pr{D = 600} = $\frac{1}{2}$ and Pr{D = 700} = $\frac{1}{4}$?**
+
+
+\begin{table}[ht]
+\begin{tabular}{lllll}
+\cline{1-5}
+          & 500  & 600  & 700  & 800 \\ \cline{1-5}
+$P(D = d)$  & $\frac{1}{8}$ & $\frac{1}{2}$ & $\frac{1}{4}$ & $\frac{1}{8}$  \\
+$P(D \leq d)$ & $\frac{1}{8}$ & $\frac{5}{8}$ & $\frac{7}{8}$ & 100%
+\end{tabular}
+\end{table}
+
+\
+\
+
+\begin{enumerate}
+\item $C_{u}$ is $100$
+\item $C_{o}$ is $50$
+\end{enumerate}
+
+
+Optimal quantity S is s.t $F(Y) \ge \frac{C_u}{C_u+C_o} = \frac{100}{150}$\
+$P(D = 700) = 0.875$ which is higher than optimal quantity (0.6666...)
+
+Optima quantity S is 700.\
+
+**(b) What is the optimal ordering policy for arbitrary initial inventory level $m$? (You need to specify the critical value $m^*$ in addition to the optimal order-up-to quantity $y^*$. When $m \le m^*$, you make an order. Otherwise, do not order.)**\
+
+
+\
+\
+* Optimal y is 700 but $m^*$ is different. because we should consider fixed cost and the ordering quantity up to 700. So, we have to compare that 700 and 600 and 500 
+
+
+\
+we should expect each cost following each m
+
++ m is 500
+
+`r 1/2*(600-500)*100+1/4*(700-500)*100+1/8*(800-500)*100`
+
++ m is 600
+
+`r 1/8*(600-500)*50+1/4*(700-600)*100+1/8*(800-600)*100`
+
++ m is 700
+
+`r 1/8*(700-500)*50+1/2*(700-600)*50+1/8*(800-700)*100`
+
+Therefore, we can get 700 is lowest cost. 
+
+**(C) Assume optimal quantity will be ordered. What is the total expected cost when the initial inventory m = 0? What is the total expected cost when the initial inventory m = 700?**
+
+
+We can get 700 is lowest cost (5000$)
+if m is 0, what we can get? 
+
+$1000 + (700-0)*40 + 5000$ = `r 1000 + (700-0)*40 + 5000`
+
+
+

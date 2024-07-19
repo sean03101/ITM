@@ -1,0 +1,183 @@
+---
+title: "E2_MDP Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import time
+```
+
+\newpage
+
+## p.2 policy_eval()
+
+```{python,echo=T}
+gamma = 1
+states = np.arange(0,80,10)
+P_normal = np.matrix([[0,1,0,0,0,0,0,0],[0,0,1,0,0,0,0,0],
+[0,0,0,1,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],
+[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,1]])
+P_speed = np.matrix([[0.1,0,0.9,0,0,0,0,0],[0.1,0,0,0.9,0,0,0,0],
+[0,0.1,0,0,0.9,0,0,0],[0,0,0.1,0,0,0.9,0,0],[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],[0,0,0,0,0,0.1,0,0.9],[0,0,0,0,0,0,0,1]])
+
+def transition(given_pi, states, P_normal, P_speed):
+    P_out = pd.DataFrame(np.zeros((len(states),len(states))),states,states)
+    for i,s in enumerate(states):
+        action_dist = given_pi.loc[s]
+        P = action_dist["normal"]*P_normal + action_dist["speed"]*P_speed
+        P_out.loc[s] = P[i,:]
+
+    return P_out
+
+R_s_a = np.matrix([[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,states,["normal","speed"])
+
+def reward_fn(given_pi):
+    R_pi = np.matrix(given_pi*R_s_a).sum(axis=1)
+    R_pi = pd.DataFrame(R_pi,states)
+    return(R_pi)
+def policy_eval(given_pi):
+    R=reward_fn(given_pi)
+    P=transition(given_pi, states, P_normal, P_speed)   
+    gamma=1.0
+    epsilon=10**(-8)    
+    v_old=np.repeat(0,8).reshape(8,1)
+    v_new=R+np.dot(gamma*P,v_old)
+    
+    while(np.linalg.norm(v_new-v_old)>epsilon):
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)    
+    return v_new
+
+pi_speed = np.hstack((np.repeat(0,len(states)).reshape(8,1),np.repeat(1,len(states)).reshape(8,1)))
+pi_speed = pd.DataFrame(pi_speed,states,["normal","speed"])
+print(policy_eval(pi_speed).T)
+pi_50 = np.hstack((np.repeat(0.5,len(states)).reshape(8,1),np.repeat(0.5,len(states)).reshape(8,1)))
+pi_50 = pd.DataFrame(pi_50,states,["normal","speed"])
+print(policy_eval(pi_50).T)
+```
+
+\newpage
+
+## p.12 Implementation
+
+```{python,echo=T}
+
+V_old=policy_eval(pi_speed)
+pi_old=pi_speed
+q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)))
+print(q_s_a)
+
+pi_new_vec=q_s_a.idxmax(axis=1)
+pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+
+for i in range(len(pi_new_vec)):
+    pi_new.iloc[i][pi_new_vec.iloc[i]]=1
+print(pi_new)
+
+```
+\newpage
+**++ For문 없이 구현해본 코드**
+
+```{python,eval=F}
+# Not using For loop. But it takes more computational time - ineffiecient
+pi_new_speed=q_s_a["speed"]-q_s_a["normal"]
+pi_new_normal=pd.DataFrame(np.repeat(1,len(pi_new_speed)).T,states)
+
+pi_new_speed[pi_new_speed<0]=0
+pi_new_speed[pi_new_speed>0]=1
+
+pi_new_normal =pi_new_normal - pi_new_speed
+
+pi_new = pd.concat([pi_new_normal,pi_new_speed],axis=1)
+pi_new.columns = ['normal','speed']
+```
+
+
+**Policy Improve**
+```{python}
+def policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma,
+P_normal = P_normal, P_speed = P_speed):  
+    q_s_a=R_s_a+np.hstack((np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old))) 
+    pi_new_vec=q_s_a.idxmax(axis=1)
+    pi_new=pd.DataFrame(np.zeros(pi_old.shape), index=pi_old.index, columns=pi_old.columns)
+
+    for i in range(len(pi_new_vec)):
+        pi_new.iloc[i][pi_new_vec.iloc[i]]=1
+    return pi_new
+```
+**One step improvement from $\pi^{speed}$**
+```{python}
+pi_old = pi_speed
+V_old = policy_eval(pi_old)
+pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+print(pi_old)
+print(pi_new)
+```
+
+\newpage
+
+## p.18 Policy iteration process (from $\pi^{speed}$)
+
+```{python, ehco=T}
+pi_old = pi_speed
+cnt = 0
+while True:
+    print(cnt,"-th iteration")
+    print(pi_old.T)
+    V_old = policy_eval(pi_old)
+    pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+    if pi_new.equals(pi_old): 
+        break
+    pi_old = pi_new
+    cnt += 1
+print(policy_eval(pi_new))
+```
+
+\newpage
+
+## p.19 Policy iteration process (from $\pi^{50}$)
+
+```{python,echo=T}
+pi_old = pi_50
+cnt = 0
+while True:
+    print(cnt,"-th iteration")
+    print(pi_old.T)
+    V_old = policy_eval(pi_old)
+    pi_new = policy_improve(V_old, pi_old = pi_old, R_s_a = R_s_a, gamma = gamma, P_normal = P_normal, P_speed = P_speed)
+    if pi_new.equals(pi_old): 
+        break
+    pi_old = pi_new
+    cnt += 1
+print(policy_eval(pi_new))
+```

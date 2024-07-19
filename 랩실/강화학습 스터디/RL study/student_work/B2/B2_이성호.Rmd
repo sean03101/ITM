@@ -1,0 +1,111 @@
+---
+title: "B2 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("matplotlib")
+py_install("pandas")
+py_install("seaborn")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## page 4 Implementation
+```{python, echo=TRUE}
+import numpy as np
+
+for X in range(11,16):
+    MC_N = 10000
+    D = np.random.uniform(11,15,MC_N) # random discrete uniform
+    sales_rev= 2*np.minimum(D,X) # vector level minimum
+    salvage_rev = 0.5*np.maximum(X-D,0) # vector level minimum
+    material_cost = 1*X
+    profit= sales_rev + salvage_rev - material_cost
+    print("X: ",X,", expected profit: ",np.mean(profit))
+
+```
+\newpage
+## page 5 continuous distribution - grid search approach
+```{python, echo=TRUE}
+import pandas as pd
+
+try_X = np.arange(20,40,0.1)
+exp_profits=np.array([])
+
+for X in try_X:
+    MC_N = 10000
+    D = np.random.rand(MC_N,1)*20+20
+    sales_rev = 2*np.minimum(D,X)
+    salvage_rev = 0.5*np.maximum(X-D,0)
+    material_cost = 1*X
+    exp_profit = np.mean(sales_rev + salvage_rev - material_cost)
+    exp_profits = np.append(exp_profits,exp_profit)
+
+result = pd.DataFrame({'try_X':try_X,'exp_profits':exp_profits})
+```
+
+## page 6 continue
+
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+plt.plot(try_X, exp_profits, 'o', ms=10, alpha=0.5, color = 'black' )
+plt.xlabel("try_x")
+plt.ylabel("exp_profits")
+plt.title("Plot for Expected Profit")
+plt.rc('font', size=12)      
+plt.show()
+
+
+```
+
+
+
+## page 8 continue
+```{python, echo=TRUE}
+
+idx=np.argmax(exp_profits)
+print(try_X[idx]) #this is optimal quantity
+print(exp_profits[idx]) #this is expected optimal profit
+idx
+```
+
+
+
+
+
+
+
+
+
+
+
+

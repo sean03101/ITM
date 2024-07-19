@@ -1,0 +1,201 @@
+---
+title: "E3 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+## p.7 Preparation
+
+
+```{python, echo = TRUE}
+import numpy as np 
+import pandas as pd 
+gamma = 1
+states = np.arange(0,80,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                                [0,0,1,0,0,0,0,0],
+                                [0,0,0,1,0,0,0,0],
+                                [0,0,0,0,1,0,0,0],
+                                [0,0,0,0,0,1,0,0],
+                                [0,0,0,0,0,0,1,0],
+                                [0,0,0,0,0,0,0,1],
+                                [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                               [.1,0,0,.9,0,0,0,0],
+                               [0,.1,0,0,.9,0,0,0],
+                               [0,0,.1,0,0,.9,0,0],
+                               [0,0,0,.1,0,0,.9,0],
+                               [0,0,0,0,.1,0,0,.9],
+                               [0,0,0,0,0,.1,0,.9],
+                               [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+R_s_a=pd.DataFrame(np.array([-1,-1,-1,-1,0.0,-1,-1,0,
+                              -1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=['normal','speed'],index=states)
+```
+
+
+
+\newpage
+
+
+## Implementation
+
+```{python, echo = TRUE}
+#1. Initialize V
+V_old = np.zeros(states.shape[0]).reshape(states.shape[0],1)
+V_old.T
+```
+
+
+```{python, echo = TRUE}
+#2. Evaluation the Q-Function
+q_s_a = R_s_a + np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+q_s_a
+```
+
+
+```{python, echo = TRUE}
+#3. Find the best action for each state
+V_new = np.array(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+print(V_new.T)
+```
+
+
+
+## p.11 Implementation
+
+```{python, echo = TRUE}
+# Assigned are gamma, states, P_normal, P_speed, R_s_a
+cnt = 0
+epsilon = 10**(-8)
+V_old = pd.DataFrame(np.repeat(0,len(states)).reshape(len(states),1),index=states)
+results = V_old.T
+
+while True:
+    q_s_a = R_s_a+np.c_[np.dot(gamma*P_normal,V_old),np.dot(gamma*P_speed,V_old)]
+    V_new = np.matrix(q_s_a.apply(max,axis=1)).reshape(len(states),1)
+    
+    if np.max(np.abs(V_new-V_old)).item() < epsilon :
+        break
+    
+    results = np.r_[results, V_new.T]
+    V_old = V_new
+    cnt+=1
+    
+    
+    
+value_iter_process = results
+results = pd.DataFrame(results, columns=states)
+print(results.head())
+print(results.tail())
+```
+
+
+
+## p.13 Visualization
+
+
+**Iteration from 1 to 6**
+```{python, echo = TRUE}
+import matplotlib.pyplot as plt
+#Iteration from 1 to 6
+for i in range(6):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.rcParams["figure.figsize"] = (10,10)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+**Iteration from 7 to 12**
+```{python, echo = TRUE}
+#Iteration from 7 to 12
+for i in range(7,13):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.rcParams["figure.figsize"] = (10,10)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+**Iteration from 13 to 18**
+```{python, echo = TRUE}
+#Iteration from 13 to 18
+for i in range(13,19):
+    plt.plot(results.columns,results.iloc[i], label=i,marker='o')
+    
+plt.grid(True)
+plt.rcParams["figure.figsize"] = (10,10)
+plt.legend(title='factor(idx')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6', fontweight='bold')
+plt.yticks([0,-1,-2,-3,-4])
+plt.show()
+```
+
+
+\newpage 
+
+## p.18 Optimal value function \rightarrow Optimal policy
+```{python, echo = TRUE}
+V_opt = results.tail(1).T
+print(V_opt.T)
+
+q_s_a = R_s_a+np.c_[np.dot(gamma*P_normal,V_opt), np.dot(gamma*P_speed, V_opt)]
+print(q_s_a)
+
+pi_opt_vec=q_s_a.idxmax(axis=1)
+pi_opt_vec[pi_opt_vec == "speed"] = 2
+pi_opt_vec[pi_opt_vec == "normal"] = 1
+print(pi_opt_vec)
+
+pi_opt_vec=q_s_a.idxmax(axis=1)
+pi_opt=pd.DataFrame(np.zeros((len(states),2)), index=q_s_a.index, columns=q_s_a.columns)
+for i in range(len(pi_opt_vec)):
+    pi_opt.iloc[i][pi_opt_vec[i]]=1
+    
+print(pi_opt.T)
+```

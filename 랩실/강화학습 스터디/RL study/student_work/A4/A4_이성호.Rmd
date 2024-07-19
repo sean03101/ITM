@@ -1,0 +1,280 @@
+---
+title: "A4 python ver"
+author: "Lee SungHo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("scipy")
+py_install("matplotlib")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+## page 11 : Implementation with 1000 repetitions
+```{python, echo = TRUE}
+import numpy as np
+
+np.random.seed(1234) # fix the random seed
+N = 10**3
+x = np.random.rand(N,1)*2 - 1 
+y = np.random.rand(N,1)*2 - 1
+t = np.sqrt(x**2+y**2) 
+
+df = np.concatenate((x, y, t), axis=1) # always display and check!
+print(df[0:6])
+
+pi_hat = 4*np.sum(t<=1) / N
+print(pi_hat)
+```
+
+
+\newpage
+## page 12 : From thre previous slide
+```{python, echo = TRUE}
+import numpy as np
+import time
+
+beg_time = time.time()
+np.random.seed(1234) 
+N = 10**6
+x = np.random.rand(N,1)*2 - 1 
+y = np.random.rand(N,1)*2 - 1
+t = np.sqrt(x**2+y**2) 
+
+df = np.concatenate((x, y, t), axis=1) 
+
+pi_hat = 4*np.sum(t<=1) / N
+
+end_time = time.time()
+print('Time difference of', end_time - beg_time,'secs')
+
+```
+
+## page 12 : From thre previous slide
+```{python, echo = TRUE}
+import numpy as np
+import time
+
+beg_time = time.time()
+np.random.seed(1234)
+N = 10**6
+count = 0
+for i in range(N):
+  x_i = np.random.rand()*2 - 1 
+  y_i = np.random.rand()*2 - 1
+  t_i = np.sqrt(x_i**2+y_i**2)
+  
+  if(t_i<=1):
+    count+=1
+
+pi_hat = 4*count / N
+
+end_time = time.time()
+print('Time difference of', end_time - beg_time,'secs')
+
+```
+
+\newpage
+## page 13 : Approach with a customer function
+
+```{python, echo = TRUE}
+import numpy as np
+import time
+
+def pi_simulator(N):
+  np.random.seed(1234)
+  x = np.random.rand(N,1)*2 - 1 
+  y = np.random.rand(N,1)*2 - 1
+  t = np.sqrt(x**2+y**2) 
+  
+  pi_hat = 4*np.sum(t<=1) / N
+  return pi_hat
+
+```
+
+```{python, echo = TRUE}
+
+pi_simulator(100)
+
+```
+```{python, echo = TRUE}
+
+pi_simulator(1000)
+
+```
+
+```{python, echo = TRUE}
+
+pi_simulator(10000)
+
+```
+
+```{python, echo = TRUE}
+
+pi_simulator(100000)
+
+```
+
+## page 13 : Approach with a customer function
+
+```{python, echo = TRUE}
+num_trials = [10**i for i in range(2,8)]
+outcomes = [pi_simulator(i) for i in num_trials]
+
+result = dict(zip(num_trials,outcomes))
+result
+```
+\newpage
+## page 15
+
+```{python, echo = TRUE}
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+plt.plot(result.keys(), result.values(), c='blue',  marker='o')
+plt.axhline(3.14159, 0, 1, color='black', linestyle='--')
+plt.xscale('log')
+plt.xlabel=('num_trials')
+plt.ylabel=('outcomes')
+plt.rc('font',size=25)
+
+plt.show()
+
+```
+
+
+\newpage
+## page 17
+```{python, echo = TRUE}
+import numpy as np
+import time
+
+def pi_simulator2(N):
+  beg_time = time.time() #newly added
+  np.random.seed(1234)
+  x = np.random.rand(N,1)*2 - 1 
+  y = np.random.rand(N,1)*2 - 1
+  t = np.sqrt(x**2+y**2) 
+  
+  pi_hat = 4*np.sum(t<=1) / N
+  end_time = time.time() #newly added
+  
+  print(end_time - beg_time) #newly added
+  return pi_hat
+
+
+num_trials = [10**i for i in range(2,8)]
+list(map(pi_simulator2, num_trials))
+```
+
+\newpage
+## page 22
+```{python, echo = TRUE}
+import numpy as np
+import time
+
+def pi_simulator3(N): #name change
+  #np.random.seed(1234) seed must not be fixed
+  x = np.random.rand(N,1)*2 - 1 
+  y = np.random.rand(N,1)*2 - 1
+  t = np.sqrt(x**2+y**2) 
+  
+  pi_hat = 4*np.sum(t<=1) / N
+  return pi_hat
+
+n = 100 # number of experiments to repeat
+MC_N = 1000  #number of simulation repetition in a single experiment
+np.random.seed(1234)
+samples = []
+
+for i in range(n):
+  samples.append(pi_simulator3(MC_N))
+
+print(samples[:5])
+```
+
+
+\newpage
+## page 23
+
+
+```{python, echo = TRUE}
+import scipy.stats as st
+
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t = st.t.ppf(0.975,n-1)
+
+print("X_bar : ", X_bar)
+
+print("s : ", s)
+
+print("t : ", t)
+
+```
+\newpage
+## page 24
+```{python, echo = TRUE}
+n = 100 # number of experiments to repeat
+MC_N = 1000 # number of simulation repetition in a single experiment
+
+np.random.seed(1234)
+samples = list(range(0,n))
+
+for i in range(n): 
+  samples[i] = pi_simulator3(MC_N) 
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t= st.t.ppf(0.975, n-1)
+lb = X_bar-t*s/np.sqrt(n) # lower bound
+ub = X_bar+t*s/np.sqrt(n) # upper bound
+```
+
+\newpage
+## page 25
+```{python, echo=TRUE}
+n = 1000 # number of experiments to repeat
+MC_N = 10000 # number of simulation repetition in a single experiment
+np.random.seed(1234)
+samples = list(range(0,n))
+for i in range(n): 
+  samples[i] = pi_simulator3(MC_N) 
+X_bar = np.mean(samples)
+s = np.sqrt(sum((X_bar-samples)**2)/(n-1))
+t= st.t.ppf(0.975, n-1)
+lb = X_bar-t*s/np.sqrt(n) # lower bound
+ub = X_bar+t*s/np.sqrt(n) # upper bound
+print("lb :",lb)
+print("ub :",ub)
+print("ub-lb :",ub-lb)
+```
+
+

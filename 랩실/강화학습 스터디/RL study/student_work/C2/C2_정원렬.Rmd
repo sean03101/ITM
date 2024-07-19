@@ -1,0 +1,175 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+---
+title: "C2_Jeong,wonryeol"
+author: "Jeong, wonryeol"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("sympy")
+py_install("matplotlib")
+```
+
+
+
+
+## 12_page
+
+```{python}
+
+import numpy as np 
+import pandas as pd
+
+
+P = np.array([[0.7,0.5,0.3,0.5]]).reshape(2,2,order = 'F')
+
+eigen_val , eigen_vec = np.linalg.eig(P)
+
+P
+
+
+
+
+```
+
+```{python}
+
+eigen_val
+
+```
+
+```{python}
+
+
+
+eigen_vec
+
+```
+
+```{python}
+
+X_1 = eigen_vec[:,0]
+print(X_1)
+
+
+
+```
+
+
+```{python}
+
+v = X_1/np.sum(X_1)
+
+print(np.sum(X_1))
+print(v)
+```
+
+
+\newpage
+
+
+
+# 15_page
+
+
+```{python}
+P = np.array([0.7,0.5,0.3,0.5]).reshape((2,2))
+
+n = P.shape[0]
+
+I = np.eye(n)
+print(np.ones(n))
+A = np.column_stack([P-I,np.ones(n).T])
+
+b = np.append(np.repeat(0,n),np.array([1]))
+
+v = np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+```
+
+
+```{python}
+A
+```
+
+
+```{python}
+b
+```
+
+
+```{python}
+v
+
+
+
+
+
+```
+
+\newpage
+
+## 17_page
+
+```{python}
+from numpy.linalg import matrix_power
+
+P = np.array([0.7,0.5,0.3,0.5]).reshape(2,2, order ='F')
+
+print(P)
+np.dot(P,P)
+
+
+```
+
+
+
+
+```{python}
+
+
+matrix_power(P,3)
+```
+
+
+```{python }
+
+matrix_power(P,4)
+```
+
+
+
+```{python}
+
+
+matrix_power(P,20)
+
+```
+
+
+\newpage
+
+## page 19
+```{python, echo = TRUE}
+p = np.array([0,1,1,0]).reshape(2,2,order='F')
+
+p
+```
+
+```{python, echo = TRUE}
+
+matrix_power(p,2)
+```
+```{python, echo = TRUE}
+matrix_power(p,3)
+```
+

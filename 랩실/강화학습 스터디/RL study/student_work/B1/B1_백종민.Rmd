@@ -1,0 +1,202 @@
+---
+title: "Lecture B1. Excercise"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(rmarkdown)
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+\newpage
+
+## Exercise 1
+
+Assume that *D* flows the following discrete distribution.
+
+\vspace{5pt}
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+  \hline
+  $d$ & 20 & 25 & 30 & 35 \\ \hline
+  $\mathbb{P}[D = d]$ & 0.1 & 0.2 & 0.4 & 0.3 \\ \hline
+  $3 \wedge d$ & 20 & 25 & 30 & 30 \\
+  $(30-d)^+,$ & 10 & 5 & 0 & 0 \\ 
+  $24 \wedge d$ & 20 & 24 & 24 & 24 \\
+  $(24-d)^+$ & 4 & 0 & 0 & 0 \\
+  \hline
+\end{tabular}
+\end{center}  
+
+\vspace{5pt}
+
+**Answer the followings.**
+
+$\mathbb{E}[30 \wedge D] = 0.1 \times 20 + 0.25 \times 25 + 0.4 \times 30 + 0.3 \times 80 = 28$  
+
+$\mathbb{E}[(30-D)^+] = 0.1 \times 10 + 0.2 \times 5 + 0.4 \times 0 + 0.3 \times 0 = 2$  
+
+$\mathbb{E}[24 \wedge D] = 0.1 \ times 20 + 0.2 \times 24 + 0.4 \times 24 + 0.3 \times 24 = 23.6$  
+
+$\mathbb{E}[(24-D)^+] = 0.1 \times 4 + 0.2 \times 0 + 0.4 \times 0 + 0.3 \times 0 = 0.4$  
+
+\newpage
+
+## Exercise 2
+Find your brother's optimal stock level by the above Theorem 2. Then, find his expected profit using the Remark 1.
+
+**Answer**  
+
+\vspace{5pt}
+
+1) Find Optimal stock level  
+
+\vspace{5pt}
+
+$p = 2, \, s = 0.5, \, c = 1$  
+$c_o = 0.5$  
+$c_u = 1$  
+$x^* = smallest \, y \; s.t \; F(y) \geq \frac{C_u}{C_o+c_u} = \frac{2}{3}$  
+
+\vspace{8pt}
+
+If D is a discrete random variable  
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+d & 11 & 12 & 13 & 14 & 15 \\ \hline
+$\mathbb{P}[D = d]$ & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 \\
+$\mathbb{P}[D \leq d]$ & 0.2 & 0.4 & 0.6 & 0.8 & 1.0 \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{8pt}
+
+\begin{text}
+\\
+$F_D(11) = \frac{1}{5} \qquad \qquad \qquad < \frac{1}{3}(0.66)$ \\
+$F_D(12) =\frac{1}{5}+\frac{1}{5}= \frac{2}{5}(0.4) \qquad < \frac{2}{3}(0.66)$  \\
+$F_D(13) = \frac{1}{5}+\frac{1}{5}+\frac{1}{5} =\frac{3}{5}(0.6) \qquad < \frac{2}{3}(0.66)$ \\
+$F_D(14) = \frac{1}{5}+\frac{1}{5}+\frac{1}{5} + \frac{1}{5} =\frac{4}{5}(0.8) \qquad > \frac{2}{3}(0.66)$ \\
+$F_D(15) = \frac{1}{5}+\frac{1}{5}+\frac{1}{5} + \frac{1}{5} + \frac{1}{5} =\frac{5}{5}(1.0) \qquad > \frac{2}{3}(0.66)$ \\
+\\
+The optimal order quantity $y^* = 14$  \\
+\end{text}
+
+2) Find Expected profit  
+
+\vspace{5pt}
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c|c}
+\hline
+d & 11 & 12 & 13 & 14 & 15 \\ \hline
+$\mathbb{P}[D = d]$ & 0.2 & 0.2 & 0.2 & 0.2 & 0.2 \\ \hline
+$(14\wedge D) $ & 11 & 12 & 13 & 14 & 14 \\
+$(14-D)^+$ & 3 & 2 & 1 & 0 & 0 \\
+\hline
+\end{tabular}
+\end{center}
+
+\vspace{5pt}
+
+$$\mathbb{E}[profit]  = \mathbb{E}[sale \, rev.] + \mathbb{E}[salvage \,rev.] - \mathbb{E}[material\,cost]$$
+\begin{text}
+\\
+$\mathbb{E}[14 \wedge D] = 2 \times \sum_{d=11}^{15}(14 \wedge d) \times \mathbb{P}[D=d] =  25.6$ \\
+$\mathbb{E}[(14-D)^+] = 0.5 \times \sum_{d=11}^{15}(14-d)^+ \times \mathbb{P}[D=d] = 0.6 $ \\
+$\mathbb{E}[14] = 1 \times 14 = 14$ \\
+\\
+$\mathbb{E}[profit] = 25.6+0.6-14 = 12.2$
+\end{text}
+
+
+\newpage
+
+## Exercise 3
+*Your brother* is now selling milk. The customer demands follow $U(20,40)$ gallons. *Retail price* is $\$2$ per gallon, *material cost* is $\$1$per gallon, and *salvage cost* is $\$0.5$ per gallon.Find optimal stock level and expected profit.  
+
+**Answer**  
+
+1) Find Optimal stock level  
+
+
+\begin{text}
+\\
+$c_u = p-c = 1$ \\
+$c_o = c-s = 0.5$ \\
+$F(y)= \frac{c_u}{c_o+c_u} = \frac{1}{1+0.5}=\frac{2}{3}$ \\
+\\
+Optimal stock level $ = \frac{x-20}{40-20} = \frac{2}{3} = \frac{100}{3} $ \\
+\end{text}
+
+\vspace{5pt}  
+
+2) Find Expected profit  
+
+
+$$\mathbb{E}[profit] = \mathbb{E}[sale \, rev.] + \mathbb{E}[salvage \,rev.] - \mathbb{E}[material\,cost]$$
+
+\begin{text}
+\\
+$\mathbb{E}[sale \, rev.] = p \times\mathbb{E}[min(D,\frac{100}{3})]  = \int_{20}^{\frac{100}{3}}x\frac{1}{20}dx + \int_{\frac{100}{3}}^{40}\frac{100}{3}\frac{1}{20}dx  = \frac{310}{9}$ \\
+$\mathbb{E}[salvage \, rev.] = s \times \mathbb{E}[(\frac{100}{3}-D)^+] =  \int_{20}^{\frac{100}{3}}0\frac{1}{20}dx + \int_{\frac{100}{3}}^{40}(\frac{100}{3}-D)\frac{1}{20}dx = \frac{40}{3}*\frac{1}{2} = \frac{20}{3}$  \\
+$ \mathbb{E}[material \, cost] = c \times \mathbb{E}[\frac{100}{3}] = 1 \times \frac{100}{3} = \frac{100}{3} $ \\
+\end{text}
+
+$\mathbb{E}[profit] = \frac{46}{9}$
+
+
+## Exercise 4
+
+Lemonade sells for $\$18$ per gallon but only costs $\$3$ per gallon to make. If we run out of lemonade, it will be impossible to get more. On the other hand, leftover lemonade has a value of $\$1$$. Express the following quantity using sale as X and demand as D.
+
+**Answer**
+
+\begin{text}
+\\
+$c_u =$ lemonade($\$18$) - material cost($\$3$) = 15 \\
+$c_o = $ material cost($\$3$) - salvage cost($\$1$) = 2 \\
+Expected economic cost = $15 \times \mathbb{E}[(D-E)^+] + 2 \times \mathbb{E}[(X-D)^+]$ \\
+Expected profit $= 18 \times\mathbb{E}[min(X,D)]+1\times\mathbb{E}[(X-D)^+]-3\times\mathbb{E}[X]$ \\
+\end{text}
+
+\newpage
+
+## Exercise 5
+Prove Theorem 1.(Hint: you may use formulation from Exercise 4)
+
+
+## DaiPark 
+
+\begin{text}
+Writing \\  
+\end{text}
+
+B1.Rmd
+```{r}
+"Hello"
+```
+
+
+
+

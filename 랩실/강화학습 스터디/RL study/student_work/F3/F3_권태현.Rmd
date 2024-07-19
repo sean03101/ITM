@@ -1,0 +1,241 @@
+---
+title: "F3"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()` '
+output: pdf_document
+---
+
+```{r echo=FALSE}
+library(reticulate)
+```
+
+```{python}
+import numpy as np
+import pandas as pd
+import time
+
+states = np.arange(0,80,10).astype('str')
+print(states)
+P_normal = pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                                   [0,0,1,0,0,0,0,0],
+                                   [0,0,0,1,0,0,0,0],
+                                   [0,0,0,0,1,0,0,0],
+                                   [0,0,0,0,0,1,0,0],
+                                   [0,0,0,0,0,0,1,0],
+                                   [0,0,0,0,0,0,0,1],
+                                   [0,0,0,0,0,0,0,1]]),index =states, columns=states)
+print(P_normal)
+
+P_speed = pd.DataFrame(np.matrix([[0.1,0,0.9,0,0,0,0,0],
+                                  [0.1,0,0,0.9,0,0,0,0],
+                                  [0,0.1,0,0,0.9,0,0,0],
+                                  [0,0,0.1,0,0,0.9,0,0],
+                                  [0,0,0,0.1,0,0,0.9,0],
+                                  [0,0,0,0,0.1,0,0,0.9],
+                                  [0,0,0,0,0,0.1,0,0.9],
+                                  [0,0,0,0,0,0,0,1]]),index=states,columns=states)
+print(P_speed)
+
+R_s_a = pd.DataFrame(np.c_[[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]],index=states,columns=['n','s'])
+print(R_s_a.T)
+
+q_s_a = pd.DataFrame(np.c_[np.repeat(0.0,len(states)),np.repeat(0.0,len(states))],index=states,columns=['n','s'])
+print(q_s_a.T)
+
+pi_speed = pd.DataFrame(np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))],index=states,columns=['n','s'])
+print(pi_speed.T)
+
+pi_50 = pd.DataFrame(np.c_[np.repeat(0.5,len(states)),np.repeat(0.5,len(states))],index=states,columns=['n','s'])
+print(pi_50.T)
+
+
+def simul_path(pi, P_normal, P_speed, R_s_a):
+    s_now = '0'
+    history_i = list(s_now)
+    while s_now!='70':
+        if(np.random.uniform(1)<pi.loc[s_now]['n']):
+            a_now = 'n'
+            P = P_normal
+        else:
+            a_now = 's'
+            P = P_speed
+        r_now = R_s_a.loc[s_now][a_now]
+        s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now = s_next
+    return history_i
+
+sample_path = simul_path(pi=pi_speed,P_normal=P_normal,P_speed=P_speed,R_s_a=R_s_a)
+print(sample_path)
+
+def simul_step(pi, s_now, P_normal, P_speed, R_s_a):
+    if np.random.uniform(1)<pi.loc[s_now]['n']:
+        a_now = 'n'
+        P = P_normal
+    else:
+        a_now = 's'
+        P = P_speed
+    r_now = R_s_a.loc[s_now][a_now]
+    s_next = states[np.argmin(P[s_now].cumsum()<np.random.uniform(1))].item()
+    if np.random.uniform(1) < pi.loc[s_next]['n']:
+        a_next = 'n'
+    else:
+        a_next = 's'
+    sarsa=[s_now,a_now,r_now,s_next,a_next]
+    return sarsa
+
+sample_step = simul_step(pi=pi_speed,s_now='0',P_normal=P_normal,P_speed=P_speed,R_s_a=R_s_a)
+print(sample_step)
+
+q_s_a = pd.DataFrame(np.c_[np.repeat(0.0,len(states)),np.repeat(0.0,len(states))],index=states,columns=['n','s'])
+def pol_eval_MC(sample_path, q_s_a, alpha):
+    for j in range(0,len(sample_path)-1,3):
+        s = sample_path[j]
+        a = sample_path[j+1]
+        G = sum([sample_path[g] for g in range(j+2, len(sample_path)-1,3)])
+        q_s_a.loc[s][a] = q_s_a.loc[s][a]+alpha*(G-q_s_a.loc[s][a])
+    return q_s_a
+
+q_s_a = pol_eval_MC(sample_path=sample_path, q_s_a=q_s_a, alpha=0.1)
+print(q_s_a)
+
+q_s_a = pd.DataFrame(np.c_[np.repeat(0.0,len(states)),np.repeat(0.0,len(states))],index=states,columns=['n','s'])
+
+def pol_eval_TD(sample_step, q_s_a, alpha):
+    s = sample_step[0]
+    a = sample_step[1]
+    r = sample_step[2]
+    s_next = sample_step[3]
+    a_next = sample_step[4]
+    q_s_a.loc[s][a]= q_s_a.loc[s][a]+alpha*(r+q_s_a.loc[s_next][a_next]-q_s_a.loc[s][a])
+    return q_s_a
+
+q_s_a = pol_eval_TD(sample_step, q_s_a, alpha=0.1)
+print(q_s_a)
+
+def pol_imp(pi,q_s_a, epsilon):
+    for i in range(0,pi.shape[0]):
+        if np.random.uniform(0,1)>epsilon:
+            pi.iloc[i] = 0
+            pi.iloc[i][q_s_a.iloc[i].idxmax()] = 1
+        else:
+            pi.iloc[i]=1/q_s_a.shape[i]
+    return pi
+
+pi=pol_imp(pi=pi_speed,q_s_a=q_s_a,epsilon=0)
+print(pi.T)
+
+from copy import deepcopy
+q_s_a_init = pd.DataFrame(np.c_[np.repeat(0.0,len(states)),np.repeat(0.0,len(states))],index=states,columns=['n','s'])
+pi_50_init = pi_50 = pd.DataFrame(np.c_[np.repeat(0.5,len(states)),np.repeat(0.5,len(states))],index=states,columns=['n','s'])
+
+
+#F3-1
+num_ep = 10**(3)
+beg_time = time.time()
+q_s_a = deepcopy(q_s_a_init)
+pi = deepcopy(pi_50_init)
+for epi_i in range(1,num_ep+1):
+    sample_path_i = simul_path(pi, P_normal, P_speed, R_s_a)
+    q_s_a = pol_eval_MC(sample_path_i, q_s_a, alpha=1/epi_i)
+    pi = pol_imp(pi, q_s_a, epsilon=1/epi_i)
+
+end_time = time.time()
+print(end_time-beg_time)
+
+print(pi.T)
+print(q_s_a.T)
+
+#F3-2
+num_ep = 10**(4)
+beg_time = time.time()
+q_s_a = deepcopy(q_s_a_init)
+pi = deepcopy(pi_50_init)
+for epi_i in range(1,num_ep+1):
+    sample_path_i = simul_path(pi, P_normal, P_speed, R_s_a)
+    q_s_a = pol_eval_MC(sample_path_i, q_s_a, alpha=1/epi_i)
+    pi = pol_imp(pi, q_s_a, epsilon=1/epi_i)
+
+end_time = time.time()
+print(end_time-beg_time)
+
+print(pi.T)
+print(q_s_a.T)
+
+#F3-3
+num_ep = 10**(5)
+beg_time = time.time()
+q_s_a = deepcopy(q_s_a_init)
+pi = deepcopy(pi_50_init)
+exploration_rate = 1
+for epi_i in range(1,num_ep+1):
+    sample_path_i = simul_path(pi, P_normal, P_speed, R_s_a)
+    q_s_a = pol_eval_MC(sample_path_i, q_s_a, alpha=1/epi_i)
+    pi = pol_imp(pi, q_s_a, epsilon=1/epi_i)
+    exploration_rate = exploration_rate*0.9995
+
+end_time = time.time()
+print(end_time-beg_time)
+
+print(pi.T)
+print(q_s_a.T)
+
+#F-4
+num_ep = 10**(3)
+beg_time = time.time()
+q_s_a = deepcopy(q_s_a_init)
+pi = deepcopy(pi_50_init)
+for epi_i in range(1,num_ep+1):
+    s_now = "0"
+    while s_now != "70":
+        sample_step = simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a = pol_eval_TD(sample_step, q_s_a , alpha=1/epi_i)
+        pi = pol_imp(pi, q_s_a, epsilon=1/epi_i)
+        s_now = sample_step[3]
+
+end_time = time.time()
+print(end_time-beg_time)
+
+print(q_s_a.T)
+print(pi.T)
+
+#F3-5
+num_ep = 10**(4)
+beg_time = time.time()
+q_s_a = deepcopy(q_s_a_init)
+pi = deepcopy(pi_50_init)
+for epi_i in range(1,num_ep+1):
+    s_now = "0"
+    while s_now != "70":
+        sample_step = simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a = pol_eval_TD(sample_step, q_s_a , alpha=1/epi_i)
+        pi = pol_imp(pi, q_s_a, epsilon=1/epi_i)
+        s_now = sample_step[3]
+
+end_time = time.time()
+print(end_time-beg_time)
+
+print(q_s_a.T)
+print(pi.T)
+
+#F3-6
+num_ep = 10**(5)
+beg_time = time.time()
+q_s_a = deepcopy(q_s_a_init)
+pi = deepcopy(pi_50_init)
+exploration_rate = 1
+for epi_i in range(1,num_ep+1):
+    s_now = "0"
+    while s_now != "70":
+        sample_step = simul_step(pi, s_now, P_normal, P_speed, R_s_a)
+        q_s_a = pol_eval_TD(sample_step, q_s_a , alpha=1/epi_i)
+        pi = pol_imp(pi, q_s_a, epsilon=1/epi_i)
+        s_now = sample_step[3]
+        exploration_rate = exploration_rate*0.9995
+
+end_time = time.time()
+print(end_time-beg_time)
+
+print(q_s_a.T)
+print(pi.T)
+```

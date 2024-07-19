@@ -1,0 +1,308 @@
+---
+title: "DaiPark Exercise chp3"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+#matplotlib <- import("matplotlib")
+#matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+## Exercise 5
+
+Suppose each morning a factory posts the number of days worked in a row
+without any injuries. Assume that each day is injury free with probability
+98/100. Furthermore, assume that whether tomorrow is injury free or not
+is independent of which of the preceding days were injury free. Let $X_o$ = 0
+be the morning the factory first opened. Let $X_n$ be the number posted on
+the morning after n full days of work.
+\vspace{20pt}
+
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=14cm]{chain5.jpg}
+   \hfil
+\caption{markovchain}
+\label{markovchain}
+\end{figure}
+
+\vspace{20pt}
+
+
+
+
+
+(a) Is $\{X_n,n\geq 0\}$  a Markov chain? If so, give its state space, initial
+distribution, and transition matrix P. If not, show that it is not a
+Markov chain.
+
+yes, this is markov chain. beacuse Question assume that whether tomorrow is injury free or not is independent of which of the preceding days
+
+state space= S=\{$X_{0}$,$X_{1}$,$X_{2}$,..., $X_{n}$\}.
+
+initial distribution = $X_{0}$+$X_{1}$+$X_{2}$...+$X_{n}$ = 1. (not sure)
+
+trainsition matrix P
+
+\begin{equation*}
+P = 
+\begin{pmatrix}
+0.02 & 0.98 &0 & \cdots & 0 \\
+0.02 & 0 &0.98 & \cdots & 0 \\
+\vdots &\vdots  & \vdots  & \ddots & \vdots  \\
+0.02 & 0 &0 & \cdots & 0 
+\end{pmatrix}
+\end{equation*}
+
+
+(b) Is the Markov chain irreducible? Explain.
+
+  =This markov chain irreducible. all States are communicate(<->) thus 
+   
+   there is a  only one class.
+
+\vspace{10pt}
+(c) Is the Markov chain periodic or aperiodic? Explain and if it is peri-
+odic, also give the period. 
+
+
+
+
+(d) Find the stationary distribution.
+
+find $\pi$ that match, $\pi$P = $\pi$
+
+\begin{eqnarray}
+\pi_1 &=& (0.98)\pi_0 \nonumber\\
+\pi_2 &=& (0.98)\pi_1 = (0.98)^2 \pi_0 \nonumber\\
+\pi_3 &=& (0.98)\pi_2 = (0.98)^3 \pi_0 \nonumber\\
+\pi_i &=& (0.98)^i \pi_0\nonumber
+\end{eqnarray}
+
+Thus (1), becomes 
+
+\begin{eqnarray*}
+\pi_0 + \pi_1 + \pi_2 +... &=& \pi_0(1+0.98+0.98^2 + ...) \nonumber\\
+\pi_0 (\frac{1}{1-0.98})) &=& 1 \nonumber\\
+\pi_0 &=& 0.02\nonumber\\
+\therefore \pi_i &=& (0.02)(0.98)^i \nonumber
+\end{eqnarray*}
+
+$\therefore$, $\pi$ = [0.02, 0.02(0.98), $0.02(0.98)^2$, $\dots$]
+
+(e) Is the Markov chain positive recurrent? If so, why? If not, why not?
+
+no, it is inifinite Markovchain, like random walk 
+
+it can`t come back again for sure 
+
+
+\newpage
+
+## Exercise 6
+
+Consider the following transition matrix:
+
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    0&0.5&0&0.5
+    \\0.6&0&0.4&0
+    \\0&0.7&0&0.3
+    \\0.8&0&0.2&0
+  \end{pmatrix}
+\end{align*}
+
+(a) Is the Markov chain periodic? Give the period of each state.
+
+  =periodic
+  
+  Let`s see in python
+  
+```{python,echo=TRUE}
+import numpy as np
+from numpy.linalg import matrix_power
+
+P=np.array([[0,0.5,0,0.5],
+          [0.6,0,0.4,0],
+          [0,0.7,0,0.3],
+          [0.8,0,0.2,0]])
+          
+print(matrix_power(P,100))
+
+print(matrix_power(P,101))
+
+print(matrix_power(P,102))
+```
+
+accordign to above result, it is obviously periodic
+
+  
+
+(b) Is ($\pi_1,\pi_2,\pi_3,\pi_4$) = (33/96, 27/96, 15/96, 21/96) the stationary dis-tribution of the Markov Chain?
+
+
+```{python,echo=TRUE}
+import numpy as np
+from numpy.linalg import matrix_power
+
+egien_value, egien_vector = np.linalg.eig(P.T) ## np.linalg,eig(p) returns egien_value, egienvector
+
+print("egien_value :",egien_value)
+
+print("egien_vector :\n",egien_vector)
+
+x_1=egien_vector[:,0]
+
+print(x_1)
+
+v=x_1/np.sum(x_1)
+
+print(v) # stationary distiribution
+```
+
+
+```{python,echo=TRUE}
+np.dot(v,P) # vP=v
+```
+
+
+
+(c)Is $P_{11}^{100}=\pi_1?$, Is $P_{11}^{101}=\pi_1?$ Give an expression for $\pi_1$ in terms of $P_{11}^{100}$ and $P_{11}^{101}.$
+  
+```{python,echo=TRUE}
+import numpy as np
+from numpy.linalg import matrix_power
+
+matrix_power(P,100)
+
+matrix_power(P,101)
+
+```
+  
+Accoring to reuslt,$P_{11}^{100}$=0.6875 , $P_{11}^{101}$=0
+
+it is not true
+  
+  
+
+\newpage
+
+## Exercise 14
+
+Suppose you are working as an independent consultant for a company.
+Your performance is evaluated at the end of each month and the evaluation
+falls into one of three categories: 1, 2, and 3. Your evaluation can be
+modeled as a discrete-time Markov chain and its transition diagram is as
+follows.
+
+Denote your evaluation at the end of nth month by $X_n$ and assume that
+$X_0$ = 2.
+(a) What are state space, transition probability matrix and initial dis-tribution of $X_n?$
+
+state space = [1,2,3]
+
+transition probability matrix
+\begin{align*}
+  P=
+  \begin{pmatrix}
+    0.25&0.75&0
+    \\0.5&0&0.5
+    \\0&0.25&0.75
+  \end{pmatrix}
+\end{align*}
+
+initial distribution (0,1,0)
+
+
+(b) What is the stationary distribution?
+
+```{python,echo=TRUE}
+import numpy as np
+from numpy.linalg import matrix_power
+
+P=np.array([[0.25, 0.75, 0],
+          [0.5, 0, 0.5],
+          [0, 0.25, 0.75]])
+
+intial_dis=np.array([0,1,0])
+
+egien_value, egien_vector = np.linalg.eig(P.T) ## np.linalg,eig(p) returns egien_value, egienvector
+
+print("egien_value :",egien_value)
+
+print("egien_vector :\n",egien_vector)
+
+x_1=egien_vector[:,2]
+print(x_1)
+
+v=x_1/np.sum(x_1)
+print("stationary distribution:\n",v) # stationary distribution
+
+np.dot(v,P) # it is right
+```
+
+
+
+(c) What is the long-run fraction of time when your evaluation is either
+2 or 3?
+
+```{python,echo=TRUE}
+import numpy as np
+from numpy.linalg import matrix_power
+
+matrix_power(P,80)
+matrix_power(P,100)
+```
+we can see that, it converge to some point 
+
+\vspace{15pt}
+
+Your monthly salary is determined by the evaluation of each month in the
+following way.
+Salary when your evaluation is n = $5000 + n^2\times5000$; n = 1, 2, 3
+
+(d) What is the long-run average monthly salary?
+
+```{python, echo=TRUE}
+import numpy as np
+from numpy.linalg import matrix_power
+
+limiting_prob=matrix_power(P,100)
+
+evaluation_1=5000+(1**2)*5000
+evaluation_2=5000+(2**2)*5000
+evaluation_3=5000+(3**2)*5000
+evaluation=np.array([evaluation_1,evaluation_2,evaluation_3])
+
+print("long-run average salary:",np.dot(evaluation,limiting_prob[1]))
+```
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Newsvendor"
+```

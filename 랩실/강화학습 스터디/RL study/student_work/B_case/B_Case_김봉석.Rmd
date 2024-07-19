@@ -1,0 +1,64 @@
+---
+title: "Lecture B2_solution"  
+author: "Reinforcement Lerining Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+## Introduction
+I think that, newsvendor model can applied into the transportation resource allocation problem.
+such problem is about what is optimal number of resource or capacity under demand uncertainty in logistics.
+for example ) if you allocate too many resource than demand, service level will increase enough but cost will also increase such as Transportation cost, maintenence cost. Otherwise If you allocate too few resources, servoce level will decrease, Opportunity costs will incur and other cost will be also incur. 
+These trade-off relationship, the optimal resource allocation problem in logistics, can be solved with the news vendor model.
+
+
+## Problem (Incomplete yet.)
+
+Suppose you are the new CEO for an airline company that continues to lose money. so that, you are thinking of reorganizing the flight route.
+best solution up to now is to reduce the number of planes on air routes that are constantly experiencing deficits, and reinvest in new alternatives. (you will have 10~50 spare aircraft if the reorgarnizing plan sucessfully carried out)
+
+
+### Executives suggested two alternatives as follows
+
+1) New direct flights to South America will be established :
+   
+   
+   Annual demand follows Normar distribution with mean =100,000 and standard deviation=500.
+   1 flight can meet 200 demands and 1 flight ticket will sell at /$100
+   
+   
+
+2) It is converted into a cargo transport aircraft and used for air logistics only :
+
+   switching cost will incur $2000 per units, and Annual demand follows Normar distribution with mean =100,00000 and standard deviation=100.
+   1 fligt can transport 10000 units of cargo, revenue will occur $/10 per unit 
+   
+  
+   
+    
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Newsvendor"
+```

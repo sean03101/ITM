@@ -1,0 +1,125 @@
+---
+title: "Lecture A5.Simulation 2"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+library(reticulate)
+library(rmarkdown)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) 
+reticulate::py_config()
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import t
+```
+\newpage
+
+## Exercise(Page.10)
+Using runif() function in R, complete the following code block that generates 1,000 random numbers that follow *exp*(5)?  
+
+\vspace{10pt}
+
+```{python}
+import numpy as np
+import math
+N = 1000
+u = np.random.uniform(low=0,high=1,size=N)
+x = np.log(1-u)/3
+
+print(x[:5])
+
+```
+
+\newpage
+
+## Uniform random numbers(Page.15)
+
+\vspace{10pt}
+
+```{python}
+x = np.random.uniform(low=-1,high=1,size=1000)
+plt.hist(x,edgecolor='black')
+plt.xlabel('X')
+plt.ylabel('Frequency')
+plt.title('Histogram of X')
+plt.show()
+```
+
+\newpage
+
+## Normal random numbers(Page.16)
+
+\vspace{10pt}
+
+```{python}
+x = np.random.normal(loc=3,scale=2,size=1000) 
+# loc = mean, scale = sd, size = n
+plt.hist(x,edgecolor='black')
+plt.xlabel('X')
+plt.ylabel('Frequency')
+plt.title('Histogram of X')
+plt.show()
+```
+\newpage
+
+## Exponential random numbers(Page.17)
+
+\vspace{10pt}
+
+```{python}
+x = np.random.exponential(scale=1/5, size=10000) 
+plt.hist(x,edgecolor='black')
+plt.xlabel('X')
+plt.ylabel('Frequency')
+plt.title('Histogram of X')
+plt.show()
+```
+
+\newpage
+
+## Poisson random numbers(Page.18)
+
+\vspace{10pt}
+
+```{python}
+x = np.random.poisson(lam=5,size=10000) 
+plt.hist(x,edgecolor='black')
+plt.xlabel('X')
+plt.ylabel('Frequency')
+plt.title('Histogram of X')
+plt.show()
+```
+
+
+A5.Rmd
+```{r}
+"No pain No gain"
+```
+
+
+
+

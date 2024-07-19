@@ -1,0 +1,50 @@
+---
+title: "B_case"  
+author: "Son Min Sang"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+    # in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage  
+
+# The amount of COVID-19 vaccine to buy
+
+\vspace{20pt}
+
+## Introduction 
+When I watched the article of Korea's vaccine purchasing. I wondered about the way to decide the amount of the vaccine for each company. Of course, to buy the cheapest one, or the most effective one is the best. But, it is impossible. In this situation the newsvender algorithm can help to solve these problems effectively. 
+
+\vspace{15pt}
+
+## Problem
+Due to the spread of COVID-19, all the country are trying to secure the vaccine. Korea also planned to inoculate all the people in Korea , 52 millions. Korea will buy the vaccine of pfizer and the vaccine of AStraZenca at the same time. The amount of pfizer vaccine will be decided by pfizer company and it follows normal distribution mean of 20million, standard deviation of 1. The amount of AStraZenca vaccine will be decided by pfizer company and it follows exponential distribution mean of 10million. Korea should decide the amount of Moderna's vaccine. After securing the three vaccines, Korea will buy the vaccine of shortage from other countries for 40$ and can sell the remains for 3$ each to other countries. The table  below shows the price of vaccine.
+
+|  vaccine |  price  |  
+|:--------:|:-------:|
+|  Moderna |   25$   |
+|AStraZenca|    5$   |
+|  pfizer  |   20$   |
+
+\vspace{15pt}
+
+### To make the cost minimum, how much Korea should buy Moderna? Then how about the expected cost?

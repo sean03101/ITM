@@ -1,0 +1,503 @@
+---
+title: "Lecture B2_solution"  
+author: "Reinforcement Lerining Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+## Exercise 1
+Assume that $D$ follows the following discrete distribution.
+
+
+|$d$ |20|25|30|35|
+|:---:|:---:|:---:|:---:|:---:|
+|$P[D=d]$|0.1| 0.2|0.4|0.3|
+|$30 \land d$|20|25|30|30|
+|$(30-d)^+$ | 10| 5|0| 0| 
+|$24 \land d$|20|24|24|24|
+|$(24-d)^+$ |4|0|0| 0|
+
+
+Answer the followings.
+
+### Solution:
+
+\begin{itemize}
+  \item $\mathbb{E}[30\land D] =\sum((30∧d)·P(d))$ $0.1(20) +0.2(25) +0.4(30)+0.3(30) = 26$    
+  \item $\mathbb E[(30- D)^+] =\sum((30-d)^{+}·P(d))$ $0.1(10) +0.2(5) +0.4(0)+0.3(0) = 2$    
+  \item $\mathbb E[24\land D] =\sum((24∧d)·P(d))$ $0.1(20) +0.2(24) +0.4(24)+0.3(24) = 23.6$      
+  \item $\mathbb E[(24-D)^+] =\sum((24-d)^{+}·P(d))$  $0.1(4) +0.2(0) +0.4(0)+0.3(0) = 0.4$     
+\end{itemize}
+
+\newpage
+
+## Exercise 2 
+Find your brother`s optimal stock level by the above Theorem 2. Then find his expected profit using the Remark 1
+\
+*solution for optimal stock*:
+
+|Demand|11|12|13|14|15|||
+|--|--|--|--|--|--|
+|$P[D=d|$|0.2|0.2|0.2|0.2|0.2|
+|$P[D\leq d]$|0.2|0.4|0.6|0.8|1.0|
+
+\
+
+#### Theorem2
+
+\begin{itemize}
+\item  If D is a continuous r.v, with cdf $F(·)$, then find $y$ s.t. $F(y) = \frac{c_u}{c_o+c_u}$.
+\item  If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$.
+\end{itemize}
+
+
+#### Remark 1
+ + $\mathbb{E}(proit) = \mathbb{E}(sales.rev)+\mathbb{E}(slavage.rev)-\mathbb{E}(material)$
+
+
+\vspace{20pt}
+
+### Solution
+
+\noindent \textbf{1) Finding optimal stock level}  
+
+\vspace{15pt}
+$C_o$=(Material Cost - Salvage Price)=$(1-\frac{1}{2})=\frac{1}{2}$   
+$C_u$=(Retail Price - Material Cost)=(2-1)=1
+
+\vspace{10pt}
+
+$F(y) \ge \frac{1}{1+1/2}$  
+$F(y) \ge \frac{2}{3}$
+
+| $d$    |$11$ |$12$ |$13$ |$14$ |$15$ |
+|:------:|:---:|:---:|:---:|:---:|:---:|
+|$P(D=d)$|$\frac{1}{5}$|$\frac{1}{5}$|$\frac{1}{5}$|$\frac{1}{5}$|$\frac{1}{5}$|
+
+
+
+$F_D(11)=\frac{1}{5}$                                                     $<\frac{2}{3}$
+
+$F_D(12)=\frac{1}{5}+\frac{1}{5}=\frac{2}{5}$                             $<\frac{2}{3}$  
+
+$F_D(13)=\frac{1}{5}+\frac{1}{5}+\frac{1}{5}=\frac{3}{5}$                 $<\frac{2}{3}$  
+
+$F_D(14)=\frac{1}{5}+\frac{1}{5}+\frac{1}{5}+\frac{1}{5}=\frac{4}{5}$     $\ge\frac{2}{3}$  
+
+
+\vspace{15pt}
+Thus, $y^{*}$=14 
+\vspace{15pt}
+
+\noindent \textbf{2) Finding expected profit}
+
+\vspace{10pt}
+Sale Revenue=$2·(D∧Y)$  
+
+Salvage Revenue=$\frac{1}{2}·(Y-D)^{+}$  
+
+Material Cost=$1·Y$  
+\vspace{10pt}   
+$\mathbb{E}(proit) = \mathbb{E}(sales.rev)+\mathbb{E}(slavage.rev)-\mathbb{E}(material)$
+
+　　　　　=$\sum_{d=11}^{15}(2·(d∧y)·P(d))+\sum_{d=11}^{15}(\frac{1}{2}·(d-y)^{+}·P(d))-\sum_{d=11}^{15}(y·P(d))$  
+
+Using, $y^{*}=14$  
+
+\vspace{10pt}
+
+\noindent $\mathbb E[Profit]=\sum_{D=11}^{15}(2·(D∧14)·P(d))+\sum_{D=11}^{15}(\frac{1}{2}·(D-14)^{+}·P(d))-\sum_{D=11}^{15}(14·P(d))$  
+
+　　　　　=$2·(\sum_{D=11}^{14}(D·P(d))+14·P(15))+\frac{1}{2}·\sum_{D=11}^{14}((14-D)·P(d))-14$  
+
+　　　　　=$2·(\frac{11+12+13+14}{5}+\frac{14}{5})+\frac{1}{2}·(\frac{3+2+1+0}{5})-14$  
+
+　　　　　=$\frac{61}{5}$  
+
+　　　　　=$12.2$  
+
+
+\noindent Thus, $\mathbb E[Profit] = 12.2$
+
+
+\vspace{50pt}
+
+\newpage
+
+## Excercise 3
+
+Your brother is now selling milk. The customer demands follows $U(20,40)$ gallons. Retail price is \$2 per gallon, material cost is \$1 per gallon, and salvage cost is \$ 0.5 per gallon.
+Find optimal stock level and expected profit
+
+\vspace{15pt}
+
+$D$~$U(20,40)$
+
+$f(x)=\begin{cases}\frac{1}{20}&20\le x \le 40\\0&otherwise\end{cases}$  
+
+$F(x)=\begin{cases}0&20<x\\\frac{x-20}{20}&20\le x \le 40\\1&x>40\end{cases}$  
+
+#### Theorem2
+\begin{itemize}
+\item  If D is a continuous r.v, with cdf $F(·)$, then find $y$ s.t. $F(y) = \frac{c_u}{c_o+c_u}$.
+\item  If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$.
+\end{itemize}
+
+Uniform distribution is continuous,so we sahll use $F(x^*)=\frac{c_u}{c_o+c_u}$  
+
+\vspace{12pt}
+
+$c_o$=(Material Cost - Salvage Price)=$(1-\frac{1}{2})=\frac{1}{2}$   
+$c_u$=(Retail Price - Material Cost)=(2-1)=1
+
+\vspace{10pt}
+
+$F(x^*) = \frac{1}{1+1/2} = \frac{2}{3}$  
+
+$\frac{x^*-20}{20}=\frac{2}{3} ,\ x^*=\frac{100}{3}$  
+
+\vspace{10pt}
+
+$\mathbb{E}[Profit]=\mathbb{E}(Sale Rev.)+\mathbb{E}(salvage Rev.)-\mathbb{E}(material Cost)$
+
+Sale Revenue=$2·(D∧\frac{100}{3})$  
+
+Salvage Revenue=$\frac{1}{2}·(\frac{100}{3}-D)^{+}$  
+
+Material Cost=$1·\frac{100}{3}$  
+\vspace{10pt}   
+
+$\mathbb E[Profit]=\mathbb E[2·(D∧\frac{100}{3})]+\mathbb E[\frac{1}{2}·(\frac{100}{3}-D)^{+}]-1·\frac{100}{3}$
+
+$=\int_{20}^{40}(2·(X∧\frac{100}{3})·\frac{1}{20})dx+\int_{20}^{40}(\frac{1}{2}·(\frac{100}{3}-X)^{+}·\frac{1}{20})dx-\int_{20}^{40}(\frac{100}{30}·\frac{1}{20})dx$  
+
+$=\frac{1}{10}·(\int_{20}^{\frac{100}{30}}(X)dx+\int_{\frac{100}{3}}^{40}(\frac{100}{3})dx)+\frac{1}{40}·(\int_{20}^{\frac{100}{3}}(\frac{100}{3}-X)dx+\int_{\frac{100}{3}}^{40}(0)dx)-\frac{100}{3}$  
+
+$=\frac{1}{10}·([\frac{1}{2}X^2]^\frac{100}{3}_{20}+\frac{100}{3}[X]^{40}_{\frac{100}{3}})+\frac{1}{40}·[\frac{100}{3}X-\frac{1}{2}X^2]^\frac{100}{3}_{20}-\frac{100}{3}$  
+
+$=\frac{80}{3}$  
+
+\vspace{15pt}
+
+\newpage
+
+
+\newpage 
+
+## Excercise 4
+Lemonade sells for \$18 per gallon but only costs \$3 per gallon to make. if we run out of lemonade. it will be impossible to get more. On the other hand, leftover lemonade has a value of \$1. Express The following quantity using sale as X and demand as D
+
+
+### Solution : 
+
+\vspace{5pt}
+
+\begin{text}
+\\
+$c_u =$ lemonade($\$18$) - material cost($\$3$) = 15 \\
+
+$c_o =$ material cost($\$3$) - salvage cost($\$1$) = 2 \\
+
+$\mathbb E$(economic cost) = 15 $\times \mathbb{E}[(D-E)^+] + 2 \times \mathbb{E}[(X-D)^+]$ \\
+
+$\mathbb E$(Expected profit) = 18 $\times\mathbb{E}[min(X,D)]+1\times\mathbb{E}[(X-D)^+]-3\times\mathbb{E}[X]$ \\
+\end{text}
+
+
+\newpage 
+
+## Excercise 5
+Prove Theorem 1. (Hint: you may use formulation from Exercise 4)
+
+### Solutuon :
+
+
+
+clam that, $x^*=argmin_X (p-c)(D-x)^++(c-s)(X-D)^+$ (LHS)
+
+= $argmax_X$ $pmin(D,X)+s(X-D)^+-cX$ (RHS)
+
+suppose,$x^*$=$argmin_X$  $(p-c)(D-x)^++(c-s)(X-D)^+$ 
+
+= $argmax_X$ $-(p-c)(D-x)^+-(c-s)(X-D)^+$  
+
+  ($\because$ $argmin_X$ $f(x)$ = $argmax_X$ $-f(x)$)
+
+ the goal is to wrok with above to match RHS up to constant 
+
+= $argmax_X$ $-(p-c)max(D-X,0)-c(X-D)^++s(X-D)^+$
+
+= $argmax_X$ $(p-c)min(X-D,0)-cmax(X-D,0)^+s(X-D)^+$  
+  
+  ($\because$ $max(x,0)=-min(-x,0)$ )
+
+= $argmax_X$ $pmin(X-D,0)-c[(X-D)+s(X-D)^+]+s(X-D)^+$
+
+= $argmax_X$ $pmin(X-D,0)-c(X-D)+s(X-D)^+$   
+
+  ($\because$ $min(X,Y)+max(X,Y)=X+Y$ )
+
+= $argmax_X$ $[pmin(X-D,0)+D-0]-cX+cD+s(X-D)^+$
+
+= $argmax_X$ $p[min(X-D,0)+D]+s(X-D)^+-cX+cD$
+
+= $argmax_X$ $pmin(X,D)+s(X-D)^+-cX+-pD+cD$
+
+= $argmax_X$ $pmin(X,D)+s(X-D)^+$ (RHS)
+
+  $-cX-(p-c)D$  , not affected by choice of x
+
+
+
+
+\newpage
+
+## DaiPark Excercise 4
+Let D be a continuous random variable and uniformly distributed between
+5 and 10. Find
+
+(a) $\mathbb E[max(D, 8)]$ 
+
+(b) $\mathbb E[(D − 8)^-]$
+
+where $x^{-1} = min(x, 0)$
+
+### Solution:
+
+$D$ ~ $U(5,10)$  
+
+$f_d(x)=\begin{cases}\frac{1}{5}&5\le x \le 10\\0&otherwise\end{cases}$  
+
+$F_d(x)=\begin{cases}0&5<x\\\frac{x-5}{5}&5\le x \le 10\\1&x>10\end{cases}$ 
+
+(a) \begin{eqnarray*}
+\mathbb E[max(D,8)]&=&\int_{-\infty}^{\infty}max(x,8)f_{D}(x)dx \\
+  \\
+&=&\int_{-\infty}^{0}max(x,8)f_{D}(x)dx+\int_{0}^{\infty}max(x,8)f_{D}(x)dx \\
+  \\
+&=&0+\int_{0}^{\infty}max(x,8)f_{D}(x)dx \\
+  \\
+&=&\int_{0}^{5}max(x,8)f_{D}(x)dx+\int_{5}^{10}max(x,8)f_{D}(x)dx+\int_{10}^{\infty}max(x,8)f_{D}(x)dx \\
+  \\
+&=&0+\int_{5}^{10}max(x,8)\frac{1}{5}dx+0 \\
+  \\
+&=&\int_{5}^{8}max(x,8)\frac{1}{5}dx+\int_{8}^{10}max(x,8)\frac{1}{5}dx \\
+  \\
+&=&\int_{5}^{8}8\frac{1}{5}dx+\int_{8}^{10}x\frac{1}{5}dx \\
+  \\
+&=&\frac{8}{5}[x]_{5}^{8}+\frac{1}{5}[\frac{1}{2}x^2]_{8}^{10} \\
+  \\
+&=&\frac{24}{5}+\frac{18}{5} \\
+  \\
+&=&\frac{42}{5}
+\end{eqnarray*} 
+
+(b) \begin{eqnarray*}
+\mathbb E[(D-8)^{-}]&=&\int_{-\infty}^{\infty}(x-8)^{-}f_{D}(x)dx \\
+  \\
+&=&\int_{-\infty}^{0}(x-8)^{-}f_{D}(x)dx+\int_{0}^{\infty}(x-8)^{-}f_{D}(x)dx \\
+  \\
+&=&0+\int_{0}^{\infty}(x-8)^{-}f_{D}(x)dx \\
+  \\
+&=&\int_{0}^{5}(x-8)^{-}f_{D}(x)dx+\int_{5}^{10}(x-8)^{-}f_{D}(x)dx+\int_{10}^{\infty}(x-8)^{-}f_{D}(x)dx \\
+  \\
+&=&0+\int_{5}^{10}(x-8)^{-}\frac{1}{5}dx+0 \\
+  \\
+&=&\int_{5}^{8}(x-8)^{-}\frac{1}{5}dx+\int_{8}^{10}(x-8)^{-}\frac{1}{5}dx \\
+  \\
+&=&\int_{5}^{8}(x-8)\frac{1}{5}dx+0 \\
+  \\
+&=&\frac{1}{5}[\frac{1}{2}x^2-8x]_{5}^{8} \\
+  \\
+&=&-\frac{9}{2}
+\end{eqnarray*} 
+
+\newpage
+
+
+## DaiPark Excercise 7
+Suppose we are selling lemonade during a football game. The lemonade sells for \$18 per gallon but only costs \$3 per gallon to make. If we run out of lemonade during the game, it will be impossible to get more. On
+the other hand, leftover lemonade has a value of $1. Assume that we believe the fans would buy 10 gallons with probability 0.1, 11 gallons with
+probability 0.2, 12 gallons with probability 0.4, 13 gallons with probability 0.2, and 14 gallons with probability 0.1.
+
+### (a) What is the mean demand?
+
+### (b) If 11 gallons are prepared, what is the expected profit?
+
+### (c) What is the best amount of lemonade to order before the game?
+
+### (d) Instead, suppose that the demand was normally distributed with mean 1000 gallons and variance 200 gallons2 How much lemonades hould be ordered?
+
+### Solution:
+
+\begin{table}[ht]
+  \begin{tabular}{l|lllll}
+  \hline
+  Demand        & 10  & 11  & 12  & 13  & 14\\ \hline
+  P{[}D=d{]}    & 0.1 & 0.2 & 0.4 & 0.2 & 0.1   \\ \hline
+  \end{tabular}
+  \end{table}
+  
+### (a)
+
+mean demand = $\sum xp(x) = 10(0.1)+11(0.2)+12(0.4)+13(0.2)+14(0.1)$ =12  
+
+### (b)
+
+|Demand|10|12|13|14|Expected Profit|||
+|--|--|--|--|--|--|--|
+|$14$|$10(18)+1(1)-11(3)=148$|$11(18)+0(0)-11(3)=147$|$11(18)+0(0)-11(3)=147$|$11(18)+0(0)-11(3)=147$|$11(18)+0(0)-11(3)=147$|$0.1(148)+0.2(147)+0.4(147)+0.2(147)+0.1(147)=147.1$|
+
+Thus, Expected profit is \$ 147.1 If 11 gallons are prepared
+
+### (c)
+
+$c_o = 3-1 = 2$
+$c_u = 18-3 = 15$ 
+
+If D is a discrete r.v with cdf F(x), then find smallest y s.t $F(y)\geq{c_u \over c_u+c_o}={15 \over 15+2}= {15 \over 17 }=0.88235$
+
+|Demand|10|11|12|13|14|||
+|--|--|--|--|--|--|
+|$P[D=d|$|0.1|0.2|0.4|0.2|0.1|
+|$P[D\leq d]$|0.1|0.3|0.7|0.9|1.0|
+
+Thus, 13 is the best amount of lemonade before the game to order
+
+### (d)
+Demand~$N(1000,200^2)$
+
+If D is a continuous r.v with cdf F(x), then find y s.t $F(y)={c_u \over c_u+c_o}={15 \over 15+2}= {15 \over 17 }=0.88235$
+
+then in standard Normal Distribution $P(Z \leq 1.175)=0.88$
+
+thus, ${X-100}\over 200 = 1.175$
+$X= 1.175(200) +1000 = 1235$
+
+we should prepare 1235 gallons.
+
+\newpage
+
+
+
+
+
+
+## DaiPark Excercise 14
+
+A store sells a particular brand of fresh juice. By the end of the day, any
+unsold juice is sold at a discounted price of $2 per gallon. The store gets
+the juice daily from a local producer at the cost of $5 per gallon, and it
+sells the juice at $10 per gallon. Assume that the daily demand for the
+juice is uniformly distributed between 50 gallons to 150 gallons.
+
+
+(a) What is the optimal number of gallons that the store should order from the distribution each day in order to maximize the expected profit each day?
+
+(b) If 100 gallons are ordered, what is the expected profit per day?
+
+### Solution:
+
+information
+\begin{itemize}
+  \item Salvage Value= s=  \$2 per gallon 
+  \item Wholesale price= c =\$5 per gallon
+  \item retail price = p = \$10 per gallon 
+  \item Demand distribution = U(50,150)
+\end{itemize}
+
+$c_o=c-s=5-2=3 \\$
+
+$c_u=p-c=10-5=5$
+
+$f(y) = \begin{cases}\frac{1}{100} &50\le x \le 150\\0 &otherwise \end{cases}$
+
+$F(y) = \begin{cases} 0 &y\le50\\\frac{y-50}{150-50}&50\le y \le 150\\ 1&y>150 \end{cases}$
+
+
+#### (a)
+
+
+
+If D is a continous r.v with cdf F(x), then find y s.t $F(y)={c_u \over c_u+c_o}={5 \over 5+3}= {5 \over8 }\\$
+
+$F({5\over8})^{-1}= (150-50){5 \over 8}+50= {112.5}\\$
+
+Thus optimal number of gallon is 112.5 gallon to maximize the expected profit each day.
+
+### (b) 
+
+$\mathbb{E}(proit) = \mathbb{E}(sales.rev)+\mathbb{E}(slavage.rev)-\mathbb{E}(material)$
+
+
+when x=100,
+
+$\mathbb{E}(profit)$ = $10 \mathbb E[(D\land 100)]+2\mathbb E[(100-D)^+]-(10)100 \\$
+
+(1) \begin{eqnarray*}
+\mathbb E[(D\land 100)]]&=&\int_{-\infty}^{\infty}\mathbb E[(D\land 100)]f_{D}(x)dx \\
+  \\
+&=&\int_{-\infty}^{50} \mathbb E[(D\land 100)]f_{D}(x)dx+\int_{50}^{150} \mathbb E[(D\land 100)]f_{D}(x)dx+\int_{150}^{\infty}\mathbb E[(D\land 100)]f_{D}(x)dx \\
+  \\
+&=&0+\int_{50}^{150}\mathbb E[(D\land 100)]f_{D}(x)dx+0 \\
+  \\
+&=&\int_{50}^{150}\mathbb E[(D\land 100)]f_{D}(x)dx\\
+  \\
+&=& \int_{50}^{100}\mathbb E[(D\land 100)]f_{D}(x)dx+\int_{100}^{150}\mathbb E[(D\land 100)]f_{D}(x)dx\\
+  \\
+&=& \int_{50}^{100}(X){1 \over 100}dx+\int_{100}^{150}(100){1 \over 100}dx=87.5\\
+\end{eqnarray*} 
+
+
+(2) \begin{eqnarray*}
+\mathbb E[(100-X)^+]&=&\int_{-\infty}^{\infty}\mathbb E[(100-X)^+]f_{D}(x)dx \\
+  \\
+&=&\int_{-\infty}^{50}\mathbb E[(100-X)^+]f_{D}(x)dx+\int_{50}^{150}\mathbb E[(100-X)^+]f_{D}(x)dx+\int_{150}^{\infty}\mathbb E[(100-X)^+]f_{D}(x)dx \\
+  \\
+&=&0+\int_{50}^{150}\mathbb E[(100-X)^+]f_{D}(x)dx+0 \\
+  \\
+&=&\int_{50}^{150}\mathbb E[(100-X)^+]f_{D}(x)dx\\
+  \\
+&=& \int_{50}^{100}\mathbb E[(100-X)^+]f_{D}(x)dx+\int_{100}^{150}\mathbb E[(100-X)^+]f_{D}(x)dx\\
+  \\
+&=& \int_{50}^{100}(100-X)({1 \over 100})dx+\int_{100}^{150} (0){1 \over 100} = 12.5\\
+\end{eqnarray*} 
+
+
+
+
+
+
+(3)
+
+
+  \quad $\mathbb E[100]=100$
+
+Thus, Expected Profit is $10(87.5)+2(12.5)-5(100)=400$
+
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Newsvendor"
+```

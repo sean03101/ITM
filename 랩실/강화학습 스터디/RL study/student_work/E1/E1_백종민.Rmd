@@ -1,0 +1,224 @@
+---
+title: "Lecture E1. MDP with Model 1"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+## Policy evalutation 1(Page21)
+
+```{python}
+import numpy as np
+import pandas as pd
+R = np.hstack((np.repeat(-1.5, 4), -0.5, np.repeat(-1.5, 2), 0)).reshape(-1,1)
+states = np.arange(0, 80, 10)
+p = np.matrix([
+[0.1,0,0.9,0,0,0,0,0],
+[0.1,0,0,0.9,0,0,0,0],
+[0,0.1,0,0,0.9,0,0,0],
+[0,0,0.1,0,0,0.9,0,0],
+[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],
+[0,0,0,0,0,0.1,0,0.9],
+[0,0,0,0,0,0,0,1.0]
+])
+p = pd.DataFrame(p,index=states,columns=states)
+print(R)
+print(p)
+```
+
+\newpage
+## rewritten with intermediate saving(Page22)
+```{python}
+gamma=1.0
+epsilon=10**-8
+v_old = np.zeros(8).reshape(8,1)
+v_new =  R + np.dot(gamma*p,v_old)
+while np.max(np.abs(v_new-v_old)) > epsilon :
+  v_old = v_new
+  v_new = R + np.dot(gamma*p,v_old)
+print(v_new.T)
+```
+
+```{python}
+gamma = 1.0
+epsilon = 10**-8
+v_old = np.zeros(8).reshape(8,1)
+v_new =  R + np.dot(gamma*p,v_old)
+results = v_old.T
+results = np.vstack([results,v_new.T])
+while np.max(np.abs(v_new-v_old)) > epsilon :
+  v_old = v_new
+  v_new = R + np.dot(gamma*p,v_old)
+  results = np.vstack([results,v_new.T])
+print(v_new.T)
+results = pd.DataFrame(results,columns=states)
+print(results.head())
+print(results.tail())
+```
+
+\newpage
+
+## visualization
+
+```{python}
+fig1=results[results.index < 6]
+fig2=results[(results.index >= 7)&(results.index < 12)]
+fig3=results[(results.index >= 13)&(results.index < 18)]
+```
+
+```{python}
+plt.plot(fig1.T,marker='o')
+plt.legend(fig1.columns,title='states')
+plt.grid(True)
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6')
+plt.show()
+```
+\newpage
+```{python}
+plt.plot(fig2.T,marker='o')
+plt.legend(fig1.columns,title='states')
+plt.grid(True)
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 7 to 12')
+plt.show()
+```
+
+```{python}
+plt.plot(fig3.T,marker='o')
+plt.legend(fig1.columns,title='states')
+plt.grid(True)
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 13 to 18')
+plt.show()
+```
+
+
+\newpage
+## policy evalutation 2
+
+$\pi(pi) : S \to A $  
+
+\vspace{10pt}
+
+```{python}
+states = np.arange(0,80,10)
+pi_speed = np.array([np.repeat(0,len(states)),np.repeat(1,len(states))]).T
+pi_speed = pd.DataFrame(pi_speed,columns=['normal','speed'],index=[states])
+pi_speed
+```
+
+$R^\pi : S \to \mathbb{R}$  
+
+\vspace{10pt}
+
+```{python}
+R_s_a = np.array([[-1,-1,-1,-1,0.0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,columns=['normal','speed'],index=[states])
+R_s_a
+```
+\newpage
+```{python}
+def reward_fn(given_pi):
+  R_s_a = np.array([[-1,-1,-1,-1,0.0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+  R_pi = np.sum(given_pi*R_s_a,axis=1)
+  return R_pi
+reward_fn(pi_speed)
+```
+
+$P^\pi : S \times A \to S$  
+
+\vspace{10pt}
+
+```{python}
+states = np.arange(0,80,10)
+p_normal = pd.DataFrame(np.array([
+0,1,0,0,0,0,0,0,
+0,0,1,0,0,0,0,0,
+0,0,0,1,0,0,0,0,
+0,0,0,0,1,0,0,0,
+0,0,0,0,0,1,0,0,
+0,0,0,0,0,0,1,0,
+0,0,0,0,0,0,0,1,
+0,0,0,0,0,0,0,1
+]).reshape(8,8),index=states, columns=states)
+p_speed = pd.DataFrame(np.array([
+.1,0,.9,0,0,0,0,0,
+.1,0,0,.9,0,0,0,0,
+0,.1,0,0,.9,0,0,0,
+0,0,.1,0,0,.9,0,0,
+0,0,0,.1,0,0,.9,0,
+0,0,0,0,.1,0,0,.9,
+0,0,0,0,0,.1,0,.9,
+0,0,0,0,0,0,0,1,
+]).reshape(8,8),index=states, columns=states)
+```
+
+
+```{python}
+def transition(given_pi,states,p_normal,p_speed):
+  p_out = pd.DataFrame(np.zeros(shape=(len(states),len(states))),index=states, columns=states)
+  for s in range(len(states)) :
+    action_dist = given_pi.iloc[s]
+    p = action_dist['normal']*p_normal + action_dist['speed']*p_speed
+    p_out.iloc[s] = p.iloc[s]
+  return p_out
+```
+
+
+```{python}
+transition(pi_speed,states,p_normal,p_speed)
+```
+
+\newpage
+## Test 2
+
+```{python}
+pi_50 = pi_speed = pd.DataFrame(np.array([np.repeat(0.5,len(states)),np.repeat(0.5,len(states))]).T,columns=['normal','speed'],index=[states])
+pi_50
+```
+```{python}
+transition(pi_50,states,p_normal,p_speed)
+```
+
+
+
+E1.Rmd
+```{r}
+"Hello"
+```
+

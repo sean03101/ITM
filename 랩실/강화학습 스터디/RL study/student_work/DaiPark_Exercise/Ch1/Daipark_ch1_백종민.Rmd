@@ -1,0 +1,140 @@
+---
+title: "Daipark_ch1"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+\newpage
+## Exercise 9.  
+
+a) uniform distribution from 10 to 15 cameras a month. If 12 cameras are ordered at the beginning of a month, what are the expected overstock cost and the expected undercost or shortage cost? What is the expected total cost?   
+
+\begin{align*}
+C_o &= cost - salvage \\
+    &= inventory \, holding \, cost + wholesale \, cost  \\
+    &= 480+25-0 = 505 \\
+C_u &= price - cost \\
+    &= retail \, price + special \, delivery \, charge - wholesale \, cost \\
+    &= 600 + 50 - 480 = 170
+\end{align*}
+
+\begin{align*}
+\mathbb{E}[(12-D)^+] &= \int_{10}^{12}(12-x)^+\frac{1}{5}dx + \int_{12}^{15}(12-x)^+\frac{1}{5}dx \\
+                     &=\frac{14}{5} \\
+\mathbb{E}[(D-12)^+] &=\int_{10}^{12}(x-12)^+\frac{1}{5}dx + \int_{12}^{15}(x-12)^+\frac{1}{5}dx \\
+                     &=\frac{1}{2}
+\end{align*}
+
+Expected over cost = $505 \times \frac{14}{5}$ = 1414  
+Expected under cost = $170 \times \frac{1}{2}$ = 85  
+Expected total cost = 1414+85= 1499
+\vspace{5pt}
+
+b) What is optimal number of cameras to order to minimize the expected total cost?
+
+\begin{align*}
+y^* &= \frac{x-10}{15-10} = \frac{67}{125} \\
+    &= 12.68 = 12
+\end{align*}
+
+
+<!-- \vspace{5pt} -->
+
+c) Assume that the demand can be approximated by a normal distribution with mean 1000 and standard deviation 100 cameras a month. What is the optimal number of cameras to order to minimize the expected total cost?
+
+$N(\mu,\sigma^2) = N(1000,100^2)$  
+
+```{r}
+qnorm(0.25185,mean=1000,sd=100)
+```
+
+\newpage
+
+## Exercise 10
+
+a) What is the optimal ordering quantity for each case when the demand is discrete with $Pr{\{D = 500}\} = Pr{\{D = 800}\} =1/8$, $Pr{\{D = 600}\}=1/2  and Pr{\{D = 700}\} = 1/4$?  
+
+$C_u = 100(shortage \,cost)$    
+$C_0 = 50(the \, solvent\, cost(40) +disposal \, charge(10))$  
+$F(D) \geq \frac{100}{100+50}(\frac{2}{3})$
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+  \hline
+  $d$ & 500 & 600 & 700 & 800 \\ \hline
+  $\mathbb{P}[D = d]$ & $\frac{1}{8}$ & $\frac{1}{2}$ & $\frac{1}{4}$ & $\frac{1}{8}$  \\
+  $\mathbb{P}[D \leq d]$ & $\frac{1}{8}$ & $\frac{5}{8}$ & $\frac{7}{8}$ & $\frac{8}{8}$ \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{10pt}
+
+\begin{text}
+\\
+$F(500) = \frac{1}{8}(0.125) \qquad \qquad \qquad < \frac{2}{3}(0.66)$ \\
+$F(600) =\frac{1}{8}+\frac{1}{2}= \frac{5}{8}(0.625) \qquad < \frac{2}{3}(0.66)$  \\
+$F(700) = \frac{1}{8}+\frac{1}{2}+\frac{1}{4} =\frac{7}{8}(0.875) \qquad > \frac{2}{3}(0.66)$ \\
+$F(800) = \frac{1}{8}+\frac{1}{2}+\frac{1}{4} + \frac{1}{8} =\frac{8}{8}(1.0) \qquad > \frac{2}{3}(0.66)$ \\
+\\
+The optimal order quantity $y^* = 700$  \\
+\end{text}
+
+b) What is the optimal ordering policy for arbitrary initial inventory level m? (You need to specify the critical value $m^*$ in addition to the optimal order-up-to quantity $y^*$. When $m \leq m^*$, you make an order. Otherwise, do not order. )  
+
+m(prepared inventory) is 0, 100, 300, 500 and 700  
+d(demand) is 500, 600, 700, 800  
+\vspace{10pt}
+
+\begin{center}
+\begin{tabular}{c|c|c|c|c}
+  \hline
+  $d$ & 500 & 600 & 700 & 800 \\ \hline
+  $\mathbb{P}[D = d]$ & $\frac{1}{8}$ & $\frac{1}{2}$ & $\frac{1}{4}$ & $\frac{1}{8}$  \\
+  $\mathbb{P}[D \leq d]$ & $\frac{1}{8}$ & $\frac{5}{8}$ & $\frac{7}{8}$ & $\frac{8}{8}$ \\
+  $(D-m)^+(m=0)$ & 500 & 600 & 700 & 800 \\
+  $(D-m)^+(m=100)$ & 400 & 500 & 600 & 700 \\
+  $(D-m)^+(m=300)$ & 200 & 300 & 400 & 500 \\
+  $(D-m)^+(m=500)$ & 0 & 100 & 200 & 300 \\
+  $(D-m)^+(m=700)$ & 0 & 0 & 0 & 100 \\
+  $(m-d)^+(m=0)$ & 500 & 600 & 700 & 800 \\
+  $(m-d)^+(m=100)$ & 0 & 0 & 0 & 0 \\
+  $(m-d)^+(m=300)$ & 0 & 0 & 0 & 0 \\
+  $(m-d)^+(m=500)$ & 0 & 0 & 0 & 0 \\
+  $(m-d)^+(m=700)$ & 200 & 100 & 0 & 0 \\ \hline
+\end{tabular}
+\end{center}
+
+
+\newpage
+
+c) Assume optimal quantity will be orderd. What is the total expected cost when the initial inventory m = 0? what is the total expected cost when the initial inventory m = 700?  
+
+\vspace{10pt}
+
+Daipark_ch1.Rmd
+```{r}
+"Hello"
+```
+

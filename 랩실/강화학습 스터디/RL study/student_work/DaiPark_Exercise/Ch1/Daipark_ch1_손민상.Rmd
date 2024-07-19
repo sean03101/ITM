@@ -1,0 +1,183 @@
+---
+title: "Daipark_ch1_손민상"  
+author: "Son Min Sang"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+\newpage
+
+# Exercise 
+## Exercise(1-9)
+A camera store specializes in a particular popular and fancy camera. Assume that these cameras become obsolete at the end of the month. They guarantee that if they are out of stock, they will special-order the camera and promise delivery the next day. In fact, what the store does is to purchase the camera from an out f state retailer and have it delivered through an express service. Thus, when the store is out of stock, they actually lose the sales price of the camera and the shipping charge, but they maintain their good reputation. The retail price of the camera is \$600, and the special delivery charge adds another \$50 to the cost. At the end of each month, there is an inventory holding cost of \$25 for each camera in stock (for doing inventory etc). Wholesale cost for the store to purchase the cameras is \$480 each. (Assume that the order can only be made at the beginning of the month.)
+
+### (a) Assume that the demand has a discrete uniform distribution from 10 to 15 cameras a month (inclusive). If 12 cameras are ordered at the beginning of a month, what are the expected overstock cost and the expected understock or shortage cost? What is the expected total cost?
+
+\begin{itemize}
+\item $retail\ price = p=\$600$
+\item $material\ cost = c = \$480$
+\item $holding\ price = h = \$25$ 
+\item $c_o = h=\$25$
+\item $c_u = p+special\ delivery\ charge = \$650$
+\end{itemize}
+
+\vspace{10pt}
+
+$E$[overstock cost] $= c_o·E[X-D]^+$
+
+\qquad \qquad \qquad \qquad $= 25·\sum_{d=10}^{15}(12-d)^+·P(d)$
+
+\qquad \qquad \qquad \qquad $= 25·(\sum_{d=10}^{12}(12-D)^+·\frac{1}{6}+\sum_{d=12}^{15}0dD)$
+
+\qquad \qquad \qquad \qquad $= \frac{25}{6}·(2+1+0)$
+
+\qquad \qquad \qquad \qquad $= 12.5$
+          
+\vspace{10pt}          
+
+$E$[understock cost] $= c_u·E[D-X]^+$
+
+\qquad \qquad \qquad \qquad $= 650·\sum_{d=10}^{15}(d-12)^+·P(d)$
+
+\qquad \qquad \qquad \qquad $= 650·(\sum_{d=12}^{15}(d-12)·\frac{1}{6}+\sum_{d=10}^{12}0dD)$
+
+\qquad \qquad \qquad \qquad $= \frac{650}{6}·(0+1+2+3)$
+
+\qquad \qquad \qquad \qquad $= 650$
+
+$E$[total cost] = $E$[overstock cost] + $E$[understock cost]+$E$[material cost]$=12.5+650+480*12 = 6422.5$ 
+
+### (b) What is optimal number of cameras to order to minimize the expected total cost?
+
+If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$.
+
+$F(y) \ge \frac{c_u}{c_o+c_u}=\frac{650}{25+650}=\frac{26}{27}$
+
+| $d$    |$10$ |$11$ |$12$ |$13$ |$14$ |$15$ |
+|:------:|:---:|:---:|:---:|:---:|:---:|:---:|
+|$P(D=d)$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|$\frac{1}{6}$|
+|$P(D\leq d)$|$\frac{1}{6}$|$\frac{1}{3}$|$\frac{1}{2}$|$\frac{2}{3}$|$\frac{5}{6}$|$1$|
+
+$\therefore y^*=15$
+
+### (c) Assume that the demand can be approximated by a normal distribution with mean 1000 and standard deviation 100 cameras a month. What is the optimal number of cameras to order to minimize the expected total cost?
+
+If D is a continuous r.v, with cdf $F(·)$, then find $y$ s.t. $F(y) = \frac{c_u}{c_o+c_u}$.
+
+$F(y) \ge \frac{c_u}{c_o+c_u}=\frac{650}{25+650}=\frac{26}{27}$
+
+$N$~$(1000,100^2)$
+
+$p(x)=\frac{1}{100\sqrt{2\pi}}e^{(-\frac{(x-1000)^2}{2·100^2})}$
+
+```{r,echo=TRUE}
+qnorm(26/27,1000,100)
+```
+$\therefore y^*=1178.616$
+
+\newpage
+
+## Exercise(1-10)
+Next month's production at a manufacturing company will use a certain solvent for part of its production process. Assume that there is an ordering cost of \$1,000 incurred whenever an order for the solvent is placed and the solvent costs \$40 per liter. Due to short product life cycle, unused solvent cannot be used in following months. There will be a \$10 disposal charge for each liter of solvent left over at the end of the month. If these is a shortage of solvent, the production process is seiously disrupted at a cost of \$100 per liter short. Assume that the initial inventory level is $m$, where $m = 0,100,300,500$ and 700 liters.
+
+### (a) What is the optimal ordering quantity for each case when the demand is discrete with $Pr{D = 500} = Pr{D = 800} = 1/8, Pr{D = 600} = 1/2 $and $Pr{D = 700} = 1/4?$
+
+$c_o=$material cost+disposal cost$=40+10=50$
+$c_u=$disrupted cost$=100$
+
+If D is a discrete r.v, with cdf $F(·)$, then find smallest $y$ such that $F(y) \ge \frac{c_u}{c_o+c_u}$.
+
+$F(y) \ge \frac{c_u}{c_o+c_u}=\frac{100}{50+100}=\frac{2}{3}$
+
+| $d$    |$500$ |$600$ |$700$ |$800$ |
+|:------:|:----:|:----:|:----:|:----:|
+|$P(D=d)$|$\frac{1}{8}$|$\frac{1}{2}$|$\frac{1}{4}$|$\frac{1}{8}$|
+|$P(D\leq d)$|$\frac{1}{8}$|$\frac{5}{8}$|$\frac{7}{8}$|$1$|
+
+$P(D\leq 700)\geq \frac{2}{3}$
+$\therefore y^*=700$
+
+
+### (b) What is the optimal ordering policy for arbitrary initial iventory level $m$? (You need to specify the critical value $m^*$ in addition to the optimal order-up-to quantity $y^*$. When $m \leq m^*$, you make an order. Otherwise, do not order.)
+
+\vspace{10pt}
+
+When $m=0$,
+
+$E[cost]=40·(\frac{1}{8}·(500-0)+\frac{1}{2}·(600-0)+\frac{1}{4}·(700-0)+\frac{1}{8}·(800-0))+1000$
+
+\qquad \quad $=26500$
+
+\vspace{10pt}
+
+When $m=100$,
+
+$E[cost]=40·(\frac{1}{8}·(500-100)+\frac{1}{2}·(600-100)+\frac{1}{4}·(700-100)+\frac{1}{8}·(800-100))+1000$
+
+\qquad \quad $=22500$
+
+\vspace{10pt}
+
+When $m=300$,
+
+$E[cost]=40·(\frac{1}{8}·(500-300)+\frac{1}{2}·(600-300)+\frac{1}{4}·(700-300)+\frac{1}{8}·(800-300))+1000$
+
+\qquad \quad $=12400$
+
+\vspace{10pt}
+
+When $m=500$,
+
+$E[cost]=40·(\frac{1}{8}·(500-500)+\frac{1}{2}·(600-500)+\frac{1}{4}·(700-500)+\frac{1}{8}·(800-500))+1000·(1-\frac{1}{8})$
+
+\qquad \quad $=6375$
+
+\vspace{10pt}
+
+When $m=700$,
+
+$E[cost]=-50·(\frac{1}{8}·(500-700)+\frac{1}{2}·(600-700))+\frac{1}{4}·(700-700)+40·\frac{1}{8}·(800-700)+1000·(1-\frac{1}{8}-\frac{1}{2}-\frac{1}{4})$
+
+\qquad \quad $=4375$
+
+\therefore When $m=700$ is the optimal policy.
+
+### (c) Assume optimal quantity will be ordered. What is the total expected cost when the initial inventory $m = 0$? What is the total expected cost when the initial $m = 700$?
+
+\vspace{10pt}
+
+When $m=0$,
+
+$E[cost]=-10·(\frac{1}{8}·(500-700)+\frac{1}{2}·(600-700))+\frac{1}{4}·(700-700)+100·\frac{1}{8}·(800-700)+1000+40·700$
+
+\qquad \quad $=31000$
+
+\vspace{10pt}
+
+When $m=700$,
+
+$E[cost]=-10·(\frac{1}{8}·(500-700)+\frac{1}{2}·(600-700))+\frac{1}{4}·(700-700)+100·\frac{1}{8}·(800-700)$
+
+\qquad \quad $=2000$
+
+

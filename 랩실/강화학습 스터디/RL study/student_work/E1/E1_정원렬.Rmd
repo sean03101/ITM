@@ -1,0 +1,266 @@
+---
+title: "E1_jeong,wonryeol"
+author: "Jeong, wonryeol"
+date: "1/17/2021"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    toc : true
+    toc_depth: 2  
+---
+
+
+
+## 21_page
+
+```{python}
+import numpy as np 
+import pandas as pd
+R_speed = np.array([-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0])
+states = range(0,80,10)
+
+P_speed = np.array([0.1,0,0.9,0,0,0,0,0,
+              0.1,0,0,0.9,0,0,0,0,
+              0,0.1,0,0,0.9,0,0,0,
+              0,0,0.1,0,0,0.9,0,0,
+              0,0,0,0.1,0,0,0.9,0,
+              0,0,0,0,0.1,0,0,0.9,
+              0,0,0,0,0,0.1,0,0.9,
+              0,0,0,0,0,0,0,1]).reshape(8,8)
+```
+
+
+```{python}
+P_speed = pd.DataFrame(P_speed,columns = states)
+gamma=1.0
+epsilon=10**(-8)
+v_old=np.zeros(8)
+v_new=R_speed+np.dot(gamma*P_speed,v_old)
+while np.max(np.abs(v_new-v_old))>epsilon:
+    v_old=v_new
+    v_new=R_speed+np.dot(gamma*P_speed, v_old)
+print(v_new.T)
+
+
+```
+
+\newpage
+
+## 22_page
+
+```{python}
+
+gamma=1.0
+epsilon=10**(-8)
+v_old=np.zeros(8)
+v_new=R_speed+np.dot(gamma*P_speed,v_old)
+
+results = np.vstack((v_old.T,v_new.T))
+while np.max(np.abs(v_new-v_old))>epsilon:
+    v_old=v_new
+    v_new=R_speed+np.dot(gamma*P_speed, v_old)
+    results = np.vstack((results,v_new.T))
+
+    
+results = pd.DataFrame(results,columns = states)
+results.head()
+```
+
+\newpage
+
+## Iteration from 1 to 6
+```{python}
+import matplotlib.pyplot as plt
+for i in range(0,6):
+    plt.plot(states, results.iloc[i], marker='o', label=str(i+1))
+    
+
+
+plt.rcParams["figure.figsize"] = (14,14)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 1 to 6',fontweight='bold')
+plt.show()
+```
+
+\newpage
+
+## Iteration from 7 to 12
+```{python}
+import matplotlib.pyplot as plt
+for i in range(7,12):
+    plt.plot(states, results.iloc[i], marker='o', label=str(i+1))
+    
+
+plt.rcParams["figure.figsize"] = (14,14)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 7 to 12',fontweight='bold')
+plt.show()
+
+```
+
+
+\newpage
+
+## Iteration from 13 to 18
+```{python}
+import matplotlib.pyplot as plt
+for i in range(13,18):
+    plt.plot(states, results.iloc[i], marker='o', label=str(i+1))
+
+plt.rcParams["figure.figsize"] = (14,14)
+plt.grid(True)
+plt.legend(title='factor(idx)')
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('State Value function, when Iteration from 13 to 18',fontweight='bold')
+plt.show()
+```
+
+
+
+
+```{python echo = FALSE }
+P_normal = np.array([0,1,0,0,0,0,0,0,
+                    0,0,1,0,0,0,0,0,
+                    0,0,0,1,0,0,0,0,
+                    0,0,0,0,1,0,0,0,
+                    0,0,0,0,0,1,0,0,
+                    0,0,0,0,0,0,1,0,
+                    0,0,0,0,0,0,0,1,
+                     0,0,0,0,0,0,0,1,
+                    ]).reshape(8,8)
+states = range(0,80,10)
+
+
+
+R_normal = np.array([-1,-1,-1,-1,0,-1,-1,0])
+
+```
+
+\newpage
+
+## For pi_50
+
+
+```{python}
+P_normal = np.array([0,1,0,0,0,0,0,0,
+                    0,0,1,0,0,0,0,0,
+                    0,0,0,1,0,0,0,0,
+                    0,0,0,0,1,0,0,0,
+                    0,0,0,0,0,1,0,0,
+                    0,0,0,0,0,0,1,0,
+                    0,0,0,0,0,0,0,1,
+                     0,0,0,0,0,0,0,1,
+                    ]).reshape(8,8)
+states = range(0,80,10)
+```
+
+
+```{python}
+
+
+pi_50 = np.array([0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]).reshape(8,2)
+
+pi_50
+
+```
+
+\vspace{50pt}
+
+## Page_33 transition
+
+```{python}
+
+def transition(given_pi,X_normal,X_speed):
+    X_out = np.zeros(X_normal.shape)
+    
+    for i in range(0,given_pi.shape[1]):
+        
+        
+        X_out[i] = given_pi[0][i]*X_normal[i] + given_pi[1][i]*X_speed[i]
+    
+    return X_out
+```
+\newpage
+
+## Page_34 test1
+
+```{python}
+given_pi = np.array([0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1]).reshape(2,8)
+
+Pi_speed = transition(given_pi,P_normal,P_speed.values)
+Pi_speed
+
+```
+
+
+
+## Page_35 test2
+
+```{python}
+given_pi = np.array([0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]).reshape(2,8)
+
+
+P_50 = transition(given_pi,P_normal,P_speed.values)
+P_50
+```
+
+\newpage
+
+## Page_39 Implementation, finally 
+
+
+```{python}
+def policy_eval (given_pi):
+    R_normal = np.array([-1,-1,-1,-1,0,-1,-1,0])
+    R_speed = np.array([-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0])
+
+    P_normal = np.array([0,1,0,0,0,0,0,0,
+                    0,0,1,0,0,0,0,0,
+                    0,0,0,1,0,0,0,0,
+                    0,0,0,0,1,0,0,0,
+                    0,0,0,0,0,1,0,0,
+                    0,0,0,0,0,0,1,0,
+                    0,0,0,0,0,0,0,1,
+                     0,0,0,0,0,0,0,1,
+                    ]).reshape(8,8)
+    P_speed = np.array([0.1,0,0.9,0,0,0,0,0,
+              0.1,0,0,0.9,0,0,0,0,
+              0,0.1,0,0,0.9,0,0,0,
+              0,0,0.1,0,0,0.9,0,0,
+              0,0,0,0.1,0,0,0.9,0,
+              0,0,0,0,0.1,0,0,0.9,
+              0,0,0,0,0,0.1,0,0.9,
+              0,0,0,0,0,0,0,1]).reshape(8,8)
+
+  
+    R_50 = transition(given_pi,R_normal,R_speed)
+
+    P_50 = transition(given_pi,P_normal,P_speed)
+    gamma=1.0
+    epsilon=10**(-8)
+    v_old=np.zeros(8)
+    v_new=R_50+np.dot(gamma*P_50,v_old)
+  
+    results = np.vstack((v_old.T,v_new.T))
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old=v_new
+        v_new=R_50+np.dot(gamma*P_50, v_old)
+     
+     
+    return v_new.T
+  
+```
+
+```{python}
+pi_50 = np.array([0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5,0.5]).reshape(2,8)
+
+policy_eval(pi_50)
+```
+

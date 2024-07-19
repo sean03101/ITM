@@ -1,0 +1,96 @@
+---
+title: "Inotes2 Mars Rover Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+\newpage
+```{python import, echo=FALSE,message=F}
+import numpy as np
+```
+# Mars Rover Markov Chain 
+## Monte-Carlo simulation
+
+```{python}
+MC_N = 10000
+H=10
+def mars_simul(state):
+    u=np.random.rand()
+    #print(u)
+    i = state
+    if(i==1 and u<=0.4):
+        i=2
+    elif(i==7 and u<=0.4):
+        i=6
+    elif(i>1 and i<7):
+        if(u<=0.4):
+            i-=1
+        elif(u<=0.8):
+            i+=1
+    return i
+
+def reward_calculate(result):
+    reward = result.count(1)*1 + result.count(7)*10
+    return reward
+
+reward = np.array([])
+result = []
+start_state = 4
+for i in range(MC_N):
+    state = start_state
+    for j in range(H):
+        result.append(state)
+        state = mars_simul(state)
+
+    reward=np.append(reward, reward_calculate(result))
+    result=[]
+
+print(np.mean(reward))     
+```
+
+\newpage
+
+
+## Iterative solution
+```{python C1_2}
+P = np.matrix([[0.6,0.4,0,0,0,0,0],[0.4,0.2,0.4,0,0,0,0],[0,0.4,0.2,0.4,0,0,0],
+[0,0,0.4,0.2,0.4,0,0],[0,0,0,0.4,0.2,0.4,0],[0,0,0,0,0.4,0.2,0.4],[0,0,0,0,0,0.4,0.6]])
+R = np.matrix([1,0,0,0,0,0,10]).reshape(7,1)
+H=10
+v_t1 = np.matrix([0,0,0,0,0,0,0]).reshape(7,1)
+
+t=H-1
+while(t>=0):
+    v_t = R + P*v_t1
+    t-=1
+    v_t1 = v_t
+
+print(v_t)
+```
+
+$\therefore \ $S(4) = 8.1188

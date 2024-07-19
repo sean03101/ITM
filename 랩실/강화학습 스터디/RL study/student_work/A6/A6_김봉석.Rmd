@@ -1,0 +1,170 @@
+---
+title: "A6"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+use_virtualenv("r-reticulate")
+```
+\newpage
+
+## Implementation -basic
+
+```{python,echo=TRUE}
+import numpy as np
+np.random.seed(1234)
+
+MC_N = 10**3
+
+x = np.random.uniform(0,1,size=MC_N)*2-1 # runif generates U(0,1)
+y = np.random.uniform(0,1,size=MC_N)*2-1 
+t= np.sqrt(x**2+y**2)
+pi_hat = 4*np.sum(t<=1) /MC_N
+
+pi_hat
+
+```
+
+\newpage
+
+## Implementation - The first-timer would write
+
+```{python,echo=TRUE}
+np.random.seed(1234)
+
+MC_N = 10**6
+count = 0 
+
+for MC_i in range(MC_N):
+    x_i = np.random.uniform(0,1)*2-1 # runif generates U(0,1)
+    y_i = np.random.uniform(0,1)*2-1 
+    t_i= np.sqrt(x_i**2+y_i**2)
+    
+    if t_i <= 1 :
+        count+=1
+    
+pi_hat = 4*count/MC_N
+pi_hat
+```
+
+\newpage
+
+## Running estimate approach
+
+```{python,echo=TRUE}
+import time
+
+np.random.seed(1234)
+beg_time = time.time() # to time
+old_est = 0
+n = 1
+MC_N =10**6
+
+while True :
+    x_i = np.random.uniform(0,1)*2-1
+    y_i = np.random.uniform(0,1)*2-1
+    t_i = np.sqrt(x_i**2+y_i**2)
+    A_n = 4*(t_i<=1)
+    new_est = ((n-1)/n)*old_est + (1/n)*A_n
+    
+    if n > MC_N:
+        break 
+        
+    n+=1 
+    old_est = new_est
+    
+print(new_est)
+
+end_time =time.time() # to time
+
+print("Time difference of {}".format(end_time-beg_time)) # to time
+
+```
+
+\newpage
+
+## Convergence trajectory
+
+```{python,echo=TRUE}
+import time
+
+np.random.seed(1234)
+beg_time = time.time() # to time
+old_est = 0
+n = 1
+MC_N =10**6
+result = np.repeat(0, MC_N+1).astype('float') # to save
+
+while True :
+    x_i = np.random.uniform(0,1)*2-1
+    y_i = np.random.uniform(0,1)*2-1
+    t_i = np.sqrt(x_i**2+y_i**2)
+    A_n = 4*(t_i<=1)
+    new_est = ((n-1)/n)*old_est + (1/n)*A_n
+    
+    result[n] = new_est # to save
+    
+    if n >= MC_N:
+        break 
+        
+    n+=1 
+    old_est = new_est
+    
+print(new_est)
+end_time =time.time() # to time
+print("Time difference of {}".format(end_time-beg_time)) # to time
+
+```
+
+### Plot
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt 
+
+plt.plot(result[1:21])
+plt.xlabel('index')
+plt.ylabel('Estimate')
+plt.xticks([5,10,15,20])
+plt.title("Estimate Pi in 20times")
+```
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt 
+
+plt.plot(result[1001:1021])
+plt.xlabel('index')
+plt.ylabel('Estimate')
+plt.xticks([5,10,15,20])
+plt.title("Estimate Pi in 1020times")
+```
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done "
+```

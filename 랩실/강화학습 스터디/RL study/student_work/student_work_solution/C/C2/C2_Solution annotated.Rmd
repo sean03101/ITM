@@ -1,0 +1,291 @@
+---
+title: "Lecture C2. Discrete Time Markov Chain2 Solution"  
+author: "Reinforcement Learning Study"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+#matplotlib <- import("matplotlib")
+#matplotlib$use("Agg", force = TRUE)
+```
+
+\newpage
+
+C2의 파이썬 구현은 모두가 비슷하고, 올바른 답을 제출하였습니다. 다만 솔루션 선정 기준은 lecture note와 가장 비슷하게 구현한 학생의 풀이를 가져왔습니다.
+
+## Method 1 -eigen-decomposition p.12 
+
+### in r 
+```{r,echo = TRUE}
+P <- array(c(0.7, 0.5, 0.3, 0.5),dim =c(2,2))
+eigen(t(P)) #eigen-decomposition for P^t
+```
+
+```{r, echo=TRUE}
+x_1 <-eigen(t(P))$vectors[,1]
+x_1
+```
+
+```{r, echo=TRUE}
+v<-x_1/sum(x_1)
+v
+```
+\newpage
+
+### in Python (김봉석)
+```{python, echo=TRUE}
+import numpy as np
+P = np.array([[0.7, 0.3],[0.5, 0.5]])
+egien_value, egien_vector = np.linalg.eig(P.T) #eigen-decomposition for P^t
+print("egien_value :\n",egien_value)
+print("egien_vector :\n",egien_vector)
+```
+
+
+```{python, echo=TRUE}
+x_1=egien_vector[:,0]
+print(x_1)
+```
+
+```{python, echo,TRUE}
+v=x_1/np.sum(x_1)
+print(v)
+```
+
+### 종합의견 
+
+P를 저장할때 사용한  메트릭스 자료형의 차이를 보였습니다.이후 과정은 np.linalg.eig 를 사용하여 동일합니다.
+
+저장 방법은 다음과 같이 3가지 방식으로 나뉩니다. 
+
+```{python, echo=TRUE}
+import numpy as np
+P=np.matrix([[0.7,0.3],[0.5,0.5]]) # 방법1 np.matrix 
+P=np.array([[0.7, 0.3],[0.5, 0.5]]) # 방법2 np.array 2차원 배열 
+P=np.array([0.7,0.3,0.5,0.5]).reshape(2,2) # 방법3 np.array  1차원 배열 reshape
+```
+
+
+\newpage
+
+## Method 2- system of linear equation p.15
+
+### in R 
+```{r, echo=TRUE}
+P<- array(c(0.7, 0.5, 0.3, 0.5), dim =c(2,2))
+n<- nrow(P)
+I<-diag(n)
+A<-cbind(P-I,rep(1,n))
+b<-array(c(rep(0,n),1),dim =c(1, n+1))
+A
+b
+```
+
+```{r, echo=TRUE}
+v <- solve(A %*%t(A),A%*%t(b))
+v
+```
+
+\newpage
+### in Python (손민상)
+
+```{python, echo=TRUE}
+import numpy as np
+P=np.array([[0.7, 0.3],[0.5, 0.5]])
+n=len(P) # n=|S|
+I=np.identity(n) # identity matrix 
+A=np.c_[P-I,np.repeat(1,n)] ## np._c_ equalt to cbind in r
+b=np.append(np.repeat(0,n), np.array(1))
+print(A)
+```
+
+
+```{python, echo=TRUE}
+print(b)
+```
+
+
+```{python, echo=TRUE}
+v=np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+print(v)
+```
+
+### in Python (박재민)
+```{python }
+P = np.array([[0.7,0.3],[0.5,0.5]])
+n = P.shape[0] #nrow
+I = np.identity(n)
+rep=np.array([[1],[1]])
+A = np.hstack([P-I, rep])
+b=np.array([0,0,1])
+sol = np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+print(A)
+print(b)
+print(sol)
+```
+
+### 종합의견 
+ 마찬가지로 대다수가 올바른 답이며, lecture note와 가장 비슷하게 구현한 학생의 풀이를 가져왔습니다.
+ 
+1. 마찬가지로 위와 동일하게 P를 저장하는 방법의 차이를 보입니다.
+
+    ex) np.array(2차원),  np.array.reshape(1차원 reshape), np.matrix
+
+
+2. Identity matrix를 만들떄 사용하는 함수의 차이를 보였습니다 
+
+    ex) np.identity , np.eys
+
+
+3. A를 만들때 사용하는 함수의 차이를 보였습니다 
+
+    ex) np._c(대다수) np.hstack(1명) np.column_stack(1명) 
+  
+위의 방법의 조합에 따라 코드는 상이하며 결과는 모두 동일합니다. 
+
+```{python}
+import numpy as np
+
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+# 세로로 붙여서 2차원 배열을 만듬, 사용방법은 다르지만 동일 결과 반환
+print(np.c_[a,b])
+print(np.column_stack([a,b])) 
+```
+
+
+\newpage
+
+## Limiting Probability -Motivation p.17
+
+
+### in R
+```{r eval=TRUE, warning=FALSE}
+library(expm)
+P <- array(c(0.7,0.5,0.3,0.5), dim = c(2,2))
+P %*% P
+P %^% 3
+P %^% 4
+P %^% 20
+```
+
+
+\newpage
+### in Python (백종민)
+
+```{python}
+from numpy.linalg import matrix_power
+P = np.array([0.7,0.5,0.3,0.5]).reshape(2,2).T
+print(P)
+print(matrix_power(P,2))
+print(matrix_power(P,3))
+print(matrix_power(P,4))
+print(matrix_power(P,20))
+```
+
+\newpage
+### in Python(이성호)
+
+```{python, echo = TRUE}
+from sympy import *
+p = Matrix([[0.7,0.3],[0.5,0.5]])
+```
+
+```{python, echo = TRUE}
+np.dot(P,P) #matrix multiplication
+```
+
+```{python, echo = TRUE}
+p**3
+```
+
+```{python, echo = TRUE}
+p**4
+```
+
+
+```{python, echo = TRUE}
+p**20
+```
+
+
+### 종합의견 
+
+마찬가지로 P를 저장하는 방법에 따라 
+
+1. np.array를 사용한경우 matrixpower함수를 사용 
+
+2. np. matrix 사용한경우 **연산자를 사용했습니다.
+
+
+\newpage
+
+## Limiting Probability- p.19
+
+The limiting distribution may or may not exit. For example 
+
+### in r 
+
+```{r,echo=TRUE}
+library(expm)
+P<-array(c(0,1,0,1,0), dim=c(2,2))
+P
+P %^% 2
+P %^% 3
+```
+
+
+\newpage
+### in Python(김봉석)
+```{python,echo=TRUE}
+from numpy.linalg import matrix_power
+
+P=np.array([[0,1],[1,0]])
+print(P)
+print(matrix_power(P,2))
+print(matrix_power(P,3))
+```
+
+### in Python(권태현)
+```{python}
+import numpy as np
+matrix = np.matrix
+p = matrix([[0,1],[1,0]])
+print(p**2)
+print(p**3)
+```
+
+### 종합의견
+
+마찬가지로 P를 저장하는 방법에 따라 
+
+1. np.array를 사용한경우 matrixpower함수를 사용 
+
+2. np. matrix 사용한경우 **연산자를 사용했습니다.
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture C2. Discrete Time Markov Chain2 "
+```

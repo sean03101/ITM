@@ -1,0 +1,148 @@
+---
+title: "D2 Python Code"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+```
+
+\newpage
+
+## 17p
+```{python, echo=TRUE}
+P=np.array([0.7,0.5,0.3,0.5]).reshape(2,2,order='F')
+R=np.array([1.5,1.0]).reshape(2,1)
+
+gamma=.9
+
+V=np.dot(np.linalg.inv(np.eye(2)-gamma*P),R)
+V
+```
+
+\newpage
+
+## 23p
+```{python, echo=TRUE}
+R=np.array([1.5,1.0]).reshape(2,1)
+P=np.array([0.7,0.5,0.3,0.5]).reshape(2,2,order='F')
+gamma=.9
+epsilon=10**(-8)
+
+v_old=np.array(np.zeros(2,)).reshape(2,1)
+v_new=R+np.dot(gamma*P,v_old)
+
+while True:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P,v_old)
+    
+    if np.max(np.abs(v_new-v_old))>epsilon:
+        continue
+    break
+    
+print(v_new)
+```
+
+\newpage
+
+## The full iteration process - 24p
+```{python, echo=TRUE}
+R=np.array([1.5,1.0]).reshape(2,1)
+P=np.array([0.7,0.5,0.3,0.5]).reshape(2,2,order='F')
+gamma=0.9
+epsilon=10**(-8)
+
+v_old=np.array(np.zeros(2,)).reshape(2,1)
+v_new=R+np.dot(gamma*P,v_old)
+
+results=v_old.T
+results=np.vstack((results,v_new.T))
+
+while True:
+    v_old=v_new
+    v_new=R+np.dot(gamma*P, v_old)
+    results=np.vstack((results,v_new.T))
+    if np.max(np.abs(v_new-v_old))>epsilon:
+        continue
+    break
+
+results=pd.DataFrame(results, columns=['coke','pepsi'])
+
+print(results.head())
+
+print(results.tail())
+```
+
+\newpage
+
+## Plot - 25p
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+plt.scatter(results.index, results['coke'],label='coke')
+plt.scatter(results.index, results['pepsi'],label='pepsi')
+plt.grid(True)
+plt.title("State Value for 'Coke & Pepsi'")
+plt.ylabel('value_fn')
+plt.xlabel('idx (=time)')
+plt.legend()
+plt.show()
+```
+
+\newpage
+
+## 50 steps (coke only)
+```{python, echo=TRUE}
+plt.scatter(results.index[49:], results['coke'][49:],label='coke')
+plt.grid(True)
+plt.title("State Value for 'Coke' after 50steps")
+plt.ylabel('value_fn')
+plt.xlabel('idx (=time)')
+plt.legend()
+plt.show()
+```
+
+\newpage
+
+## 100steps (coke only)
+```{python, echo=TRUE}
+plt.scatter(results.index[99:], results['coke'][99:],label='coke')
+plt.grid(True)
+plt.title("State Value for 'Coke' after 100steps")
+ax=plt.gca()
+ax.get_yaxis().get_major_formatter().set_useOffset(False)
+plt.ylabel('value_fn')
+plt.xlabel('idx (=time)')
+plt.legend()
+plt.show()
+```

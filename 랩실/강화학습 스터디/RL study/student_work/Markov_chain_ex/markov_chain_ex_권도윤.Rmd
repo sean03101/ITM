@@ -1,0 +1,61 @@
+---
+title: "Markov Chain Example"  
+author: "Kwon do yun"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: false   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## University admission
+
+### In the Dark Ages, Harvard, Dartmouth, and Yale admitted only male students. Assume that, at that time, 80 percent of the sons of Harvard men went to Harvard and the rest went to Yale, 40 percent of the sons of Yale men went to Yale, and the rest split evenly between Harvard and Dartmouth; and of the sons of Dartmouth men, 70 percent went to Dartmouth, 20 percent to Harvard, and 10 percent to Yale. We form a Markov chain with transition matrix
+
+ 1. What is its state space? 
+
+ $$S = \{H,D,Y\} $$
+
+ 2. What is its transition matrix P?
+ 
+ \begin{equation}
+  P=
+  \begin{pmatrix}
+    0.8&0.2&0
+    \\0.3&0.4&0.3
+    \\0.2&0.1&0.7
+  \end{pmatrix}
+\end{equation}
+
+ 3. Is the Markov chain periodic or aperiodic? Explain and if it is periodic, also give the period.
+ 
+ aperiodic
+ 
+ 4. Find the stationary distribution.
+ 
+ $$(\frac{5}{9},\frac{2}{9},\frac{2}{9})$$
+ 
+ 
+ 
+ 
+ 
+```{r, results='hide'}
+"Markov Chain Example"
+```

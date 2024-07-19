@@ -1,0 +1,46 @@
+---
+title: "B1_Case"
+author: "Jeong, wonryeol"
+date: "1/4/2021"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: 5
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\vspace{20pt}
+
+# comparing Bus and train 
+
+
+## Introduce
+
+\vspace{15pt}
+
+Newsbender is a way to provide solutions to how resources are utilized. Using this as an advantage we can analysis how the resource deployment will incur a small cost following some dicisions. 
+
+
+Train time (ktx) and bus time are considered in terms of time and money. If a company serves both buses and trains, it compares and analyzes where more investment should be made. And it presents an appropriate supply
+
+
+
+## Problems 
+\vspace{15pt}
+You are the CEO of a company that provides both trains and buses. You should proceed with additional investment. At this time, you must decide by utilizing all the customer's demands, utility, and economic benefits. What decision would you make if you were in the red? Or what decision will you make when you're in the black? Give your decision according to your assumptions.
+
+
+### Executives in some conditions as follows
+
+
+
+1) If customer miss, cost will be calculated folliwing interval width  :
+   
+2) The customer considers only cost and utility thoroughly.
+
+3) You have $10,000 and spend $5,000 on train and $1,000 on bus.
+
+4) The closer the distance, the smaller the difference in utility, and the farther the difference in utility is, the greater the difference in utility.

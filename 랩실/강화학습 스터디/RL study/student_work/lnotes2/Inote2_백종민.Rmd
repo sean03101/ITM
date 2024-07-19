@@ -1,0 +1,112 @@
+---
+title: "Lecture Inotate2"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+
+## Mars_rover
+
+```{python}
+def mars_rover(t):
+    u = np.random.uniform()
+    this_state = 's'+str(t)
+    # state s1
+    if this_state == 's1':
+        if u <= 0.6 :
+            next_state = 's1'
+        else :
+            next_state = 's'+str(t+1)
+    # state s7
+    elif this_state == 's7':
+        if u <= 0.6 :
+            next_state = 's7'
+        else :
+            next_state = 's'+str(t-1)
+    # state s2 ~ s7
+    else :
+        if u <= 0.4 :
+            next_state = 's'+str(t+1)
+        elif u <=0.6 :
+            next_state = this_state
+        else :
+            next_state = 's'+str(t-1)
+
+    return next_state
+```
+
+```{python}
+def cost_eval(path):
+    cost_path = path.count('s1')*1+path.count('s7')*10
+    return cost_path
+```
+
+\newpage
+
+## MC_simulation
+
+```{python}
+def MC_simulation(initial,num_episode,time):
+    # MC_N = num_episode, episode_i = count
+    episode_i = 0
+    cum_sum_G_i = 0
+    while episode_i < num_episode :
+        path = ['s'+str(initial)]
+        this_state = initial
+        for i in range(time-1):
+            next_state = mars_rover(this_state)
+            this_state = int(next_state[-1])
+            path.append(next_state)
+        cum_sum_G_i += cost_eval(path)
+        episode_i += 1
+    state_value = cum_sum_G_i/num_episode
+    return state_value
+```
+
+```{python}
+MC_simulation(1,100,10)
+MC_simulation(1,1000,10)
+MC_simulation(1,10000,10)
+```
+
+
+\newpage
+
+Inotate2.Rmd
+```{r}
+"Hello"
+```
+

@@ -1,0 +1,117 @@
+---
+title: "MarsRover"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()` '
+output: pdf_document
+---
+
+*monte-carlo simulation*
+
+```{python}
+import numpy as np
+
+list = ['S1','S2','S3','S4','S5','S6','S7']
+
+def forward(this_state):
+    next_state = list[list.index(this_state)+1]
+
+    return next_state
+print(forward('S4'))
+
+def backward(this_state):
+    next_state = list[list.index(this_state)-1]
+
+    return next_state
+
+print(backward('S4'))
+
+
+def mars_simul(this_state):
+    n = np.random.uniform()
+    next_state=''
+    if this_state =='S1':
+        if n<=0.6:
+            next_state=this_state
+        else:
+            next_state=forward(this_state)
+
+    if this_state in ['S2','S3','S4','S5','S6']:
+        if n<=0.4:
+            next_state=forward(this_state)
+        elif 0.4<=n<=0.6:
+            next_state=this_state
+
+        else:
+            next_state=forward(this_state)
+
+    if this_state== 'S7':
+
+        if n<=0.6:
+            next_state=this_state
+        else:
+            next_state=backward(this_state)
+
+    return next_state
+
+def cost_eval(path):
+    cost_path = path.count('S1')*1+path.count('S7')*10
+    return cost_path
+
+def MC_t(start_state):
+    time_horizon = 10
+    num_episode = 1000
+    episode_i = 0
+    cum_sum_G_i = 0
+
+    while(episode_i<num_episode):
+        path = start_state
+        for n in range(time_horizon-1):
+            this_state=path[-2:]
+            next_state=mars_simul(this_state)
+            path+=next_state
+            G_j=cost_eval(path)
+            cum_sum_G_i+=G_j
+            episode_i+=1
+
+    t = cum_sum_G_i/num_episode
+    return t
+
+print(MC_t('S1'))
+print(MC_t('S2'))
+print(MC_t('S3'))
+print(MC_t('S4'))
+print(MC_t('S5'))
+print(MC_t('S6'))
+print(MC_t('S7'))
+```
+
+\newpage
+*Iterative solution*
+```{python}
+import numpy as np
+p =np.array([[0.6,0.4,0,0,0,0,0],
+            [0.4,0.2,0.4,0,0,0,0],
+            [0,0.4,0.2,0.4,0,0,0],
+            [0,0,0.4,0.2,0.4,0,0],
+            [0,0,0,0.4,0.2,0.4,0],
+            [0,0,0,0,0.4,0.2,0.4],
+            [0,0,0,0,0,0.4,0.6]])
+
+
+r =np.array([1,0,0,0,0,0,10])[:,None]
+h = 10
+v_t1 =np.array([0,0,0,0,0,0,0])[:,None]
+
+print('p',p)
+print('r',r)
+print('v_t1',v_t1)
+
+t = h-1
+while(t>=0):
+    v_t2 = np.dot(p,v_t1)
+    t = t-1
+    v_t1 = v_t2
+print(v_t2)
+```
+
+

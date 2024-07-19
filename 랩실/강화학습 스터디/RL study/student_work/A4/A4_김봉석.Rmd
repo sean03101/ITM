@@ -1,0 +1,341 @@
+---
+title: "Lecture A4. Simulation 1"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+```
+
+
+## Simulation Approach,Implementation-basic p.11
+
+```{python, echo =TRUE}
+import numpy as np
+import time 
+import pandas as pd
+
+beg_time=time.time()
+
+np.random.seed(seed=1234) #fix the random seed 
+
+MC_N=10**3
+
+x= np.random.uniform(low=-1, high=1, size=MC_N) # genrates U(-1,1)
+
+y= np.random.uniform(low=-1, high=1, size=MC_N)
+
+t=np.sqrt(x**2+y**2)
+
+df=pd.DataFrame({'x':x,'y':y,'t':t})
+
+df.head(6) # always display and check !
+
+
+```
+
+\newpage
+
+
+## Simulation Approach, Vectorized Programming p.12
+
+### From the previous slide
+
+```{python, echo =TRUE}
+import numpy as np
+import time 
+
+beg_time=time.time()
+
+np.random.seed(seed=1234)
+
+MC_N=10**6
+
+x= np.random.uniform(low=-1, high=1, size=MC_N)
+
+y= np.random.uniform(low=-1, high=1, size=MC_N)
+
+t=np.sqrt(x**2+y**2)
+
+pi_hat=4*np.sum(t<=1)/MC_N
+
+end_time=time.time()
+
+print("Time diffrence of",end_time-beg_time,"secs")
+
+
+
+```
+
+### What first-timer would write
+
+```{python, echo=TRUE}
+import random
+import math
+import time
+
+beg_time=time.time()
+
+random.seed(1234)
+
+MC_N=10**6
+
+count=0
+
+for i in range(MC_N):
+    x_i=random.uniform(-1,1)
+    y_i=random.uniform(-1,1)
+    t_i=math.sqrt(x_i**2+y_i**2)
+    
+    if(t_i<=1):
+        count+=1
+
+pi_hat= 4*count/MC_N
+
+end_time=time.time()
+
+print("Time diffrence of",end_time-beg_time,"secs")
+
+```
+
+\newpage
+
+
+## Simulation approach, Implementation ‑ varying number of trials p.13
+
+### Approach with a custom function
+```{python, echo=TRUE}
+def pi_simulator(MC_N):
+    np.random.seed(seed=1234)
+
+    x= np.random.uniform(low=-1, high=1, size=MC_N)
+
+    y= np.random.uniform(low=-1, high=1, size=MC_N)
+
+    t=np.sqrt(x**2+y**2)
+
+    pi_hat=4*np.sum(t<=1)/MC_N
+    
+    return(pi_hat)
+
+print(pi_simulator(100))
+print(pi_simulator(1000))
+print(pi_simulator(10000))
+print(pi_simulator(100000))
+```
+
+### How many repetition is necessary to get closer?
+```{python, echo=TRUE}
+import pandas as pd
+
+num_trials=list(map(lambda x: 10**x, range(2,8))) 
+outcomes=list(map(pi_simulator,num_trials))
+results=pd.DataFrame({'num_trials': num_trials,'outcomes':outcomes})
+
+results
+
+```
+
+\newpage
+
+## Discussion, Computation time p.17
+
+```{python, echo=TRUE}
+
+import numpy as np
+import time 
+
+def pi_simulator2(MC_N): # name change
+    
+    beg_time=time.time() # newly added
+    
+    np.random.seed(seed=1234)
+
+    x= np.random.uniform(low=-1, high=1, size=MC_N)
+
+    y= np.random.uniform(low=-1, high=1, size=MC_N)
+
+    t=np.sqrt(x**2+y**2)
+
+    pi_hat=4*np.sum(t<=1)/MC_N
+    
+    end_time=time.time() # newly added
+    
+    print(MC_N)
+
+    print("Time diffrence of",end_time-beg_time,"secs") # newly added
+
+    return(pi_hat) 
+
+
+print(*list(map(pi_simulator2,num_trials)))
+
+```
+
+\newpage
+
+## Confdence interval, Repetitive simulation experiments p.22
+```{python, echo=TRUE}
+import numpy as np
+
+def pi_simulator3(MC_N): # name change
+    
+    # np.random.seed(seed=1234) # seed must not be fixed   
+
+    x= np.random.uniform(low=-1, high=1, size=MC_N)
+
+    y= np.random.uniform(low=-1, high=1, size=MC_N)
+
+    t=np.sqrt(x**2+y**2)
+
+    pi_hat=4*np.sum(t<=1)/MC_N
+    
+    return pi_hat
+
+```
+
+
+```{python, echo=TRUE}
+import numpy as np
+
+n=100 # number of experiments to repeat 
+
+MC_N=1000 # number of simulation repetition in a single experiment 
+
+np.random.seed(seed=1234)
+
+samples=np.zeros(n)
+
+for i in range(n):
+    samples[i]=pi_simulator3(MC_N)
+    
+print(*samples[0:6])    
+
+
+
+```
+
+```{python, echo =TRUE}
+from scipy import stats
+import numpy as np
+
+X_bar=np.mean(samples)
+
+s=np.sqrt(np.sum((X_bar-samples)**2)/(n-1))
+
+t=stats.t(df=n-1).ppf((0.975))
+
+print(X_bar)
+
+print(s)
+
+print(t)
+
+
+```
+
+\newpage
+
+## Confdence interval,Excercise 1 p.24
+Do the above experiment with MC_N increased by the fator of ten, and present the confdence interval. (Use set.seed(1234))
+
+```{python, echo=TRUE}
+from scipy import stats
+import numpy as np 
+
+n=100 # number of experiments to repeat 
+
+MC_N=10000 # number of simulation repetition in a single experiment 
+
+np.random.seed(seed=1234)
+
+samples=np.zeros(n)
+
+for i in range(n):
+    samples[i]=pi_simulator3(MC_N)
+    
+X_bar=np.mean(samples)
+
+s=np.sqrt(np.sum((X_bar-samples)**2)/(n-1))
+
+t=stats.t(df=n-1).ppf((0.975))
+
+lb=X_bar-t*s/np.sqrt(n)
+
+ub=X_bar+t*s/np.sqrt(n)
+    
+```
+
+
+```{python, echo=TRUE}
+print(lb)
+print(ub)
+print(ub-lb)
+```
+
+\newpage
+
+## Confdence interval,Excercie 2 p.25
+Do the Exercise 1 above with ԝ increased by the factor of ten, and present the confdence interval. (Use set.seed(1234))
+
+
+```{python, echo=TRUE}
+from scipy import stats
+import numpy as np 
+
+n=1000 # number of experiments to repeat 
+
+MC_N=10000 # number of simulation repetition in a single experiment 
+
+np.random.seed(seed=1234)
+
+samples=np.zeros(n)
+
+for i in range(n):
+    samples[i]=pi_simulator3(MC_N)
+    
+X_bar=np.mean(samples)
+
+s=np.sqrt(np.sum((X_bar-samples)**2)/(n-1))
+
+t=stats.t(df=n-1).ppf((0.975))
+
+lb=X_bar-t*s/np.sqrt(n)
+
+ub=X_bar+t*s/np.sqrt(n)
+    
+
+
+```
+
+```{python,echo=TRUE}
+print(lb)
+print(ub)
+print(ub-lb)
+```
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture A4. Simulation 1 "
+```

@@ -1,0 +1,103 @@
+---
+title: "C2 Python Code"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import numpy.linalg as lin
+```
+
+
+\vspace{30pt}
+## Method 1 - eigen-decomposition  
+
+
+```{python, echo=T}
+p=np.array([0.7,0.5,0.3,0.5]).reshape(2,2)
+lin.eig(p)
+
+x_1=lin.eig(p)[1][:,0]
+x_1
+
+v=x_1/sum(x_1)
+v
+```
+
+\newpage
+## Method 2 - system of linear equation
+
+
+```{python, echo=T}
+p=np.array([0.7,0.5,0.3,0.5]).reshape(2,2, order='F')
+n=p.shape[0]
+I=np.identity(n)
+A=np.c_[p-I,np.repeat(1,n)]
+b=np.concatenate((np.repeat(0,n),np.array([1])))
+
+A
+b
+
+v=lin.solve(A@A.T,A@b.T)
+v
+```
+
+
+\newpage
+## Motivation (17p)
+
+
+```{python, echo=T}
+
+p=np.matrix([[0.7,0.3],[0.5,0.5]])
+p
+
+p@p
+
+p**3
+
+p**4
+
+p**20
+```
+
+
+
+\newpage
+## Motivation (19p)  
+
+
+```{python, echo=T}
+p=np.matrix([[0,1],[1,0]])
+p
+
+p**2
+
+p**3
+```

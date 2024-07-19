@@ -1,0 +1,407 @@
+---
+title: "D_case"  
+author: "Bongseokkim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+use_virtualenv("r-reticulate")
+```
+
+
+
+## introduction : Finding Shortest path using TD agent 
+
+In this case, I am trying to solve a path planning problem using TD agent.
+
+Let's say there are 100 states. 
+one of the way to find the optimal path is to find all the cases in trial and error, which will be about $100!$ 
+it is impossible to compute 100! even if we use all the computer in the world.
+To solve the real world problem, I would like to learn the agent in a short time to find the optimal path even if it is not strictly optimal 
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=14cm]{node.png}
+   \hfil
+\caption{example nodes}
+\label{Figure 2.}
+\end{figure}
+
+
+## Problem discription 
+
+State : set of X,Y coordiantes \{$S_0, S_1, \dots S_{10}$\}, each coordinates are randomly created 
+
+
+Action : agent can do three action at each state, Select and move one of three paths that can go from each node. 
+         \{go fisrt node, go second node, go third node\}
+         
+$P_{ss\prime}^a$ : transition probability with certain action in state is deterministic. It is set randomly and will be explained in detail in matrix form below
+
+reward:  Euclidean distance from $s$ to $s\prime$
+
+Goal : 1) find the shortest path state 0 to 8 (just randomly selected)
+       2) fin the shortest path start from 0 and visit all the states aka 한붓그리기 
+
+
+## Preparation 
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd 
+```
+
+
+### making X,Y coordinate
+
+The coordinates of each 11 state were randomly created.
+
+```{python, echo=TRUE}
+np.random.seed(1234)
+coordinate= 10*np.random.rand(2,11)
+data=pd.DataFrame(coordinate.T, columns=['X','Y'])
+data
+
+```
+
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+states = np.arange(0,11).astype(str)
+y = data['Y']
+x = data['X']
+n = states
+
+fig, ax = plt.subplots()
+ax.scatter(x, y)
+
+for i, txt in enumerate(n):
+    ax.annotate(n[i], (x[i], y[i]))
+plt.show()
+```
+
+### Computing Euclidean distance 
+
+```{python, echo=TRUE}
+distance = np.zeros(shape=(11,11))
+for i in range(len(data)):
+    for j in range(len(data)):
+        distance[i,j]=np.sqrt(np.sum(data.iloc[i]**2+data.iloc[j]**2))
+distance = pd.DataFrame(distance,index=states, columns= states)    
+
+distance
+
+```
+
+### transition prob
+
+transition prob matrix is created randomly, It can be adjusted later.
+
+```{python, echo=TRUE}
+P_go_first= pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0,0,0,0],
+                                    [0,0,1,0,0,0,0,0,0,0,0],
+                                    [0,0,0,1,0,0,0,0,0,0,0],
+                                    [0,0,0,0,1,0,0,0,0,0,0],
+                                    [0,0,0,0,0,1,0,0,0,0,0],
+                                    [0,0,0,0,0,0,1,0,0,0,0],
+                                    [0,0,0,0,0,0,0,1,0,0,0],
+                                    [0,0,0,0,0,0,0,0,1,0,0],
+                                    [0,0,0,0,0,0,0,0,0,1,0],
+                                    [0,0,0,0,0,0,0,0,0,0,1],
+                                    [0,1,0,0,0,0,0,0,0,0,0],
+                                                        ]),index= states, columns=states )
+
+P_go_second= pd.DataFrame(np.matrix([[0,0,0,0,0,0,0,0,0,1,0],
+                                    [0,0,0,0,0,0,0,0,1,0,0],
+                                    [0,0,0,0,0,0,0,1,0,0,0],
+                                    [0,0,0,0,0,0,1,0,0,0,0],
+                                    [0,0,0,0,0,1,0,0,0,0,0],
+                                    [0,0,0,0,1,0,0,0,0,0,0],
+                                    [0,0,0,1,0,0,0,0,0,0,0],
+                                    [0,0,1,0,0,0,0,0,0,0,0],
+                                    [0,1,0,0,0,0,0,0,0,0,0],
+                                    [1,0,0,0,0,0,0,0,0,0,0],
+                                    [0,0,0,0,0,0,0,0,0,1,0],
+                                                        ]),index= states, columns=states )
+
+P_go_third= pd.DataFrame(np.matrix([[0,0,0,1,0,0,0,0,0,0,0],
+                                    [0,0,0,0,0,1,0,0,0,0,0],
+                                    [0,0,1,0,0,0,0,0,0,0,0],
+                                    [0,0,0,0,0,0,1,0,0,0,0],
+                                    [0,1,0,0,0,0,0,0,0,0,0],
+                                    [0,0,0,1,0,0,0,0,0,0,0],
+                                    [0,0,1,0,0,0,0,0,0,0,0],
+                                    [0,0,0,0,0,1,0,0,0,0,0],
+                                    [0,0,0,0,1,0,0,0,0,0,0],
+                                    [0,0,0,0,0,0,0,0,0,0,1],
+                                    [0,0,0,0,0,0,0,0,0,0,1]
+                                                        ]),index= states, columns=states )
+
+P_go_third
+```
+
+
+\begin{figure}[ht]
+\centering
+   \includegraphics[width=14cm]{node.png}
+   \hfil
+\caption{nodes}
+\label{Figure 2.}
+\end{figure}
+
+
+
+
+### R_s_a
+
+get R_s_a as the distance between the states that arrive when agent act in each state
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd 
+R_s_a = pd.DataFrame(np.c_[np.repeat( 0, len( states ) ), np.repeat( 0, len( states ) ),np.repeat( 0, len( states ) )], index = states, columns = ['first', 'second','third'] )
+
+R_s_a=R_s_a.astype('float')
+
+```
+
+```{python,echo=TRUE}
+for i in range(11):
+    R_s_a['first'][i]=-distance.iloc[i,P_go_first.iloc[i][P_go_first.iloc[i].values==1][0]].astype(float)
+    
+for i in range(11):
+    R_s_a['second'][i]=-distance.iloc[i,P_go_second.iloc[i][P_go_second.iloc[i].values==1][0]].astype(float)
+    
+for i in range(11):
+    R_s_a['third'][i]=-distance.iloc[i,P_go_third.iloc[i][P_go_third.iloc[i].values==1][0]].astype(float)
+
+R_s_a
+```
+### policy 
+
+```{python, echo=TRUE}
+pi_50 = pd.DataFrame( np.c_[np.repeat( 1/3, len( states ) ), np.repeat( 1/3, len( states ) ),np.repeat( 1/3, len( states ) )], index = states,
+                      columns = ['first', 'second','third'] )
+
+pi_50
+
+```
+
+
+## simul_step
+
+```{python, echo=TRUE}
+def simul_step(pi, s_now, P_go_first,P_go_second, P_go_third, R_s_a):
+    if np.random.uniform() < pi_50.loc[s_now].cumsum()[0] :
+        a_now ='first'
+        P = P_go_first
+        
+    elif  pi_50.loc[s_now].cumsum()[0]< np.random.uniform() < pi_50.loc[s_now].cumsum()[1]:
+        a_now ='second'
+        P = P_go_second
+    
+    else : 
+        a_now = 'third'
+        P = P_go_third 
+        
+    r_now = R_s_a.loc[s_now , a_now]
+    s_next = states[np.argmin( P.loc[s_now].cumsum() < np.random.uniform() )]
+    
+    if np.random.uniform() < pi_50.loc[s_now].cumsum()[0] :
+        a_next ='first'
+        
+    elif  pi_50.loc[s_now].cumsum()[0]< np.random.uniform() < pi_50.loc[s_now].cumsum()[1]:
+        a_next ='second'
+
+    
+    else : 
+        a_next = 'third'
+       
+    sarsa = [s_now, a_now, r_now, s_next, a_next]
+    
+    return sarsa 
+        
+sample_step = simul_step(pi_50, '0', P_go_first,P_go_second, P_go_third, R_s_a )
+
+print( sample_step )        
+
+
+```
+
+### test simul step
+
+```{python, echo=TRUE}
+for i in range(10):
+    test_state = str(i)
+    sample_step = simul_step(pi_50, test_state, P_go_first,P_go_second, P_go_third, R_s_a )
+    print( sample_step )    
+
+```
+
+### q_s_a
+
+```{python, echo=TRUE}
+q_s_a_init= pd.DataFrame( np.c_[np.repeat(0, len( states ) ), np.repeat(0, len( states ) ),np.repeat(0, len( states ) )], index = states,
+                      columns = ['first', 'second','third'] ).astype(float)
+
+q_s_a_init
+
+```
+
+
+## TD contol
+
+```{python, echo=TRUE}
+def pol_eval_TD(sample_step, q_s_a, alpha):
+    q_s_a_copy= q_s_a.copy()
+    s = sample_step[0]
+    a = sample_step[1]
+    r = sample_step[2]
+    s_next = sample_step[3]
+    a_next = sample_step[4]
+
+    q_s_a_copy.loc[s,a] +=alpha*(r+q_s_a_copy.loc[s_next, a_next]-q_s_a_copy.loc[s,a])
+
+    return q_s_a_copy
+
+
+q_s_a=pol_eval_TD(sample_step, q_s_a_init, alpha = 0.1)
+q_s_a
+
+
+
+```
+
+```{python, echo=TRUE}
+def pol_imp(pi, q_s_a, epsilon): # epsilon = exploration_rate
+    pi_copy =pi.copy()
+    for i in range(pi.shape[0]):
+        # exploitation
+        if np.random.uniform() > epsilon:
+            pi_copy.iloc[i] = 0
+            pi_copy.iloc[i, np.argmax(q_s_a.iloc[i,])] = 1
+
+            
+
+        else:
+            # exploration
+            pi_copy.iloc[i] = 1/q_s_a.shape[1]
+
+
+    return pi_copy
+    
+pol_imp(pi_50, q_s_a, epsilon=0)
+```
+
+## TD iteration 
+
+goal is find shortest path ${S_0}$ to ${S_8}$
+
+```{python, echo=TRUE}
+import time
+num_ep = 100
+beg_time =time.time()
+q_s_a = q_s_a_init
+pi=pi_50
+exploration_rate = 1
+
+
+for epi_i in range(1,num_ep) :
+    s_now="0"
+    while s_now != "8":
+        sample_step = simul_step(pi_50, s_now, P_go_first,P_go_second, P_go_third, R_s_a )
+        q_s_a = pol_eval_TD(sample_step, q_s_a, alpha = 1/epi_i)
+        pi = pol_imp(pi, q_s_a, epsilon= exploration_rate)
+        s_now = sample_step[3]
+        exploration_rate *=0.9995
+        
+end_time =time.time()
+
+print("Time difference of {} sec".format(end_time- beg_time))
+print(pi.T)
+print(q_s_a.T)
+
+```
+
+
+## TD iteration 2
+This time, I started with State 0 and looked for the best route to visit all states. 
+aka 한붓그리기 
+
+```{python, echo=TRUE}
+
+import time
+num_ep = 1000
+beg_time =time.time()
+q_s_a = q_s_a_init
+pi=pi_50
+exploration_rate = 1
+
+```
+
+```{python, echo=TRUE}
+import time
+num_ep = 1000
+beg_time =time.time()
+q_s_a = q_s_a_init
+pi=pi_50
+exploration_rate = 1
+
+
+for epi_i in range(1,num_ep) :
+    s_now="0"
+    history = [int(s_now)]
+    while not np.array_equal(history, states.astype(int)):
+        sample_step = simul_step(pi_50, s_now, P_go_first,P_go_second, P_go_third, R_s_a )
+        q_s_a = pol_eval_TD(sample_step, q_s_a, alpha = 1/epi_i)
+        pi = pol_imp(pi, q_s_a, epsilon= exploration_rate)
+        s_now = sample_step[3]
+        history.append(int(s_now))
+        my_set = set(history) #집합set으로 변환
+        history = list(my_set) #list로 변환
+        exploration_rate *=0.9995
+        #print(history)
+    
+    
+end_time =time.time()
+
+print("Time difference of {} sec".format(end_time- beg_time))
+print(pi.T)
+print(q_s_a.T)
+```
+
+## Limitation 
+
+1. Calculations at about 11 states also take longer time than expected (about 10~20 miniutes)
+   : It may be because my computer is not good, and the code is not perfect
+
+2. It is a randomly generated coordinate, not a coordinate of the real world, and a process set to a task.
+  : if the process I have done so far is valid, it would be fun to solve it using the coordinates and distances of the real world.
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done "
+```

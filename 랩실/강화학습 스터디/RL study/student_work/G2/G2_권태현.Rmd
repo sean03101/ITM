@@ -1,0 +1,132 @@
+---
+title: "G2"
+author: "kwon"
+date: '2021 2 24 '
+output: pdf_document
+---
+
+```{python}
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import statsmodels.api as sm
+from statsmodels.formula.api import ols 
+
+df = pd.read_csv("D:/diamonds.csv")
+
+is_color = df['color'] == 'G'
+is_carat = df['carat'] < 1.75
+
+subset_df = df[(is_color) & (is_carat)]
+
+select_df = df[['carat','cut','price']]
+print(str(df))
+print(select_df.head())
+
+fig = plt.figure()
+
+plt.figure(figsize=(10,8))
+sns.lmplot(data=df, x='carat', y='price',
+           hue='cut', hue_order=['Fair','Good','Very Good','Premium','Ideal'], 
+           lowess=True,legend=True,scatter_kws={'s':100,'alpha':0.1})
+plt.grid(True)
+plt.xlabel('carat', fontsize=12)
+plt.ylabel('price', fontsize=12)
+plt.show()
+
+
+a = pd.get_dummies(select_df,prefix="cut")
+print(a.head())
+
+X=a.drop(['price','cut_Ideal'], axis=1)
+y=a['price']
+
+X=sm.add_constant(X)
+lm_fit=sm.OLS(y,X).fit()
+print(lm_fit.summary())
+
+#pred
+pred=lm_fit.predict(X)
+
+#figure
+plt.figure(figsize=(10,8))
+sns.scatterplot(pred, y, s=100, alpha=0.6)
+plt.plot([pred.min(),20000],[pred.min(),20000],'k-')
+plt.grid(True)
+plt.xticks([0,5000,10000,15000,20000])
+plt.yticks([0,5000,10000,15000,20000])
+plt.xlabel('pred')
+plt.ylabel('actual')
+print(plt.show())
+
+
+#log
+a = a.rename(columns={'cut_Very Good':'cut_VeryGood'})
+lm_fit_log = ols("np.log(price)~ carat + cut_Fair + cut_Good + cut_VeryGood+cut_Premium",data=a).fit()
+print(lm_fit_log.rsquared)
+
+
+#log_pred
+log_pred=lm_fit_log.predict(X)
+    
+plt.figure(figsize=(10,8))
+sns.scatterplot(log_pred, y_log, s=100, alpha=0.6)
+plt.plot([5,log_pred.max()],[5,log_pred.max()],'k-')
+plt.grid(True)
+plt.xticks([5,6,7,8,9,10])
+plt.yticks([5,6,7,8,9,10])
+plt.xlabel('pred')
+plt.ylabel('actual')
+print(plt.show())
+
+
+X=a.drop(['cut_Ideal','price'], axis=1).values
+Y_actual=a['price'].values
+
+print('X shape : ',X.shape)
+print('Y shape : ',Y_actual.shape)
+
+
+from keras import models
+from keras import layers
+
+dense_fit=models.Sequential()
+dense_fit.add(layers.Dense(units=16, activation='relu', input_shape=(X.shape[1],)))
+dense_fit.add(layers.Dense(units=16, activation='relu'))
+dense_fit.add(layers.Dense(units=1, activation='linear'))
+print(dense_fit.summary())
+
+
+
+dense_fit.compile(loss='mse',
+                optimizer='adam')
+history=dense_fit.fit(X, Y_actual, epochs=30, batch_size=16)
+
+
+#loss
+loss=history.history['loss']
+epoch_count=np.arange(1,30+1)
+
+plt.plot(epoch_count,loss,marker='o')
+plt.xlabel('epochs')
+plt.ylabel('loss')
+print(plt.show())
+
+Y_pred=dense_fit.predict(X).reshape(-1)
+
+results=pd.DataFrame({'Y_pred':Y_pred, 'price':Y_actual})
+print(results.head())
+
+
+r_squared=results.corr()**2
+print(r_squared)
+
+
+plt.figure(figsize=(10,8))
+
+sns.lmplot(data=results, x='Y_pred', y='price',scatter_kws={'alpha':0.1, 'color':'black'})
+plt.xlabel('Y_pred', fontsize=12)
+plt.ylabel('Y_actual', fontsize=12)
+print(plt.show())
+```

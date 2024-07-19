@@ -1,0 +1,358 @@
+---
+title: "F1_손민상"
+author: "Son Min Sang"  
+date:  "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+     in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("pandas")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+
+\newpage
+
+## page 9
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+states=np.arange(0,80,10).astype('str')
+P_normal=pd.DataFrame(np.matrix([[0,1,0,0,0,0,0,0],
+                    [0,0,1,0,0,0,0,0],
+                    [0,0,0,1,0,0,0,0],
+                    [0,0,0,0,1,0,0,0],
+                    [0,0,0,0,0,1,0,0],
+                    [0,0,0,0,0,0,1,0],
+                    [0,0,0,0,0,0,0,1],
+                    [0,0,0,0,0,0,0,1]]), index=states,columns=states)
+
+P_speed=pd.DataFrame(np.matrix([[.1,0,.9,0,0,0,0,0],
+                   [.1,0,0,.9,0,0,0,0],
+                   [0,.1,0,0,.9,0,0,0],
+                   [0,0,.1,0,0,.9,0,0],
+                   [0,0,0,.1,0,0,.9,0],
+                   [0,0,0,0,.1,0,0,.9],
+                   [0,0,0,0,0,.1,0,.9],
+                   [0,0,0,0,0,0,0,1]]), index=states, columns=states)
+```
+
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+R_s_a=pd.DataFrame(np.matrix([-1,-1,-1,-1,0.0,-1,-1,0,-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]).reshape(len(states),2,order='F'),columns=["n","s"],index=states)
+R_s_a.T
+```
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+pi_speed=pd.DataFrame(np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))], index=states, columns=["n","s"])
+pi_50=pd.DataFrame(np.c_[np.repeat(0.5,len(states)), np.repeat(0.5,len(states))],index=states, columns=["n","s"])
+```
+
+## page 10
+```{python, echo=TRUE}
+pi_speed.T
+```
+
+```{python, echo=TRUE}
+pi_50.T
+```
+
+\newpage
+
+## page 11
+```{python, echo=TRUE}
+import numpy as np
+
+pi=pi_speed
+np.random.seed(1234)
+history=list()
+MC_N=10000
+for MC_i in range(MC_N):
+    s_now='0'
+    history_i=list(s_now)
+    
+    while s_now != '70' :
+        if np.random.uniform(0,1) < pi.loc[s_now]['n']:
+            a_now='n'
+            P=P_normal
+        else:
+            a_now='s'
+            P=P_speed
+            
+        r_now=str(R_s_a.loc[s_now][a_now])
+        s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now=s_next
+        
+    history.append(history_i)
+    
+history_speed=history
+
+```
+
+## page 12
+```{python, echo=TRUE}
+list(map(lambda x: ",".join(x),history_speed[:20]))
+```
+
+\newpage
+
+## page 13
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+pi=pi_50
+np.random.seed(1234)
+history=list()
+MC_N=10000
+for MC_i in range(MC_N):
+    s_now="0"
+    history_i=list(s_now)
+    
+    while s_now != "70" :
+        if np.random.uniform(0,1) < pi.loc[s_now]["n"]:
+            a_now='n'
+            P=P_normal
+        else:
+            a_now="s"
+            P=P_speed
+            
+        r_now=str(R_s_a.loc[s_now][a_now])
+        s_next=states[np.argmin(P.loc[s_now].cumsum() < np.random.uniform(0,1))].item()
+        history_i.extend([a_now,r_now,s_next])
+        s_now=s_next
+        
+    history.append(history_i)
+    
+history_50=history
+```
+
+## page 14
+```{python, echo=TRUE}
+list(map(lambda x: ",".join(x),history_50[:20]))
+```
+
+\newpage
+
+## page 17
+```{python,echo=TRUE}
+import numpy as np
+
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','sum'])
+pol_eval.T
+```
+
+
+```{python,echo=TRUE}
+for MC_i in range(len(history_speed)):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]["count"]+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]["sum"]+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            pol_eval.loc[history_i[j]]["sum"]+=0
+```
+
+## page 18
+```{python,echo=TRUE}            
+pol_eval.T
+pol_eval["sum"]/pol_eval["count"]
+```
+
+\newpage
+
+## page 19 
+
+```{python,echo=TRUE}
+import numpy as np
+import pandas as pd
+
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=['count','est'])
+pol_eval.T
+
+```
+
+```{python,echo=TRUE}
+for MC_i in range(len(history_speed)):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]["count"]+=1
+        current_cnt=pol_eval.loc[history_i[j]]["count"]
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else: # terminal state
+            new_info=0
+        
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]["est"]+=alpha*(new_info-pol_eval.loc[history_i[j]]["est"])
+        
+        
+np.round(pol_eval.T,2)
+```
+
+\newpage
+
+## page 21
+
+```{python, echo=TRUE}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=["count","sum"])
+pol_eval.T
+```
+
+```{python,echo=TRUE}
+for MC_i in range(len(history_50)):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]["count"]+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]["sum"]+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            pol_eval.loc[history_i[j]]["sum"]+=0
+
+```
+
+```{python,echo=TRUE}
+pol_eval.T
+```
+
+```{python,echo=TRUE}
+pol_eval["sum"]/pol_eval["count"]
+```
+
+\newpage
+
+## page 23
+```{python, echo=TRUE}
+pol_eval=pd.DataFrame(np.zeros((len(states),2)), index=states, columns=["count","est"])
+pol_eval.T
+```
+## page 24
+```{python, echo=TRUE}
+for MC_i in range(len(history_50)):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # increment count
+        pol_eval.loc[history_i[j]]["count"]+=1
+        current_cnt=pol_eval.loc[history_i[j]]["count"]
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            new_info=0
+          
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]["est"]+=alpha*(new_info-pol_eval.loc[history_i[j]]["est"])
+```
+        
+```{python, echo=TRUE}
+pol_eval.T
+```
+
+## page 35
+```{python, echo=TRUE}
+pol_eval= pd.DataFrame(np.zeros(shape=(len(states),2)), index=states, columns=["count","est"])
+pol_eval.T
+```
+
+## page 36
+```{python, echo=TRUE}
+for episode_i in range(len(history_speed)):
+    history_i = history_speed[episode_i]
+  
+    for j in range(0, len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]["count"]+=1
+        current_cnt = pol_eval.loc[history_i[j]]["count"]
+        # build TD target
+        if j < len(history_i)-3:
+            TD_target = np.array(history_i[j+2]).astype('float')+pol_eval.loc[history_i[j+3]]['est'] 
+            
+        else : # terminal state
+            TD_target = 0
+        # TD-updating
+        alpha = 1/current_cnt
+        pol_eval.loc[history_i[j]]["est"]+=alpha*(TD_target-pol_eval.loc[history_i[j]]["est"])
+```
+
+```{python, echo=TRUE}        
+pol_eval.T
+```
+
+
+## page 37
+```{python, echo=TRUE}
+pol_eval= pd.DataFrame(np.zeros(shape=(len(states),2)), index=states, columns=["count","est"])
+pol_eval.T
+```
+
+## page 38
+```{python, echo=TRUE}
+for episode_i in range(len(history_50)):
+    history_i = history_50[episode_i]
+    for j in range(0, len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]["count"]+=1
+        current_cnt = pol_eval.loc[history_i[j]]["count"]
+        # build TD target
+        if j < len(history_i)-3:
+            TD_target = np.array(history_i[j+2]).astype("float")+pol_eval.loc[history_i[j+3]]["est"] 
+            
+        else : # terminal state
+            TD_target = 0
+        # TD-updating
+        alpha = 1/current_cnt
+        pol_eval.loc[history_i[j]]["est"]+=alpha*(TD_target-pol_eval.loc[history_i[j]]["est"])
+```
+
+```{python, echo=TRUE}
+pol_eval.T
+```

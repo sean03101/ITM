@@ -1,0 +1,141 @@
+---
+title: "Lecture B2. Newsvendor 2"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+## Discrete distribution- try out all alternative-Implementation p.3
+
+In the previous newsvendor lecture, following information was given.
+
+\begin{itemize}
+  \item (demand) How many customer? 11, 12, 13, 14, or 15, equally likely
+  \item (retail price) How much do you sell a copy at? \$2 per copy
+  \item  (material cost) How much do you pay to the wholesaler? \$1 per copy
+  \item  (salvage value) How much do you sell an unsold copy back to the wholesaler? \$0.5per copy
+\end{itemize}
+
+
+
+### Following code tries the stock level X \in {11,12,13,14,15} in python
+
+```{python, echo=TRUE}
+import numpy as np
+
+np.random.seed(1234)
+
+for X in range(11,16):
+    MC_N=10000
+    
+    D=np.random.choice(list(range(11,16)),size=MC_N,replace=True) #random discrete uniform
+    
+    sales_rev=2*np.minimum(D,X) #vector level minimum
+    
+    salvage_rev=0.5*np.maximum(X-D,0) #vector level maximum
+    
+    material_cost = 1*X
+    
+    profit=sales_rev+salvage_rev-material_cost
+    
+    print("X:",X,", expected profit:", np.mean(profit))
+    
+
+
+```
+
+
+## Continuous distribution ‑ grid search approach
+
+* Your brother is now selling milk. The customer demands follow 𝑈(20, 40)
+gallons. Retail price is \$2 per gallon, material cost is \$1 per gallon, and salvage cost is \$0.5 per gallon. Find optimal stock level and expected profit.
+
+* Notice that there are the marginal difference compared to the previous page’s
+code.
+
+```{python,echo=TRUE}
+import numpy as np
+import random
+import pandas as pd
+
+np.random.seed(1234)
+
+try_X=np.arange(20, 40, 0.01)
+exp_profits=np.array([])
+
+
+for X in try_X:
+    MC_N=10000
+    
+    D=np.random.uniform(low=20, high=40, size=MC_N)
+    
+    sales_rev=2*np.minimum(D,X) #vector level minimum
+    
+    salvage_rev=0.5*np.maximum(X-D,0) #vector level maximum
+    
+    material_cost = 1*X
+    
+    exp_profit=np.mean(sales_rev+salvage_rev-material_cost)
+    
+    exp_profits=np.append(exp_profits, exp_profit)
+    
+   
+result=pd.DataFrame({'try_x':try_X,'exp_profits':exp_profits})
+result
+
+
+```
+
+
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+
+plt.plot(try_X,exp_profits,color='red')
+plt.xlabel("try_x")
+plt.ylabel("exp_profits")
+plt.title("Plot for Expected Profit")
+plt.show()
+
+```
+
+```{python, echo=TRUE}
+
+idx=np.where(exp_profits==np.max(exp_profits))
+print(*try_X[idx]) #this is optimal quantity
+
+print(*exp_profits[idx]) #this is expected optimal profit
+
+```
+
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture B2. Newsvendor 2 "
+```

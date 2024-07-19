@@ -1,0 +1,183 @@
+---
+title: "A6 Python Code"  
+author: "Kang, Eui Hyeon"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+import time
+import matplotlib.pyplot as plt
+```
+
+\newpage
+
+## Implementation - basic
+
+```{python,echo=T}
+
+np.random.seed(1234)
+
+MC_N=10**3
+
+x=np.random.uniform(0,1,size=MC_N)*2-1
+y=np.random.uniform(0,1,size=MC_N)*2-1
+
+t=np.sqrt(x**2+y**2)
+
+pi_hat=4*sum(t<=1)/MC_N
+pi_hat
+```
+
+\newpage
+
+## Implementation - 'The first-timer would write'
+
+```{python, echo=T}
+
+np.random.seed(1234)
+
+MC_N=10**6
+count=0
+
+for MC_i in range(MC_N):
+    x_i=np.random.uniform(0,1)*2-1
+    y_i=np.random.uniform(0,1)*2-1
+    t_i=np.sqrt(x_i**2+y_i**2)
+    
+    if t_i <= 1 :
+        count+=1
+        
+pi_hat=4*count/MC_N
+pi_hat
+```
+
+\newpage
+
+## Running estimate approach - Implementation
+
+```{python,echo=T}
+
+np.random.seed(1234)
+beg_time=time.time()
+
+old_est=0
+n=1
+MC_N=10**6
+
+while True:
+    x_i=np.random.uniform(0,1)*2-1
+    y_i=np.random.uniform(0,1)*2-1
+    t_i=np.sqrt(x_i**2+y_i**2)
+    
+    A_n=4*(t_i<=1)
+    
+    new_est=((n-1)/n)*old_est + (1/n)*A_n
+    
+    if n > MC_N:
+        break
+    
+    n+=1
+    old_est=new_est
+    
+print(new_est)
+
+end_time=time.time()
+
+print('Time difference of ',end_time-beg_time,' secs')
+```
+
+\newpage
+
+## Convergence trajectory
+
+```{python,echo=T}
+
+np.random.seed(1234)
+
+#beg_time=time.time()
+
+old_est=0
+n=1
+
+MC_N=10**6
+results=np.repeat(0,MC_N+1).astype('float')
+
+while True:
+    x_i=np.random.uniform(0,1)*2-1
+    y_i=np.random.uniform(0,1)*2-1
+    t_i=np.sqrt(x_i**2+y_i**2)
+    
+    A_n=4*(t_i<=1)
+    new_est=((n-1)/n)*old_est + (1/n)*A_n
+    
+    results[n]=new_est # to save
+    
+    if n >= MC_N :
+        break
+    
+    n+=1
+    old_est=new_est
+    
+plt.plot(results[1:21],marker='o')
+plt.title('Estimate '+r'$\pi$'+' trying 20 times',fontweight='bold')
+plt.xlabel('Index')
+plt.ylabel('results[0:20]')
+plt.xticks([5,10,15,20])
+plt.show()
+```
+
+\newpage
+
+```{python,echo=T}
+
+plt.plot(results[1001:1021],marker='o')
+plt.title('Estimate '+r'$\pi$'+' trying 1020 times',fontweight='bold')
+plt.xlabel('Index')
+plt.ylabel('results[1000:1020]')
+plt.xticks([5,10,15,20])
+plt.show()
+```
+
+\newpage
+
+```{python,echo=T}
+
+plt.plot(results[100000:100021],marker='o')
+ax=plt.gca()
+ax.get_yaxis().get_major_formatter().set_useOffset(False)
+plt.title('Estimate '+r'$\pi$'+' trying 100020 times',fontweight='bold')
+plt.xlabel('Index')
+plt.ylabel('results[100000:100020]')
+plt.xticks([5,10,15,20])
+plt.show()
+```

@@ -1,0 +1,150 @@
+---
+title: "Inotes example_손민상"
+author: "Son Min Sang"
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')
+
+```
+
+
+### $\pi:S \rightarrow A$
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+action = ["TL","TR"]
+states = ["S1","S2","S3","S4","S5","S6","S7"]
+
+pi_TL=pd.DataFrame(np.c_[np.repeat(1,len(states)),np.repeat(0,len(states))],index=states,columns=action)
+
+pi_TR=pd.DataFrame(np.c_[np.repeat(0,len(states)),np.repeat(1,len(states))],index=states,columns=action)
+
+pi_50=(pi_TL+pi_TR)/2
+
+pi_50
+
+```
+
+### $R^{\pi}:S \rightarrow \mathbb{R}$
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+R_s_a = pd.DataFrame(np.array([[1,1,0,0,0,0,0],[0,0,0,0,0,10,10]]).T,columns=action,index=states)
+def reward_fn(given_pi):
+    R_s_a = pd.DataFrame(np.array([[1,1,0,0,0,0,0],[0,0,0,0,0,10,10]]).T,columns=action,index=states)
+    R_pi = np.sum(R_s_a*given_pi, axis=1)
+    return R_pi
+
+R_s_a
+```
+
+
+### $P^{\pi}: S \times A \rightarrow S$
+
+```{python, echo=TRUE}
+P_TL = np.array([
+                  [1,0,0,0,0,0,0],
+                  [1,0,0,0,0,0,0],
+                  [0,1,0,0,0,0,0],
+                  [0,0,1,0,0,0,0],
+                  [0,0,0,1,0,0,0],
+                  [0,0,0,0,1,0,0],
+                  [0,0,0,0,0,1,0],
+                 ])
+                 
+                 
+P_TR = np.array([[0,1,0,0,0,0,0],
+                  [0,0,1,0,0,0,0],
+                  [0,0,0,1,0,0,0],
+                  [0,0,0,0,1,0,0],
+                  [0,0,0,0,0,1,0],
+                  [0,0,0,0,0,0,1],
+                  [0,0,0,0,0,0,1],
+                  
+                 ])
+                 
+P_50 = (P_TL + P_TR)/2
+P_50
+```
+
+
+```{python, echo=TRUE}
+import numpy as np
+import pandas as pd
+
+def transition(given_pi,states, P_TL, P_TR):
+    P_out = pd.DataFrame(np.zeros(shape=(len(states),len(states))))
+    
+    for s in range(len(states)):
+        action_dist = given_pi.iloc[s,:]
+        
+        P= action_dist['TL']*P_TL + action_dist['TR']*P_TR
+        P_out[s]=P[:,s]
+      
+    return P_out
+    
+transition(pi_TL, states=states, P_TL=P_TL, P_TR=P_TR)
+```
+
+### $R^{\pi} S \rightarrow R$
+```{python, echo=TRUE}
+R_s_a = pd.DataFrame(np.array([[1,1,0,0,0,0,0],[0,0,0,0,0,10,10]]).T,columns=["TL","TR"],index=states)
+                                 
+def reward_fn(given_pi):
+    R_s_a = pd.DataFrame(np.array([[1,1,0,0,0,0,0],[0,0,0,0,0,10,10]]).T,columns=["TL","TR"],index=states)
+    R_pi = np.sum(R_s_a*given_pi, axis=1)
+                         
+    return R_pi
+reward_fn(pi_TR)        
+```
+
+### Policy evaluation
+```{python, echo=TRUE}
+def policy_eval(given_pi,gamma):
+    R = reward_fn(given_pi).values.reshape(7,1)
+    P = transition(given_pi,states, P_TL = P_TL, P_TR = P_TR)
+    gamma = gamma
+    epsilon = 10**(-8)
+    
+    v_old=np.repeat(0,7).reshape(7,1)
+    v_new = R+gamma*np.dot(P, v_old)
+        
+    while np.max(np.abs(v_new-v_old))>epsilon:
+        v_old=v_new
+        v_new=R+np.dot(gamma*P,v_old)
+        
+    
+    return v_new
+```
+
+```{python, echo=TRUE}
+policy_eval(pi_50,0.9)
+```
+
+```{python, echo=TRUE}
+policy_eval(pi_50, 0)
+```
+
+
+
+improvement 부분을 같이 knit 하면 오류 발생하여 다른 곳에 옮긴후 문제 해결중

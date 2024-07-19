@@ -1,0 +1,195 @@
+---
+title: "DaiPark Exercise"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+library(expm)
+```
+
+
+\newpage
+# CH3
+## Q5
+Suppose each morning a factory posts the number of days worked in a row without any injuries. Assume that each day is injury free with probability 98/100. Furthermore, assume that whether tomorrow is injury free or not is independent of which of the preceding days were injury free. Let $X_0 = 0$ be the morning the factory first opened. Let $X_n$ be the number posted on the morning after n full days of work.
+
+**(a) Is {$X_n,\ n \ge 0$} a Markov chain? If so, give its state space, initial distribution, and transition matrix P. If not, show that it is not a Markov chain.**\
+State space - {Injury free, Injury not free}\
+Initial distribution - [1,0]\
+transition matrix P
+$$
+P=\left(\begin{array}{cc} 
+0.98 & 0.02\\ 
+0.98 & 0.02\\
+\end{array}\right)
+$$
+**(b) Is the Markov chain irreducible? Explain.**\
+Yes this Markov chain is irrdeucible. We can reach any states in this Markov chain.\
+
+**(c) Is the Markov chain periodic or aperiodic? Explain and if it is periodic, also give the period.**\
+```{R}
+#library(expm)
+p<-matrix(c(0.98,0.98,0.02,0.02),nrow=2)
+for (i in 1:5){
+  print(p%^%i)
+}
+```
+this Markov chain is aperiodic\
+
+**(d) Find the stationary distribution**\
+```{R}
+p<-matrix(c(0.98,0.98,0.02,0.02),nrow=2)
+x_1 <- eigen(t(p))$vectors[,1]
+v<- x_1/sum(x_1)
+v
+v%*%p
+```
+stationary distribution ($\pi1, \ \pi2$) = (0.98,0.02)\
+
+**(e) Is the Markov chain positive recurrent? If so, why? If not, why not?**
+
+\newpage
+
+## Q6
+
+Consider the following transition matrix:
+$$
+P=\left(\begin{array}{cccc} 
+0 & .5 & 0 & .5\\ 
+.6 & 0 & .4 & 0\\
+0 & .7 & 0 & .3\\
+.8 & 0 & .2 & 0\\
+\end{array}\right)
+$$
+**(a) Is the Markov chain periodic? Give the period of each state.**\
+
+```{R}
+#library(expm)
+p<-matrix(c(0,0.6,0,0.8,0.5,0,0.7,0,0,0.4,0,0.2,0.5,0,0.3,0),nrow=4)
+for (i in 1:5){
+  print(p%^%i)
+}
+print(p%^%100)
+```
+
+Markov chain is periodic.
+
+
+**(b) Is ($\pi1$, $\pi2$, $\pi3$, $\pi4$) = (33/96, 27/96, 15/96, 21/96) the stationary distribution of the Markov Chain?**\
+
+```{r}
+p<-matrix(c(0,0.6,0,0.8,0.5,0,0.7,0,0,0.4,0,0.2,0.5,0,0.3,0),nrow=4)
+pi<-matrix(c(33/96,27/96,15/96,21/96),nrow=1)
+pi
+pi%*%p
+```
+
+
+($\pi1$, $\pi2$, $\pi3$, $\pi4$) is stationary distribution.
+
+
+**(c) Is $P_{11}^{100} = \pi1$? Is $P_{11}^{101} = \pi1$? Give an expression for $\pi1$ in terms of $P_{11}^{100} = \pi1$ and $P_{11}^{101} = \pi1$**\
+```{r}
+p<-matrix(c(0,0.6,0,0.8,0.5,0,0.7,0,0,0.4,0,0.2,0.5,0,0.3,0),nrow=4)
+p%^%100
+p%^%101
+```
+
+$P_{11}^{100} = 0.6875 \ne \pi1$ - No.\ 
+$P_{11}^{101} = 0  \ne \pi1$ - No.
+
+
+
+\newpage
+## Q14
+
+Suppose you are working as an independent consultant for a company.
+Your performance is evaluated at the end of each month and the evaluation falls into one of three categories: 1, 2, and 3. Your evaluation can be modeled as a discrete-time Markov chain and its transition diagram is as follows.\
+Denote your evaluation at the end of nth month by Xn and assume that
+$X_0 = 2$.\
+
+**(a) What are state space, transition probability matrix and initial distribution of $X_n$?**\
+State space - {1,2,3}\
+Transition probability matrix P
+$$
+P=\left(\begin{array}{ccc} 
+0.25 & 0.75 & 0\\ 
+0.5 & 0 & 0.5\\
+0 & 0.25& 0.75
+\end{array}\right)
+$$
+Initial distribution = [0,1,0]\
+
+**(b) What is the stationary distribution?**\
+```{R}
+p<-matrix(c(0.25,0.5,0,0.75,0,0.25,0,0.5,0.75),nrow=3)
+x_1 <- eigen(t(p))$vectors[,1]
+v<- x_1/sum(x_1)
+v
+v%*%p
+```
+stationary distribution ($\pi1, \ \pi2, \ \pi3$) = (0.182,0.273,0.545)\
+
+**(c) What is the long-run fraction of time when your evaluation is either 2 or 3?**\
+```{R}
+p<-matrix(c(0.25,0.5,0,0.75,0,0.25,0,0.5,0.75),nrow=3)
+p%^%100
+```
+
+long run 0.273 of evaluation 2, 0.545 of evaluation 3.\
+
+
+Your monthly salary is determined by the evaluation of each month in the following way.Salary when your evaluation is n = \$5000 + $n^2$ * \$5000; n = 1,2,3\
+**(d) What is the long-run average monthly salary? **\
+n=1, salary = \$10,000, n=2, salary = \$25,000, n=3, salary = \$50,000\
+
+long run average salary = (\$10,000, \$25,000, \$50,000) * $P^\infty$\
+
+=\$10,000 * 0.182 + \$25,000 * 0.273, \$50,000 * 0.545 =  \$35,895
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,224 @@
+---
+title: "F1 Python"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+\newpage
+
+```{python import, echo=FALSE,message=F}
+import numpy as np
+import pandas as pd
+```
+
+\newpage
+
+## p.9 Preparation
+
+```{python, echo=T}
+states = np.arange(0,80,10)
+P_normal = np.matrix([[0,1,0,0,0,0,0,0],[0,0,1,0,0,0,0,0],
+[0,0,0,1,0,0,0,0],[0,0,0,0,1,0,0,0],[0,0,0,0,0,1,0,0],[0,0,0,0,0,0,1,0],
+[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,1]])
+P_speed = np.matrix([[0.1,0,0.9,0,0,0,0,0],[0.1,0,0,0.9,0,0,0,0],
+[0,0.1,0,0,0.9,0,0,0],[0,0,0.1,0,0,0.9,0,0],[0,0,0,0.1,0,0,0.9,0],
+[0,0,0,0,0.1,0,0,0.9],[0,0,0,0,0,0.1,0,0.9],[0,0,0,0,0,0,0,1]])
+P_normal = pd.DataFrame(P_normal,states,states)
+P_speed = pd.DataFrame(P_speed,states,states)
+R_s_a = np.matrix([[-1,-1,-1,-1,0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,states,["n","s"])
+
+pi_speed = np.hstack((np.repeat(0,len(states)).reshape(8,1),np.repeat(1,len(states)).reshape(8,1)))
+pi_speed = pd.DataFrame(pi_speed,states,["n","s"])
+
+pi_50 = np.hstack((np.repeat(0.5,len(states)).reshape(8,1),np.repeat(0.5,len(states)).reshape(8,1)))
+pi_50 = pd.DataFrame(pi_50,states,["n","s"])
+pi_speed.T
+pi_50.T
+```
+
+\newpage
+
+## p.11 Simulator $\pi^{speed}$
+
+```{python,echo=T,message=FALSE, warning=FALSE}
+pi = pi_speed
+history = []
+MC_N = 10000
+for MC_i in range(MC_N):
+    s_now = 0
+    history_i = []
+    while(s_now!=70):
+        if(np.random.uniform(0,1)<pi.loc[s_now]["n"]):
+            a_now="n"
+            P=P_normal
+        else:
+            a_now="s"
+            P=P_speed
+        r_now = R_s_a.loc[s_now][a_now]
+        s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(0,1))].item()
+        history_i.extend([s_now,a_now,r_now])
+        s_now = s_next
+    history.append(history_i)
+
+history_speed = history
+print(pd.DataFrame(np.matrix(history_speed[:20])).T)
+```
+
+\newpage
+
+## p.13 Simulator $\pi^{50}$
+
+```{python,echo=T,message=FALSE, warning=FALSE}
+pi = pi_50
+history = []
+MC_N = 10000
+for MC_i in range(MC_N):
+    s_now = 0
+    history_i = []
+    while(s_now!=70):
+        if(np.random.uniform(0,1)<pi.loc[s_now]["n"]):
+            a_now="n"
+            P=P_normal
+        else:
+            a_now="s"
+            P=P_speed
+        r_now = R_s_a.loc[s_now][a_now]
+        s_next = states[np.argmin(P.loc[s_now].cumsum()<np.random.uniform(0,1))].item()
+        history_i.extend([s_now,a_now,r_now])
+        s_now = s_next
+    history.append(history_i)
+
+history_50 = history
+print(pd.DataFrame(np.matrix(history_50[:20])).T)
+```
+
+\newpage
+
+## p.17 Implementation 1 $\pi^{speed}$ (vectorized)
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(states)*2))).reshape(len(states),2), index=states, columns=['count','sum'])
+pol_eval.T
+for MC_i in range(MC_N):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]['sum']+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            pol_eval.loc[history_i[j]]['sum']+=0
+print(pol_eval.T)
+pol_cal=pd.DataFrame(pol_eval['sum']/pol_eval['count'])
+print(pol_cal.T)
+```
+
+\newpage
+
+## p.19 Implementation 2 $\pi^{speed}$ (running estimate)
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(states)*2))).reshape(len(states),2), index=states, columns=['count','est'])
+pol_eval.T
+for MC_i in range(MC_N):
+    history_i=history_speed[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # update count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            new_info=0
+        
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+np.round(pol_eval.T,2)
+```
+
+\newpage
+
+## p.21 Implementation 3 $\pi^{50}$ (vectorized)
+
+```{python, echo=T}
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(states)*2))).reshape(len(states),2), index=states, columns=['count','sum'])
+pol_eval.T
+for MC_i in range(MC_N):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        pol_eval.loc[history_i[j]]['count']+=1
+        
+        if j < len(history_i) :
+            pol_eval.loc[history_i[j]]['sum']+=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            pol_eval.loc[history_i[j]]['sum']+=0
+pol_eval.T
+pol_cal=pd.DataFrame(pol_eval['sum']/pol_eval['count'])
+print(pol_cal.T)
+
+```
+
+\newpage
+
+## p.23 Implementation 4 $\pi^{50}$ (running estimate)
+
+```{python,echo=T}
+pol_eval=pd.DataFrame(np.matrix(np.zeros((len(states)*2))).reshape(len(states),2), index=states, columns=['count','est'])
+pol_eval.T
+for MC_i in range(MC_N):
+    history_i=history_50[MC_i]
+    
+    for j in range(0,len(history_i),3):
+        # increment count
+        pol_eval.loc[history_i[j]]['count']+=1
+        current_cnt=pol_eval.loc[history_i[j]]['count']
+        
+        # return is the new info
+        if j < len(history_i):
+            new_info=pd.Series(history_i)[range(j+2,len(history_i)-1,3)].astype('float').sum()
+            
+        else:
+            new_info=0
+          
+        # update the last estimate with new info    
+        alpha=1/current_cnt
+        pol_eval.loc[history_i[j]]['est']+=alpha*(new_info-pol_eval.loc[history_i[j]]['est'])
+        
+        
+np.round(pol_eval.T,2)
+```

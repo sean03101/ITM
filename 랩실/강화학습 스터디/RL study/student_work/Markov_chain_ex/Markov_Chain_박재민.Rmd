@@ -1,0 +1,53 @@
+---
+title: "Markov_chain_Example"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output: pdf_document
+
+---
+\newpage
+## Personal device prediction
+
+There is 2 big personal device maker. Apple and Samsung. Both company has their own phone and tablet products. 
+Customers can use two personal devices as the same company's products or they can mix them.
+Since using same company devices is more compatible between devices, probability of using same company device after 1 year is 0.9.
+It is uncomfortable to use phone and tablet as different company, there are more probability to make devices as same company.
+Detailed probabilities are shown in the diagram.\
+Apple's devices are slightly more expensive than Samsung, so using both Samsung products cost 100, both Apple 120, mixed 110 per year.\
+Assume that you're early adopter, you must change your phone and tablet every year.
+
+\vspace{30pt}
+
+![transition](C:/Users/HP_Omen/Downloads/pic.png){width=70%}
+
+**State space** - {S/S, A/S, S/A, A/A}\
+**Reward** - {-100,-110,-110,-120}\
+**Transition Matrix**
+\begin{equation}
+  P=
+  \begin{pmatrix}
+    0.9&0.03&0.05&0.02
+    \\0.3&0.1&0&0.6
+    \\0.5&0&0.1&0.4
+    \\0.01&0.06&0.03&0.9
+  \end{pmatrix}
+\end{equation}
+\vspace{30pt}
+
+\newpage
+
+### Questions
+1. If I'm using Samsung phone and tablet, after 10 years, what is the probability of using both Apple devices?
+
+\vspace{10pt}
+
+2. If I'm using Apple phone and tablet, How much on average I spend on personal device for 20 years?
+
+\vspace{10pt}
+
+3. What is satationary distribution?
+
+
+```{r,echo=F,eval=F}
+"AA"
+```

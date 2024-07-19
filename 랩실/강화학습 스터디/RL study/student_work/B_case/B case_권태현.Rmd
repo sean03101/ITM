@@ -1,0 +1,102 @@
+---
+title: "B case"
+author: "Tae Hyeon Kwon, undergrad(ITM)"
+date: '`r Sys.Date()`'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Newsvendor Case
+
+*Samsung electronics will present galaxy S30 in 2021. The company expect demand follows U(4000,8000).the opening price is $1500. Then the company worry about that choosing factory for produce S30. In China factory, labor cost is $10 per unit and They're shipping the product by ship. One box has packing 100 unit and cost is $30 per one packing. If the stock was to remain in the box the shipping cost is $0.5 per unit.In Vietnam factory, labor cost is $6 per unit. And shipping cost is $45. Remain product shipping cost is $0.9 per unit. Material cost is $300 each of them. They sell the part of S30's leftover and the value is $150. Choose the efficiency factory to produce Galaxy S30.*
+
+
+
+
+
+\newpage
+#China Factory
+```{r}
+
+try_X <- seq(from = 4000, to = 8000, by = 1)
+exp_profits <- NULL
+  
+for(X in try_X){
+  set.seed(1234)
+  D <- runif(n=10000, min= 4000, max=8000)
+  sales_rev <- 1500*pmin(D,X)
+  salvage_rev <- 150*pmax(X-D,0)
+  material_cost <- 300*X
+  labor_cost <- 10*X
+  shipping_cost <- 30*(X%/%100)
+  shipping_remain_cost <- 0.5*(X%%100)
+  exp_profit <- mean(sales_rev + salvage_rev - material_cost - labor_cost - shipping_cost -shipping_remain_cost)
+  exp_profits <- c(exp_profits, exp_profit)
+}
+
+
+
+  
+result <- data.frame(try_X, exp_profits)
+idx <- which(exp_profits==max(exp_profits))
+
+print ('optimal stock')
+
+try_X[idx]
+
+print ('expected profits')
+
+exp_profits[idx]
+
+
+
+
+
+
+```
+
+
+
+\newpage 
+
+#Vietnam Factory
+```{r}
+
+try_X <- seq(from = 4000, to = 8000, by = 1)
+exp_profits <- NULL
+  
+for(X in try_X){
+  set.seed(1234)
+  D <- runif(n=10000, min= 4000, max=8000)
+  sales_rev <- 1500*pmin(D,X)
+  salvage_rev <- 150*pmax(X-D,0)
+  material_cost <- 300*X
+  labor_cost <- 6*X
+  shipping_cost <- 45*(X%/%100)
+  shipping_remain_cost <- 0.9*(X%%100)
+  exp_profit <- mean(sales_rev + salvage_rev - material_cost - labor_cost - shipping_cost -shipping_remain_cost)
+  exp_profits <- c(exp_profits, exp_profit)
+}
+
+
+
+  
+result <- data.frame(try_X, exp_profits)
+idx <- which(exp_profits==max(exp_profits))
+
+print ('optimal stock')
+
+try_X[idx]
+
+print('expected profits')
+
+exp_profits[idx]
+
+
+
+```
+\vspace{20pt}
+*So, choosing Vietnam Factory is more efficiency*

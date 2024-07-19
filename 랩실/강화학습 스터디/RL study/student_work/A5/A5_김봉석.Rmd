@@ -1,0 +1,123 @@
+---
+title: "Lecture A5. Simulation 2"  
+author: "Bong Seok Kim"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+```
+
+## Exercise 1
+
+Using ruinf() function in R, complete the following code block that generates 1,000 random numbers that follow $exp(3)$
+
+```{r, echo=TRUE}
+N<-1000
+u<-runif(N)
+x<-(-log(1-u)/3)
+head(x)
+```
+
+## in python
+
+```{python, echo=TRUE}
+import numpy as np
+N=1000
+u=np.random.uniform(size=N)
+x=((-np.log(1-u))/3)
+print(x[0:6])
+```
+
+
+## Various random numbers, Uniform random numbers p.15
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+import numpy as np
+
+x=np.random.uniform(size=1000, low=-1,high=1)
+
+plt.hist(x, rwidth=0.9)
+plt.xlabel("x")
+plt.ylabel("Frequency")
+plt.title("Histogram of X")
+
+
+
+```
+
+## Various random numbers, Normal random numbers p.16
+
+```{python, echo=TRUE}
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+x=np.random.normal(size=1000, loc=3, scale=2) # loc = mean , scale =sd
+
+plt.hist(x, rwidth=0.9)
+plt.xlabel("x")
+plt.ylabel("Frequency")
+plt.title("Histogram of X")
+
+```
+
+## Various random numbers, Exponential random numbers p.17
+
+```{python,echo=TRUE}
+import matplotlib.pyplot as plt
+import numpy as np
+
+x=np.random.exponential(size=10000,scale=1/5) # meaning lambda=5
+
+plt.hist(x,rwidth=0.9,bins=20)
+plt.xlabel("x")
+plt.ylabel("Frequency")
+plt.title("Histogram of X")
+
+
+```
+
+
+## Various random numbers, Poisson random numbers p.18
+
+```{python, echo=TRUE}
+import matplotlib.pyplot as plt
+import numpy as np
+
+x=np.random.poisson(size=10000,lam=5) # meaning lambda=5
+
+plt.hist(x,rwidth=0.9,bins=15)
+plt.xlabel("x")
+plt.ylabel("Frequency")
+plt.title("Histogram of X")
+```
+
+
+```{r message=FALSE, warning=FALSE, paged.print=TRUE}
+"Done, Lecture A5. Simulation 2 "
+```

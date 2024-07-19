@@ -1,0 +1,134 @@
+---
+title: "C2_python"  
+author: "Son Min Sang"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+
+
+```
+
+
+\newpage
+## page 12
+
+```{python, echo=TRUE}
+import numpy as np
+P=np.array([[0.7, 0.3],[0.5, 0.5]])
+print(P)
+```
+
+```{python, echo=TRUE}
+egien_value, egien_vector = np.linalg.eig(P.T) # eigen-decomposition for P^t 
+print(egien_value)
+print(egien_vector)
+```
+
+
+```{python, echo=TRUE}
+x_1=egien_vector[:,0]
+print(x_1)
+```
+
+```{python, echo,TRUE}
+v=x_1/np.sum(x_1)
+print(v)
+```
+
+\newpage
+
+## page 15
+
+```{python, echo=TRUE}
+import numpy as np
+P=np.array([[0.7, 0.3],[0.5, 0.5]])
+n=len(P) # n=|S|
+I=np.identity(n) # identity matrix 
+A=np.c_[P-I,np.repeat(1,n)]
+b=np.append(np.repeat(0,n), np.array(1))
+print(A)
+```
+
+
+```{python, echo=TRUE}
+print(b)
+```
+
+
+```{python, echo=TRUE}
+v=np.linalg.solve(np.dot(A,A.T),np.dot(A,b.T))
+print(v)
+```
+
+
+
+## page 17
+
+```{python,echo=TRUE}
+from numpy.linalg import matrix_power # provides matrix pwoer
+P=np.array([[0.7, 0.3],[0.5, 0.5]])
+print(P)
+```
+
+
+```{python,echo=TRUE}
+print(np.dot(P,P)) # matrix multiplication
+```
+
+
+```{python,echo=TRUE}
+print(matrix_power(P,3))
+```
+
+
+```{python,echo=TRUE}
+print(matrix_power(P,4))
+```
+
+
+```{python,echo=TRUE}
+print(matrix_power(P,20))
+```
+
+
+## page 19
+
+
+```{python,echo=TRUE}
+from numpy.linalg import matrix_power
+P=np.array([[0,1],[1,0]])
+print(P)
+```
+
+
+```{python,echo=TRUE}
+print(matrix_power(P,2))
+```
+
+
+
+```{python,echo=TRUE}
+print(matrix_power(P,3))
+```
+
+
+

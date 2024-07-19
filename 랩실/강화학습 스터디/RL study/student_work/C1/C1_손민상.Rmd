@@ -1,0 +1,78 @@
+---
+title: "C1_python"
+author: "Son Min Sang"
+date:  "`r Sys.Date()`"  
+output:   
+  pdf_document:  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+     in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    # ]
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(background = '718CBA')
+library(reticulate)
+py_install("scipy")
+```
+
+\newpage
+## page 25
+```{python, echo = TRUE}
+import numpy as np
+
+def soda_simul(this_state):
+  u=np.random.rand(1)
+  if (this_state == "c"):
+    if(u<=0.7):
+      next_state = "c"
+    else:
+      next_state = "p"
+  else:
+    if(u<=0.5):
+      next_state = "c"
+    else:
+      next_state = "p"
+  return next_state
+for i in range(5):
+  path ="c"
+  for i in range (9):
+    this_state=path[-1]
+    next_state=soda_simul(this_state)
+    path=path+next_state
+
+  print(path)
+```
+
+
+\newpage
+## page 26
+```{python, echo = TRUE}
+def cost_eval(path):
+    cost_one_path=path.count("c")*1.5+path.count("p")*1
+    return cost_one_path
+
+MC_N=100000
+spending_records=np.arange(0,MC_N)
+for i in range(MC_N):
+    path="c"
+    for t in range (9):
+        this_state = path[-1]
+        next_state = soda_simul(this_state)
+        path=path+next_state
+    spending_records[i]=cost_eval(path)
+
+print(np.mean(spending_records))
+```
+

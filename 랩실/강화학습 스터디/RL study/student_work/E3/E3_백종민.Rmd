@@ -1,0 +1,170 @@
+---
+title: "Lecture E1. MDP with Model 1"  
+author: "Baek, Jong min"  
+date: "`r Sys.Date()`"  
+output:   
+  pdf_document:
+    fig_caption: false  
+    latex_engine: xelatex
+    highlight: haddock  
+    keep_tex: true  
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    # pandoc_args: [
+    #  "-V", "classoption=twocolumn"
+    toc: true   
+    toc_depth: 2  
+    # number_sections: true  
+monofont: Consolas
+smaller: yes
+classoption: a4paper
+---
+```{r setup, include=FALSE}
+library(rmarkdown)
+library(reticulate)
+matplotlib <- import("matplotlib")
+matplotlib$use("Agg", force = TRUE)
+knitr::opts_chunk$set(echo = TRUE) # 코드를 보여준다.
+knitr::opts_chunk$set(background = '718CBA')  # ??
+```
+
+```{python, include=FALSE}
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+```
+
+\newpage
+## Preparation(page 7)
+```{python}
+gamma = 1
+states = np.arange(0,80,10)
+p_normal = pd.DataFrame(np.array([
+0,1,0,0,0,0,0,0,
+0,0,1,0,0,0,0,0,
+0,0,0,1,0,0,0,0,
+0,0,0,0,1,0,0,0,
+0,0,0,0,0,1,0,0,
+0,0,0,0,0,0,1,0,
+0,0,0,0,0,0,0,1,
+0,0,0,0,0,0,0,1
+]).reshape(8,8),index=states, columns=states)
+p_speed = pd.DataFrame(np.array([
+.1,0,.9,0,0,0,0,0,
+.1,0,0,.9,0,0,0,0,
+0,.1,0,0,.9,0,0,0,
+0,0,.1,0,0,.9,0,0,
+0,0,0,.1,0,0,.9,0,
+0,0,0,0,.1,0,0,.9,
+0,0,0,0,0,.1,0,.9,
+0,0,0,0,0,0,0,1,
+]).reshape(8,8),index=states, columns=states)
+R_s_a = np.array([[-1,-1,-1,-1,0.0,-1,-1,0],[-1.5,-1.5,-1.5,-1.5,-0.5,-1.5,-1.5,0]]).T
+R_s_a = pd.DataFrame(R_s_a,columns=['normal','speed'],index=[states])
+```
+
+## Implementation(page 8)
+```{python}
+# 1.Initialize V
+V_old = pd.DataFrame(np.zeros(shape=(len(states),1)),index=[states])
+print(V_old.T)
+# 2.Evaluate the Q-function
+q_s_a = R_s_a + np.c_[np.dot(gamma*p_normal,V_old),np.dot(gamma*p_normal,V_old)]
+print(q_s_a)
+# 3.Find the best action for each state
+V_new=np.array([q_s_a.apply(max,axis=1)]).reshape(len(states),1)
+print(V_new.T)
+```
+\newpage
+## Implementation(page 11)
+```{python}
+cnt = 0
+epsilon= 10**(-8)
+V_old = pd.DataFrame(np.zeros(shape=(len(states),1)),index=[states])
+results = V_old.T
+
+while True :
+  q_s_a = R_s_a + np.c_[np.dot(gamma*p_normal,V_old),np.dot(gamma*p_speed,V_old)]
+  V_new=np.array([q_s_a.apply(max,axis=1)]).reshape(len(states),1)
+  if np.max(np.abs(V_new-V_old)).item() < epsilon : 
+    break
+  results = np.vstack([results,V_new.T])
+  V_old = V_new
+  cnt = cnt+1
+```
+
+```{python}
+results = pd.DataFrame(results,columns=states)
+value_iter_process = results
+print(results.head())
+print(results.tail())
+``` 
+\newpage
+## Visualization
+
+```{python}
+fig1=results[results.index < 6]
+fig2=results[(results.index >= 7)&(results.index < 12)]
+fig3=results[(results.index >= 13)&(results.index < 18)]
+```
+
+```{python}
+plt.plot(fig1.T,marker='o')
+plt.legend(fig1.columns,title='states')
+plt.grid(True)
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 1 to 6')
+plt.show()
+```
+
+\newpage
+```{python}
+plt.plot(fig2.T,marker='o')
+plt.legend(fig1.columns,title='states')
+plt.grid(True)
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 7 to 12')
+plt.show()
+```
+
+```{python}
+plt.plot(fig3.T,marker='o')
+plt.legend(fig1.columns,title='states')
+plt.grid(True)
+plt.xlabel('state')
+plt.ylabel('value_fn')
+plt.title('Iteration from 13 to 18')
+plt.show()
+```
+
+\newpage
+## Optimal policy
+```{python}
+V_opt = value_iter_process.tail(1).T
+print(V_opt.T)
+```
+
+```{python}
+# It is corresponding optimal policy?
+q_s_a = R_s_a + np.c_[np.dot(gamma*p_normal,V_old),np.dot(gamma*p_speed,V_old)]
+print(q_s_a)
+pi_opt_vec=pd.DataFrame(q_s_a.apply(np.argmax,axis=1))
+print(pi_opt_vec.T)
+```
+
+```{python}
+# You may stop here, or transform pi_opt_vec into a matrix form as below
+pi_opt = pd.DataFrame(np.zeros(shape=(len(states),2)),columns=['normal','speed'],index=states)
+for i in range(len(pi_opt_vec)):
+  pi_opt.iloc[i,pi_opt_vec.iloc[i]] = 1
+print(pi_opt.T)
+```
+
+\newpage
+E3.Rmd
+```{r}
+"Hello"
+```
+

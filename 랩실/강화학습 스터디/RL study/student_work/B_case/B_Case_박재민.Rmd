@@ -1,0 +1,108 @@
+---
+title: "B_Case question"
+author: "Jaemin Park"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    latex_engine: xelatex
+    highlight: haddock
+    keep_tex: yes
+    includes:
+      in_header: rmd-pdf-support/latex-topmatter.tex
+    toc: yes
+    toc_depth: 2
+  word_document:
+    toc: yes
+    toc_depth: '2'
+  html_document:
+    toc: yes
+    toc_depth: '2'
+    df_print: paged
+smaller: yes
+classoption: a4paper
+---
+\newpage
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(background = '718CBA')  
+```
+
+# Question
+### Newsvendor Model applied problem
+
+Due to COVID-19, demand for KF94 masks has exploded. You thought that mask business has potential, you decided to start a mask sales business.\
+You can choose 2 options for supply contract from mask factory.\
+First is usual method. You buy masks for 200won per sheet from factory and sell for 300won. Salvage value is 50won per sheet. Second method is sharing profit with supplier. By this method, you can get mask from factory for 100won per sheet, but you have to pay 25% of the profit to the factory. Selling price and salvage value are same as before. 300won and 50won per sheet.\
+Note that you sell masks to customers in sets, not individually. There are 10 masks in 1 set. The mask set demand follows $\mathbb{U}$(1000,2000). Calculate optimal stock and expected profit for each options.
+
+**1. Usual method**\
+$\textbf{1) Finding optimal stock}$\
+$C_o$=(Material Cost - Salvage Price)=$(200-50)=150$\
+$C_u$=(Retail Price - Material Cost)=300-200=100\
+optimal stock = smallest Y that matches F(Y) = $\frac{c_u}{c_o+c_u}$\
+$F(Y) = \frac{100}{100+150}$\
+$F(Y) = \frac{2}{5}$\
+\normalsize
+\begin{equation*}
+  f(x) =
+  \begin{cases}
+        \frac{1}{1000} & \text{when $1000 \leq\ x\ \leq\ 2000$} \\
+        0           & \text{otherwise} 
+  \end{cases}
+\end{equation*}\
+\begin{equation*}
+  F(x) =
+  \begin{cases}
+        0           & \text{when $x\ \leq 1000$}\\
+        \frac{x}{1000} -1 & \text{when $1000 \leq\ x\ \leq\ 2000$} \\
+        1           & \text{when $x\ \geq 2000$} 
+  \end{cases}
+\end{equation*}\
+$\therefore\ $ Optimal Stock = 1400\
+
+$\textbf{2) Expected Revenue}$\
+$\mathbb{E}[Profit]=\mathbb{E}(Sale\ Rev.)+\mathbb{E}(salvage\ Rev.)-\mathbb{E}(material\ Cost)$\
+=$\mathbb{E}[3000·(D∧Y)]+\mathbb{E}[500·(Y-D)^{+}]-Y·2000$\
+$\mathbb{E}[sale\ rev.] = \mathbb{E}[y\wedge\ 1400] \times3000 \\ = 3000\times(\int_{1000}^{1400} \frac{1}{1000}y\,dy\ +\int_{1400}^{2000} 1400\times{\frac{1}{1000}}\,dy\ )$\
+$\mathbb{E}[salvage\ rev.] = \mathbb{E}[ (1400-y)^+]\times 500 =500\times(\int_{1000}^{1400} \frac{1}{1000}(1400-y)\,dy)$\
+$\mathbb{E}[material\ cost] = 1400 \times 2000$\
+$\mathbb{E}[sale\ rev.] = 3,960,000,\ \mathbb{E}[salvage\ rev.] = 40,000,\ \mathbb{E}[material\ cost]\ = 2,800,000$\
+
+$\therefore$ Expected Profit = 1,200,000 won
+
+**2. Sharing profit**\
+$\textbf{1) Finding optimal stock}$\
+$C_o$=(Material Cost - Salvage Price)=$(100-50)=50$\
+$C_u$=(Retail Price - Material Cost - profit share)=300-100-(200*0.25)=150\
+optimal stock = smallest Y that matches F(Y) = $\frac{c_u}{c_o+c_u}$\
+$F(Y) = \frac{150}{50+150}$\
+$F(Y) = \frac{3}{4}$\
+
+$\therefore\ $ Optimal Stock = 1750\
+
+$\textbf{2) Expected Revenue}$\
+$\mathbb{E}[Profit]=\mathbb{E}(Sale\ Rev.)+\mathbb{E}(salvage\ Rev.)-\mathbb{E}(material\ Cost) - \mathbb{E}(profit\ share\ cost)$
+=$\mathbb{E}[3000·(D∧Y)]+\mathbb{E}[500·(Y-D)^{+}]-Y·1000-\mathbb{E}[\frac{1}{4}(3000-1000)·(D∧Y)]$\
+$\mathbb{E}[sale\ rev.] = \mathbb{E}[y\wedge\ 1750] \times3000 \\ = 3000\times(\int_{1000}^{1750} \frac{1}{1000}y\,dy\ +\int_{1750}^{2000} 1750\times{\frac{1}{1000}}\,dy\ )$\
+$\mathbb{E}[salvage\ rev.] = \mathbb{E}[ (1750-y)^+]\times \\ =500\times(\int_{1000}^{1750} \frac{1}{1000}(1750-y)\,dy)$\
+$\mathbb{E}[material\ cost] = 1750 \times 1000$\
+$\mathbb{E}[profit\ share\ cost] = \mathbb{E}[y\wedge\ 1750] \times500 \\ = 500\times(\int_{1000}^{1750} \frac{1}{1000}y\,dy\ +\int_{1750}^{2000} 1750\times{\frac{1}{1000}}\,dy\ )$\
+$\mathbb{E}[sale\ rev.] = 4,406,250,\ \mathbb{E}[salvage\ rev.] = 140,625,\ \\ \mathbb{E}[material\ cost]\ = 1,750,000,\ \mathbb{E}[profit\ share\ cost]\ = 734,375$\
+
+$\therefore$ Expected Profit = 2,062,500 won
+
+
+
+
+
+
+
+
+
+\newpage
+
+```{r, results='hide'}
+"Man can learn nothing unless he proceeds from the known to the unknown. - Claude Bernard"
+```
+
