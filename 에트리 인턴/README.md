@@ -96,8 +96,8 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 
 ## 그외 기타
 ![KakaoTalk_20240719_204443428_01](https://github.com/user-attachments/assets/f1d44b5f-3cce-4720-b025-92567e0683ec)
-sdsd
+모션 캡처 시스템(Motion Capture System)을 사용해 무릎 관절 이상 판단 실험 보조
 
 
 ![KakaoTalk_20240719_204443428_02](https://github.com/user-attachments/assets/d85d04b0-0287-4836-ace4-27afa3b29c80)
-ㄴㅇㄴ
+카메라를 통해 사용자를 추적하여, 자동으로 운동량 측정하는 프로그램 제작 보조 
