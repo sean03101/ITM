@@ -1,4 +1,4 @@
-# 에트리 2021 하계 연수(21.07 ~ 08)
+![image](https://github.com/user-attachments/assets/6f409466-e85f-4167-9210-f51b88b6b9fd)# 에트리 2021 하계 연수(21.07 ~ 08)
 
 
 ## 스마트 병영 프로젝트 
@@ -47,6 +47,9 @@
 
 ### TITT(TDOA image based target tracking)
 
+TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀이로 인해 높은 위치 불확실성 발생
+<br>
+-> TDOA 측정값을 TDOA 이미지로 변환하여, CNN 모델을 통해 TDOA 오류가 추정 결과에 미치는 영향을 축소
 ![image](https://github.com/user-attachments/assets/755e052d-6750-4a9e-8ca9-8b9b44cbed1c)
 
 
