@@ -29,11 +29,25 @@
 *    CCU (Central Computing Unit)로 사용할 컴퓨터와 앵커와 태그 동기화
 *    요구 사항에 맞게 앵커 4개 사이에 통신을 방해할 각종 장애물 설치  
 
-### 데이터 보정 알고리즘 실험 진행
+### 측정 좌표 보정 알고리즘 실험 진행
 ![image](https://github.com/user-attachments/assets/86eaa471-9b33-477c-8901-852d8a80e3d8)
 
-ㄴㅇㄴㅇ
-ㄴㅇㄴㅇ
+*    타겟의 위치 좌표를 보정해주는 다양한 알고리즘(Naïve Bayes, Clustering 등) 활용
+*    알고리즘들을 활용하여 보정된 타겟의 위치 좌표 로그 데이터들을 생성
+
+### 이론 기반 측정 좌표 보정 알고리즘 실험 결과
+![image](https://github.com/user-attachments/assets/4417e4a5-64de-4ea1-8d1a-6a432703e3ae)
+※ 귀무 : 해당 좌표 값들의 평균은 타겟이 원운동을 했던 중심 좌표이다
+
+*    오차 원인 : TDOA 보정 알고리즘에 상관없이 기기의 오차에 대해 민감하게 반응!
+*    극복 방안 : 넓은 공간에서 수행 or 기계의 태생적 오류 극복
+
+### TITT(TDOA image based target tracking)
+
+![image](https://github.com/user-attachments/assets/755e052d-6750-4a9e-8ca9-8b9b44cbed1c)
+
+
+
 
 
 ## 군용 시나리오 제작 & 분석
