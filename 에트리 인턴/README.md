@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/5e844769-ba30-4370-b127-a62cf81996b8)# 에트리 2021 하계 연수(21.07 ~ 08)
+# 에트리 2021 하계 연수(21.07 ~ 08)
 
 
 ## 스마트 병영 프로젝트 
