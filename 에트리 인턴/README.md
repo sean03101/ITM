@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/6f409466-e85f-4167-9210-f51b88b6b9fd)# 에트리 2021 하계 연수(21.07 ~ 08)
+# 에트리 2021 하계 연수(21.07 ~ 08)
 
 
 ## 스마트 병영 프로젝트 
@@ -55,7 +55,8 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 ### TITT 알고리즘 검증 실험
 
 ![image](https://github.com/user-attachments/assets/28bc6cf2-e587-489d-a6ad-19df827c2098)
-ㄴㅇㄴㅇㄴㅇ
+<br>
+실험 결과, 
 
 
 ## 군용 시나리오 제작 & 분석
