@@ -56,7 +56,13 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 
 ![image](https://github.com/user-attachments/assets/28bc6cf2-e587-489d-a6ad-19df827c2098)
 <br>
-실험 결과, 
+실험 결과 장애물이 많은 환경에서 두 모델이 비슷한 기술적 통계를 보이지만, FCNNs 모델의 경우 이상치(Outlier)를 많이 포함
+<br>
+-> 제안하는 알고리즘을 통해 학습한 모델은 강건한(Robust)한 특성을 가지고 있음
+
+### ICTC 2021 논문 투고
+![image](https://github.com/user-attachments/assets/99fca618-45ee-4912-aa37-62ba56d09cd8)
+<br>
 
 
 ## 군용 시나리오 제작 & 분석
