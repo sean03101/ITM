@@ -69,7 +69,21 @@ TDOA 측정을 위한 시간 감산 연산 및 복잡한 비선형 방정식 풀
 
 ![KakaoTalk_20240719_204443428_03](https://github.com/user-attachments/assets/010a25b9-124c-4e62-bf3d-88c760fe1875)
 
+*    요구사항 : VT-MAK 프로그램 분석을 통해 AI 부관 학습을 위한 다양한 군용 시나리오 제작, 메타 데이터 분석 및 데이터 구축 매뉴얼 작성
+*    목표 : 정해진 병력으로 분대를 구성하고 적에 대항하는 시나리오 및 데이터 생성
+*    계획
+      *    시뮬레이터 환경 구축
+      *    각 entity (객체, 환경) 속성 & 객체들 간상호작용 분석
+      *    주어진 상황에서 시나리오 제작
 
+### VT-MAK 프로그램 분석
+![image](https://github.com/user-attachments/assets/2c17c70a-f599-46e9-b27d-b3d8a2f5ae84)
+<br>
+![image](https://github.com/user-attachments/assets/1ccdac11-0013-4a0a-b16c-b66119709722)
+<br>
+![image](https://github.com/user-attachments/assets/8116a21e-9e1c-4854-84aa-2bdd51c4bcc5)
+<br>
+![image](https://github.com/user-attachments/assets/d018a31a-1e97-4b16-8cc4-23ee88e58a47)
 
 
 ### 그외 기타
